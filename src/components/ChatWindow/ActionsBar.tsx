@@ -122,7 +122,7 @@ export const ActionsBar: React.FC = () => {
       </div>
 
       {/* Status, Priority, and Expand controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 flex-wrap">
         {/* Expand/collapse button (desktop only) */}
         {!isMobile && (
           <Button
@@ -137,32 +137,36 @@ export const ActionsBar: React.FC = () => {
         )}
         {/* Status selector */}
         <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isStatusLoading}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className={`${isMobile ? 'w-24' : 'w-36'} text-xs sm:text-sm`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="open">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
-                Aberta
+                <span className="hidden sm:inline">Aberta</span>
+                <span className="sm:hidden">Aberta</span>
               </div>
             </SelectItem>
             <SelectItem value="pending">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Pendente
+                <span className="hidden sm:inline">Pendente</span>
+                <span className="sm:hidden">Pend.</span>
               </div>
             </SelectItem>
             <SelectItem value="snoozed">
               <div className="flex items-center gap-2">
                 <Pause className="h-4 w-4" />
-                Adiada
+                <span className="hidden sm:inline">Adiada</span>
+                <span className="sm:hidden">Adiada</span>
               </div>
             </SelectItem>
             <SelectItem value="resolved">
               <div className="flex items-center gap-2">
                 <Archive className="h-4 w-4" />
-                Resolvida
+                <span className="hidden sm:inline">Resolvida</span>
+                <span className="sm:hidden">Resol.</span>
               </div>
             </SelectItem>
           </SelectContent>
@@ -170,38 +174,43 @@ export const ActionsBar: React.FC = () => {
 
         {/* Priority selector */}
         <Select value={currentPriority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
-          <SelectTrigger className="w-36">
+          <SelectTrigger className={`${isMobile ? 'w-24' : 'w-36'} text-xs sm:text-sm`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">
               <div className="flex items-center gap-2">
                 <Minus className="h-4 w-4 text-muted-foreground" />
-                Nenhuma
+                <span className="hidden sm:inline">Nenhuma</span>
+                <span className="sm:hidden">Nenhuma</span>
               </div>
             </SelectItem>
             <SelectItem value="urgent">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-red-500" />
-                Urgente
+                <span className="hidden sm:inline">Urgente</span>
+                <span className="sm:hidden">Urg.</span>
               </div>
             </SelectItem>
             <SelectItem value="high">
               <div className="flex items-center gap-2">
                 <ArrowUp className="h-4 w-4 text-orange-500" />
-                Alta
+                <span className="hidden sm:inline">Alta</span>
+                <span className="sm:hidden">Alta</span>
               </div>
             </SelectItem>
             <SelectItem value="medium">
               <div className="flex items-center gap-2">
                 <Minus className="h-4 w-4 text-yellow-500" />
-                Média
+                <span className="hidden sm:inline">Média</span>
+                <span className="sm:hidden">Méd.</span>
               </div>
             </SelectItem>
             <SelectItem value="low">
               <div className="flex items-center gap-2">
                 <ArrowDown className="h-4 w-4 text-green-500" />
-                Baixa
+                <span className="hidden sm:inline">Baixa</span>
+                <span className="sm:hidden">Baixa</span>
               </div>
             </SelectItem>
           </SelectContent>
@@ -214,12 +223,13 @@ export const ActionsBar: React.FC = () => {
               variant="outline"
               size="sm"
               disabled={isLabelsLoading}
-              className="flex items-center gap-2 h-8"
+              className={`flex items-center gap-1 sm:gap-2 h-8 ${isMobile ? 'px-2' : 'px-3'}`}
             >
               <Tags className="h-4 w-4" />
-              <span>Labels</span>
+              <span className="hidden sm:inline">Labels</span>
+              <span className="sm:hidden text-xs">Tags</span>
               {selectedConversation.labels?.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
+                <Badge variant="secondary" className="ml-0.5 sm:ml-1 h-3 sm:h-4 px-1 text-[10px] sm:text-xs">
                   {selectedConversation.labels.length}
                 </Badge>
               )}
