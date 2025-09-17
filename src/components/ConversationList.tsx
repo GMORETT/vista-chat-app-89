@@ -1,47 +1,149 @@
-import React from 'react';
-import { useConversations } from '../hooks/useConversations';
+import React, { useMemo } from 'react';
 import { useConversationStore } from '../state/conversationStore';
 import { ConversationItem } from './ConversationItem';
+import { Virtuoso } from 'react-virtuoso';
+import { mockConversations } from '../data/mockData';
+import { Skeleton } from './ui/skeleton';
 
 interface ConversationListProps {
   height: number;
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({ height }) => {
-  const { conversations, isLoading } = useConversations();
-  const { selectedConversationId, setSelectedConversation } = useConversationStore();
+  const { selectedConversationId, setSelectedConversation, filters, searchQuery } = useConversationStore();
+
+  // Filter and sort conversations based on current filters
+  const filteredConversations = useMemo(() => {
+    let filtered = [...mockConversations];
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(conv => 
+        conv.meta.sender.name?.toLowerCase().includes(query) ||
+        conv.meta.sender.email?.toLowerCase().includes(query) ||
+        conv.id.toString().includes(query)
+      );
+    }
+
+    // Filter by assignee type
+    if (filters.assignee_type !== 'all') {
+      switch (filters.assignee_type) {
+        case 'me':
+          filtered = filtered.filter(conv => conv.assignee_id === 1); // Assume current user ID = 1
+          break;
+        case 'assigned':
+          filtered = filtered.filter(conv => conv.assignee_id !== null);
+          break;
+        case 'unassigned':
+          filtered = filtered.filter(conv => conv.assignee_id === null);
+          break;
+      }
+    }
+
+    // Filter by status
+    if (filters.status !== 'all') {
+      filtered = filtered.filter(conv => conv.status === filters.status);
+    }
+
+    // Sort conversations
+    filtered.sort((a, b) => {
+      switch (filters.sort_by) {
+        case 'last_activity_at_desc':
+          return b.last_activity_at - a.last_activity_at;
+        case 'last_activity_at_asc':
+          return a.last_activity_at - b.last_activity_at;
+        case 'created_at_desc':
+          return b.created_at - a.created_at;
+        case 'created_at_asc':
+          return a.created_at - b.created_at;
+        case 'priority_desc':
+          const priorityOrder = { 'urgent': 4, 'high': 3, 'medium': 2, 'low': 1 };
+          return (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - 
+                 (priorityOrder[a.priority as keyof typeof priorityOrder] || 0);
+        case 'priority_asc':
+          const priorityOrderAsc = { 'urgent': 4, 'high': 3, 'medium': 2, 'low': 1 };
+          return (priorityOrderAsc[a.priority as keyof typeof priorityOrderAsc] || 0) - 
+                 (priorityOrderAsc[b.priority as keyof typeof priorityOrderAsc] || 0);
+        default:
+          return b.last_activity_at - a.last_activity_at;
+      }
+    });
+
+    return filtered;
+  }, [filters, searchQuery]);
 
   const handleConversationSelect = (id: number) => {
     setSelectedConversation(id);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // Loading skeleton
+  const LoadingSkeleton = () => (
+    <div className="p-4 space-y-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex items-start gap-3">
+          <Skeleton className="w-10 h-10 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <div className="flex justify-between">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-5 w-8" />
+            </div>
+            <Skeleton className="h-3 w-48" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
-  if (conversations.length === 0) {
+  // Empty state
+  if (filteredConversations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-muted">
-        <div className="text-lg font-heading mb-2">Nenhuma conversa encontrada</div>
-        <div className="text-sm">Tente ajustar os filtros ou verificar mais tarde</div>
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+          <div className="text-2xl">💬</div>
+        </div>
+        <div className="text-lg font-heading text-foreground mb-2">
+          {searchQuery ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa'}
+        </div>
+        <div className="text-sm text-muted-foreground max-w-md">
+          {searchQuery 
+            ? 'Tente ajustar sua busca ou limpar os filtros para ver mais conversas'
+            : 'As conversas aparecerão aqui quando clientes entrarem em contato'
+          }
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-y-auto" style={{ height }}>
-      {conversations.map((conversation) => (
-        <ConversationItem
-          key={conversation.id}
-          conversation={conversation}
-          isSelected={conversation.id === selectedConversationId}
-          onClick={() => handleConversationSelect(conversation.id)}
-        />
-      ))}
+    <div style={{ height }}>
+      <Virtuoso
+        data={filteredConversations}
+        itemContent={(index, conversation) => (
+          <ConversationItem
+            key={conversation.id}
+            conversation={conversation}
+            isSelected={conversation.id === selectedConversationId}
+            onClick={() => handleConversationSelect(conversation.id)}
+            index={index}
+          />
+        )}
+        className="conversation-list"
+        components={{
+          EmptyPlaceholder: () => (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center text-muted-foreground">
+                <div className="text-4xl mb-2">📭</div>
+                <div>Nenhuma conversa encontrada</div>
+              </div>
+            </div>
+          )
+        }}
+      />
     </div>
   );
 };
