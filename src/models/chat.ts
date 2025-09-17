@@ -193,10 +193,8 @@ export interface SendMessageRequest {
 }
 
 export interface SendFileRequest {
+  files: File[];
   content?: string;
-  message_type?: MessageType;
-  private?: boolean;
-  attachments: File[];
 }
 
 export interface UpdateStatusRequest {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useConversationStore } from '../../state/conversationStore';
 import { useConversations } from '../../hooks/useConversations';
+import { useChatStore } from '../../state/useChatStore';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { 
@@ -19,25 +20,19 @@ import { Badge } from '../ui/badge';
 
 export const ActionsBar: React.FC = () => {
   const { selectedConversation } = useConversationStore();
-  const { toggleStatus, togglePriority } = useConversations();
+  const { filters } = useChatStore();
+  const { toggleStatus, togglePriority } = useConversations(filters);
 
   if (!selectedConversation) {
     return null;
   }
 
   const handleStatusChange = (status: string) => {
-    toggleStatus({ 
-      id: selectedConversation.id, 
-      status,
-      snoozed_until: status === 'snoozed' ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : undefined
-    });
+    toggleStatus(selectedConversation.id, status as any);
   };
 
   const handlePriorityChange = (priority: string) => {
-    togglePriority({ 
-      id: selectedConversation.id, 
-      priority 
-    });
+    togglePriority(selectedConversation.id, priority === 'none' ? null : priority as any);
   };
 
   const getStatusIcon = (status: string) => {
