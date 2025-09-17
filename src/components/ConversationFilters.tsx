@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 import { AssignType, StatusType, SortBy } from '../models';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
@@ -9,7 +9,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
 export const ConversationFilters: React.FC = () => {
-  const { filters, searchQuery, setFilters, setSearchQuery } = useConversationStore();
+  const { filters, searchQuery, setFilters, setSearchQuery } = useChatStore();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
   const [selectedLabels, setSelectedLabels] = useState<number[]>([]);
 
@@ -86,8 +86,7 @@ export const ConversationFilters: React.FC = () => {
     setFilters({
       assignee_type: 'all',
       status: 'open',
-      sort_by: 'last_activity_at_desc',
-      page: 1
+      sort_by: 'last_activity_at_desc'
     });
   };
 

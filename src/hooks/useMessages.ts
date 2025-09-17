@@ -1,65 +1,131 @@
-import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { messagesApi } from '../api/messages';
-import { useMessageStore } from '../state/messageStore';
-import { SendMessageRequest } from '../models';
+import { useChatStore } from '../state/useChatStore';
+import { 
+  Message, 
+  MessagesResponse, 
+  SendMessageRequest,
+  MessageFilters 
+} from '../models';
+import { generateMessages } from '../data/mockData';
 
-export const useMessages = (conversationId: number | null) => {
+// Mock messages storage per conversation
+const conversationMessages: Record<number, Message[]> = {};
+
+// Get messages for a conversation with pagination
+const getConversationMessages = (
+  conversationId: number, 
+  filters?: MessageFilters
+): MessagesResponse => {
+  // Generate messages if not cached
+  if (!conversationMessages[conversationId]) {
+    conversationMessages[conversationId] = generateMessages(conversationId, 30);
+  }
+
+  let messages = [...conversationMessages[conversationId]];
+
+  // Apply pagination filters
+  if (filters?.before) {
+    const beforeIndex = messages.findIndex(msg => msg.id.toString() === filters.before);
+    if (beforeIndex > 0) {
+      messages = messages.slice(0, beforeIndex);
+    }
+  }
+
+  if (filters?.after) {
+    const afterIndex = messages.findIndex(msg => msg.id.toString() === filters.after);
+    if (afterIndex >= 0) {
+      messages = messages.slice(afterIndex + 1);
+    }
+  }
+
+  // Apply limit
+  if (filters?.limit) {
+    messages = messages.slice(-filters.limit);
+  }
+
+  return {
+    payload: messages,
+    meta: {
+      count: messages.length,
+      current_page: 1,
+    },
+  };
+};
+
+// Add message to conversation
+const addMessageToConversation = (conversationId: number, message: Message) => {
+  if (!conversationMessages[conversationId]) {
+    conversationMessages[conversationId] = [];
+  }
+  conversationMessages[conversationId].push(message);
+};
+
+export const useMessages = (conversationId: number | null, filters?: MessageFilters) => {
   const queryClient = useQueryClient();
-  const { setMessages, setLoading, setError, setSending } = useMessageStore();
+  const { clearDraft } = useChatStore();
 
   const messagesQuery = useQuery({
-    queryKey: ['messages', conversationId],
-    queryFn: async () => {
+    queryKey: ['messages', conversationId, filters],
+    queryFn: async (): Promise<MessagesResponse | null> => {
       if (!conversationId) return null;
-      const response = await messagesApi.getMessages(conversationId);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      return response.data!;
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      return getConversationMessages(conversationId, filters);
     },
     enabled: !!conversationId,
     staleTime: 10000, // 10 seconds
   });
 
-  // Update store when data changes
-  React.useEffect(() => {
-    if (messagesQuery.data?.payload) {
-      setMessages(messagesQuery.data.payload);
-    }
-  }, [messagesQuery.data, setMessages]);
-
-  React.useEffect(() => {
-    setLoading(messagesQuery.isLoading);
-    setError(messagesQuery.error?.message || null);
-  }, [messagesQuery.isLoading, messagesQuery.error, setLoading, setError]);
-
   // Send message mutation
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ conversationId, data }: { conversationId: number; data: SendMessageRequest }) => {
-      setSending(true);
-      const response = await messagesApi.sendMessage(conversationId, data);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      return response.data!;
+    mutationFn: async ({ 
+      conversationId, 
+      data 
+    }: { 
+      conversationId: number; 
+      data: SendMessageRequest; 
+    }) => {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Create new message
+      const newMessage: Message = {
+        id: Date.now(),
+        content: data.content,
+        message_type: data.private ? 2 : 1, // 2 for notes, 1 for outgoing
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        private: data.private || false,
+        status: 'sent',
+        content_type: data.private ? 'note' : 'text',
+        sender_type: 'agent',
+        sender_id: 1, // Mock current agent ID
+        conversation_id: conversationId,
+        inbox_id: 1, // Mock inbox ID
+        attachments: [],
+      };
+      
+      // Add to mock storage
+      addMessageToConversation(conversationId, newMessage);
+      
+      return newMessage;
     },
-    onSuccess: (newMessage) => {
-      // Optimistically add message to the store
-      useMessageStore.getState().addMessage(newMessage);
-      // Invalidate and refetch
+    onSuccess: (newMessage, { conversationId }) => {
+      // Clear draft
+      clearDraft(conversationId);
+      
+      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] }); // Update unread counts
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
     onError: (error) => {
-      setError(error.message);
-    },
-    onSettled: () => {
-      setSending(false);
+      console.error('Failed to send message:', error);
     },
   });
 
-  // Send file mutation
+  // Send files mutation
   const sendFilesMutation = useMutation({
     mutationFn: async ({ 
       conversationId, 
@@ -72,23 +138,50 @@ export const useMessages = (conversationId: number | null) => {
       content?: string; 
       isPrivate?: boolean; 
     }) => {
-      setSending(true);
-      const response = await messagesApi.sendMessageWithFiles(conversationId, files, content, isPrivate);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      return response.data!;
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Create attachments from files
+      const attachments = files.map((file, index) => ({
+        id: Date.now() + index,
+        file_type: file.type,
+        extension: file.name.split('.').pop(),
+        data_url: URL.createObjectURL(file),
+        file_size: file.size,
+        fallback_title: file.name,
+        coordinates_lat: null,
+        coordinates_long: null,
+      }));
+      
+      // Create new message with attachments
+      const newMessage: Message = {
+        id: Date.now(),
+        content: content || '',
+        message_type: isPrivate ? 2 : 1,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+        private: isPrivate || false,
+        status: 'sent',
+        content_type: isPrivate ? 'note' : 'text',
+        sender_type: 'agent',
+        sender_id: 1,
+        conversation_id: conversationId,
+        inbox_id: 1,
+        attachments,
+      };
+      
+      // Add to mock storage
+      addMessageToConversation(conversationId, newMessage);
+      
+      return newMessage;
     },
-    onSuccess: (newMessage) => {
-      useMessageStore.getState().addMessage(newMessage);
+    onSuccess: (newMessage, { conversationId }) => {
+      clearDraft(conversationId);
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
     onError: (error) => {
-      setError(error.message);
-    },
-    onSettled: () => {
-      setSending(false);
+      console.error('Failed to send files:', error);
     },
   });
 
@@ -96,20 +189,31 @@ export const useMessages = (conversationId: number | null) => {
   const loadMoreMessages = async (before?: string) => {
     if (!conversationId) return;
     
+    const moreFilters = { ...filters, before, limit: 20 };
+    
     try {
-      setLoading(true);
-      const response = await messagesApi.getMessages(conversationId, { before });
-      if (response.error) {
-        throw new Error(response.error);
-      }
+      const moreMessages = await queryClient.fetchQuery({
+        queryKey: ['messages', conversationId, 'more', before],
+        queryFn: () => getConversationMessages(conversationId, moreFilters),
+        staleTime: 0,
+      });
       
-      if (response.data?.payload) {
-        useMessageStore.getState().prependMessages(response.data.payload);
+      if (moreMessages?.payload) {
+        // Merge with existing messages
+        queryClient.setQueryData(
+          ['messages', conversationId, filters],
+          (oldData: MessagesResponse | undefined) => {
+            if (!oldData) return moreMessages;
+            
+            return {
+              ...oldData,
+              payload: [...moreMessages.payload, ...oldData.payload],
+            };
+          }
+        );
       }
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Failed to load more messages:', error);
     }
   };
 
@@ -117,7 +221,7 @@ export const useMessages = (conversationId: number | null) => {
     // Data
     messages: messagesQuery.data?.payload || [],
     isLoading: messagesQuery.isLoading,
-    isSending: useMessageStore(state => state.isSending),
+    isSending: sendMessageMutation.isPending || sendFilesMutation.isPending,
     error: messagesQuery.error,
 
     // Actions

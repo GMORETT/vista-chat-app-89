@@ -256,6 +256,8 @@ export interface ContactsResponse {
   meta: {
     count: number;
     current_page: number;
+    total_count?: number;
+    total_pages?: number;
   };
 }
 

@@ -64,7 +64,7 @@ const generateContacts = (): Contact[] => {
 export const mockContacts = generateContacts();
 
 // Mock Messages Generator
-const generateMessages = (conversationId: number, count: number): Message[] => {
+export const generateMessages = (conversationId: number, count: number): Message[] => {
   const messageTypes = [
     'Olá! Preciso de ajuda com minha conta.',
     'Não consigo acessar o sistema.',
