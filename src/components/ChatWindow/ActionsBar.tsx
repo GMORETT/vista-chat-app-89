@@ -71,11 +71,11 @@ export const ActionsBar: React.FC = () => {
       <div className="flex items-center gap-4">
         {/* Contact name */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-heading">
             {selectedConversation.meta.sender.name?.charAt(0).toUpperCase() || '?'}
           </div>
           <div>
-            <div className="font-medium text-foreground">
+            <div className="font-heading text-foreground">
               {selectedConversation.meta.sender.name || selectedConversation.meta.sender.email || 'Sem nome'}
             </div>
             <div className="text-xs text-muted">
@@ -109,9 +109,9 @@ export const ActionsBar: React.FC = () => {
         {selectedConversation.labels.length > 0 && (
           <div className="flex gap-1">
             {selectedConversation.labels.slice(0, 3).map((label) => (
-              <Badge key={label} variant="outline" className="text-xs">
+              <Badge key={label.id} variant="outline" className="text-xs">
                 <Tag className="h-3 w-3 mr-1" />
-                {label}
+                {label.title}
               </Badge>
             ))}
             {selectedConversation.labels.length > 3 && (

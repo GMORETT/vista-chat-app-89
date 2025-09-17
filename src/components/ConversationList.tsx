@@ -26,7 +26,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
   if (conversations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted">
-        <div className="text-lg font-medium mb-2">Nenhuma conversa encontrada</div>
+        <div className="text-lg font-heading mb-2">Nenhuma conversa encontrada</div>
         <div className="text-sm">Tente ajustar os filtros ou verificar mais tarde</div>
       </div>
     );

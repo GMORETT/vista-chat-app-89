@@ -66,7 +66,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
     >
       {/* Avatar */}
       <div className="flex-shrink-0 mr-3">
-        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-medium">
+        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-heading">
           {conversation.meta.sender.name?.charAt(0).toUpperCase() || '?'}
         </div>
       </div>
@@ -74,7 +74,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-sm font-medium text-foreground truncate">
+          <h3 className="text-sm font-heading text-foreground truncate">
             {conversation.meta.sender.name || conversation.meta.sender.email || 'Sem nome'}
           </h3>
           <span className="text-xs text-muted ml-2">{formattedTime}</span>
@@ -102,8 +102,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         {conversation.labels.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-1">
             {conversation.labels.slice(0, 2).map((label) => (
-              <Badge key={label} variant="outline" className="text-xs">
-                {label}
+              <Badge key={label.id} variant="outline" className="text-xs">
+                {label.title}
               </Badge>
             ))}
             {conversation.labels.length > 2 && (

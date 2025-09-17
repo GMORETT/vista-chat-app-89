@@ -68,7 +68,7 @@ export const Composer: React.FC = () => {
       {/* File attachments preview */}
       {files.length > 0 && (
         <div className="mb-3 space-y-2">
-          <div className="text-sm font-medium text-foreground">Anexos:</div>
+          <div className="text-sm font-heading text-foreground">Anexos:</div>
           <div className="space-y-1">
             {files.map((file, index) => (
               <div key={index} className="flex items-center justify-between bg-accent/10 rounded p-2">

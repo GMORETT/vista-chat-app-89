@@ -25,7 +25,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
     return (
       <div className="flex items-center justify-center h-full text-muted">
         <div className="text-center">
-          <div className="text-lg font-medium mb-2">Nenhuma conversa selecionada</div>
+          <div className="text-lg font-heading mb-2">Nenhuma conversa selecionada</div>
           <div className="text-sm">Selecione uma conversa para ver as mensagens</div>
         </div>
       </div>
@@ -44,7 +44,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
     return (
       <div className="flex items-center justify-center h-full text-muted">
         <div className="text-center">
-          <div className="text-lg font-medium mb-2">Nenhuma mensagem</div>
+          <div className="text-lg font-heading mb-2">Nenhuma mensagem</div>
           <div className="text-sm">Esta conversa ainda não tem mensagens</div>
         </div>
       </div>
@@ -81,7 +81,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
           >
             {/* Private message indicator */}
             {isPrivate && (
-              <div className="text-xs text-warning font-medium mb-1">
+              <div className="text-xs text-warning font-heading mb-1">
                 📝 Nota privada
               </div>
             )}

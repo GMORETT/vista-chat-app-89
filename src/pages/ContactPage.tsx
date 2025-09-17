@@ -202,8 +202,8 @@ export const ContactPage: React.FC = () => {
                     {conversation.labels.length > 0 && (
                       <div className="flex gap-1 mt-2">
                         {conversation.labels.slice(0, 3).map((label) => (
-                          <Badge key={label} variant="outline" className="text-xs">
-                            {label}
+                          <Badge key={label.id} variant="outline" className="text-xs">
+                            {label.title}
                           </Badge>
                         ))}
                         {conversation.labels.length > 3 && (
