@@ -4,7 +4,7 @@ import { Message } from '../../models';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { mockMessages } from '../../data/mockData';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
 
@@ -14,7 +14,7 @@ interface MessageListProps {
 
 export const MessageList: React.FC<MessageListProps> = ({ height }) => {
   const { selectedConversationId } = useConversationStore();
-  const listRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<VirtuosoHandle>(null);
 
   // Get messages from mock data
   const messages = useMemo(() => {
@@ -65,9 +65,9 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
           created_at: Math.floor(Date.now() / 1000) - ((messageCount - i) * 60 * 5),
           updated_at: Math.floor(Date.now() / 1000) - ((messageCount - i) * 60 * 5),
           private: isPrivate,
-          status: 'sent',
+          status: 'sent' as const,
           source_id: `msg_${selectedConversationId}_${i}`,
-          content_type: 'text',
+          content_type: 'text' as const,
           content_attributes: {},
           sender_type: isOutgoing ? 'agent' : 'contact',
           sender_id: isOutgoing ? 1 : selectedConversationId,
@@ -76,6 +76,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
           processed_message_content: null,
           sentiment: {},
           conversation: {} as any,
+          attachments: [],
         };
 
         if (hasAttachment) {
@@ -85,6 +86,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
             extension: 'jpg',
             data_url: `https://picsum.photos/200/200?random=${i}`,
             thumb_url: `https://picsum.photos/100/100?random=${i}`,
+            file_url: `https://picsum.photos/200/200?random=${i}`,
             file_size: Math.floor(Math.random() * 1000000) + 50000,
             fallback_title: `imagem_${i + 1}.jpg`,
             coordinates_lat: null,
@@ -102,7 +104,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (listRef.current && messages.length > 0) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
+      listRef.current.scrollToIndex({ index: messages.length - 1, align: 'end' });
     }
   }, [messages.length]);
 
@@ -145,7 +147,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
   const MessageItem: React.FC<{ message: Message; index: number }> = ({ message, index }) => {
     const isOutgoing = message.message_type === 1;
     const isPrivate = message.private;
-    const isNote = message.content_type === 'note';
+    const isNote = message.private;
 
     const formattedTime = React.useMemo(() => {
       try {

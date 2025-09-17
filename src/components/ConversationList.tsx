@@ -30,13 +30,13 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
     if (filters.assignee_type !== 'all') {
       switch (filters.assignee_type) {
         case 'me':
-          filtered = filtered.filter(conv => conv.assignee_id === 1); // Assume current user ID = 1
+          filtered = filtered.filter(conv => conv.meta.assignee?.id === 1); // Assume current user ID = 1
           break;
         case 'assigned':
-          filtered = filtered.filter(conv => conv.assignee_id !== null);
+          filtered = filtered.filter(conv => conv.meta.assignee !== null);
           break;
         case 'unassigned':
-          filtered = filtered.filter(conv => conv.assignee_id === null);
+          filtered = filtered.filter(conv => conv.meta.assignee === null);
           break;
       }
     }

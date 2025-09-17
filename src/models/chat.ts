@@ -77,13 +77,15 @@ export interface Label {
 export interface Attachment {
   id: number;
   file_type: string;
-  account_id: number;
+  account_id?: number;
   extension?: string;
   data_url: string;
   thumb_url?: string;
-  file_url: string;
+  file_url?: string;
   file_size: number;
   fallback_title: string;
+  coordinates_lat?: number | null;
+  coordinates_long?: number | null;
 }
 
 export interface Message {
@@ -95,13 +97,19 @@ export interface Message {
   private: boolean;
   status: 'sent' | 'delivered' | 'read' | 'failed';
   source_id?: string;
-  content_type: 'text' | 'input_select' | 'cards' | 'form' | 'article';
+  content_type: 'text' | 'input_select' | 'cards' | 'form' | 'article' | 'note';
   content_attributes?: Record<string, any>;
   sender?: Contact | Agent;
+  sender_type?: 'contact' | 'agent';
+  sender_id?: number;
   conversation_id: number;
   inbox_id: number;
   attachments: Attachment[];
   external_source_ids?: Record<string, any>;
+  additional_attributes?: Record<string, any>;
+  processed_message_content?: string | null;
+  sentiment?: Record<string, any>;
+  conversation?: any;
 }
 
 export interface Conversation {
@@ -127,6 +135,9 @@ export interface Conversation {
     team?: Team | null;
     hmac_verified?: boolean;
     channel: string;
+    browser?: Record<string, any>;
+    referer?: string | null;
+    custom_attributes?: Record<string, any>;
   };
   labels: Label[];
   unread_count: number;
@@ -134,6 +145,14 @@ export interface Conversation {
   waiting_since?: number;
   snoozed_until?: number | null;
   can_reply: boolean;
+  assignee_id?: number | null;
+  team_id?: number | null;
+  display_id?: number;
+  channel?: string;
+  contact_last_seen_at?: number;
+  identifier?: string;
+  muted?: boolean;
+  uuid?: string;
 }
 
 // Query interfaces

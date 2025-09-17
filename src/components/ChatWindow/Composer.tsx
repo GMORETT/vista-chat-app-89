@@ -41,7 +41,7 @@ export const Composer: React.FC = () => {
         private: isPrivate,
         status: 'sent' as const,
         source_id: `msg_${selectedConversationId}_${Date.now()}`,
-        content_type: isPrivate ? 'note' : 'text',
+        content_type: isPrivate ? 'note' as const : 'text' as const,
         content_attributes: {},
         sender_type: 'agent' as const,
         sender_id: 1,
@@ -55,12 +55,13 @@ export const Composer: React.FC = () => {
           file_type: file.type.startsWith('image/') ? 'image' : 'file',
           extension: file.name.split('.').pop() || '',
           data_url: URL.createObjectURL(file),
-          thumb_url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+          thumb_url: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+          file_url: URL.createObjectURL(file),
           file_size: file.size,
           fallback_title: file.name,
           coordinates_lat: null,
           coordinates_long: null,
-        })) : undefined,
+        })) : [],
       };
 
       if (!mockMessages[selectedConversationId]) {

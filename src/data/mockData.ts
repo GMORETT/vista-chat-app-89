@@ -1,4 +1,4 @@
-import { Conversation, Message, Contact, Agent, Team, Inbox, Label } from '../models/chat';
+import { Conversation, Message, Contact, Agent, Team, Inbox, Label, StatusType, PriorityType } from '../models/chat';
 
 // Mock Agents
 export const mockAgents: Agent[] = [
@@ -107,9 +107,9 @@ const generateMessages = (conversationId: number, count: number): Message[] => {
       created_at: Math.floor(Date.now() / 1000) - ((count - i) * 60 * 5), // 5 min intervals
       updated_at: Math.floor(Date.now() / 1000) - ((count - i) * 60 * 5),
       private: isPrivate,
-      status: 'sent',
+      status: 'sent' as const,
       source_id: `msg_${conversationId}_${i}`,
-      content_type: 'text',
+      content_type: 'text' as const,
       content_attributes: {},
       sender_type: isOutgoing ? 'agent' : 'contact',
       sender_id: isOutgoing ? mockAgents[0].id : conversationId,
@@ -118,6 +118,7 @@ const generateMessages = (conversationId: number, count: number): Message[] => {
       processed_message_content: null,
       sentiment: {},
       conversation: {} as any, // Será preenchido quando necessário
+      attachments: [],
     };
 
     if (hasAttachment) {
@@ -127,6 +128,7 @@ const generateMessages = (conversationId: number, count: number): Message[] => {
         extension: 'jpg',
         data_url: `https://picsum.photos/200/200?random=${i}`,
         thumb_url: `https://picsum.photos/100/100?random=${i}`,
+        file_url: `https://picsum.photos/200/200?random=${i}`,
         file_size: Math.floor(Math.random() * 1000000) + 50000,
         fallback_title: `imagem_${i + 1}.jpg`,
         coordinates_lat: null,
@@ -140,8 +142,8 @@ const generateMessages = (conversationId: number, count: number): Message[] => {
 
 // Mock Conversations Generator
 const generateConversations = (): Conversation[] => {
-  const statuses = ['open', 'pending', 'snoozed', 'resolved'];
-  const priorities = [null, 'low', 'medium', 'high', 'urgent'];
+  const statuses: StatusType[] = ['open', 'pending', 'snoozed', 'resolved'];
+  const priorities: (PriorityType)[] = [null, 'low', 'medium', 'high', 'urgent'];
   
   return Array.from({ length: 60 }, (_, i) => {
     const contact = mockContacts[i % mockContacts.length];
@@ -212,9 +214,9 @@ export const mockMessages: Record<number, Message[]> = {};
 
 // Mock Meta Data  
 const calculateMeta = () => {
-  const mine_count = mockConversations.filter(c => c.assignee_id === mockAgents[0].id).length;
-  const unassigned_count = mockConversations.filter(c => !c.assignee_id).length;
-  const assigned_count = mockConversations.filter(c => c.assignee_id).length;
+  const mine_count = mockConversations.filter(c => c.meta.assignee?.id === mockAgents[0].id).length;
+  const unassigned_count = mockConversations.filter(c => !c.meta.assignee).length;
+  const assigned_count = mockConversations.filter(c => c.meta.assignee).length;
   const all_count = mockConversations.length;
   
   return {
