@@ -157,8 +157,8 @@ export const InboxPage: React.FC = () => {
             <ActionsBar />
             
             {/* Messages */}
-            <div className="flex-1 overflow-hidden">
-              <MessageList height={window.innerHeight - (isMobile ? 220 : 160)} />
+            <div className="flex-1 min-h-0">
+              <MessageList />
             </div>
             
             {/* Composer */}

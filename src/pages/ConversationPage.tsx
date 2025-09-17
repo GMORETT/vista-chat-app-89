@@ -52,15 +52,19 @@ export const ConversationPage: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Actions bar */}
-      <ActionsBar />
-      
-      {/* Messages */}
-      <div className="flex-1">
-        <MessageList height={window.innerHeight - 160} />
+      <div className="shrink-0">
+        <ActionsBar />
       </div>
       
-      {/* Composer */}
-      <Composer />
+      {/* Messages - flex-1 to take remaining space */}
+      <div className="flex-1 min-h-0">
+        <MessageList />
+      </div>
+      
+      {/* Composer - shrink-0 to maintain its size */}
+      <div className="shrink-0">
+        <Composer />
+      </div>
     </div>
   );
 };

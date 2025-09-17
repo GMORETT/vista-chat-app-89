@@ -8,11 +8,9 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
 
-interface MessageListProps {
-  height: number;
-}
+interface MessageListProps {}
 
-export const MessageList: React.FC<MessageListProps> = ({ height }) => {
+export const MessageList: React.FC<MessageListProps> = () => {
   const { selectedConversationId } = useChatStore();
   const listRef = useRef<VirtuosoHandle>(null);
 
@@ -260,7 +258,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
   };
 
   return (
-    <div style={{ height }}>
+    <div className="h-full">
       <Virtuoso
         ref={listRef}
         data={messages}
@@ -268,7 +266,7 @@ export const MessageList: React.FC<MessageListProps> = ({ height }) => {
           <MessageItem key={message.id} message={message} index={index} />
         )}
         followOutput="smooth"
-        className="message-list"
+        className="message-list h-full"
         components={{
           EmptyPlaceholder: () => (
             <div className="flex items-center justify-center h-full text-center p-8">
