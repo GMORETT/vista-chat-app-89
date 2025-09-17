@@ -29,21 +29,15 @@ export const ConversationToolbar: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-2 p-3 bg-card">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFiltersModal(true)}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Filter conversations</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowFiltersModal(true)}
+          className="h-8 px-2 text-muted-foreground hover:text-foreground"
+        >
+          <Filter className="h-4 w-4 mr-2" />
+          Filter conversations
+        </Button>
 
         <SortByPopover />
 

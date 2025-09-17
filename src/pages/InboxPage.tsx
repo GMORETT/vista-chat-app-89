@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUiStore } from '../state/uiStore';
 import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 import { ConversationFilters } from '../components/ConversationFilters';
 import { TabsCounts } from '../components/TabsCounts';
 import { ConversationList } from '../components/ConversationList';
@@ -8,7 +9,8 @@ import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
 import { Button } from '../components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { ArrowLeft, Search, X } from 'lucide-react';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -20,6 +22,16 @@ export const InboxPage: React.FC = () => {
     setIsExpanded
   } = useUiStore();
   const { selectedConversationId } = useConversationStore();
+  const { searchQuery, setSearchQuery } = useChatStore();
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(localSearchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [localSearchQuery, setSearchQuery]);
 
   // Handle responsive behavior
   useEffect(() => {
@@ -52,17 +64,36 @@ export const InboxPage: React.FC = () => {
         {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
-            {/* Header with brand */}
-            <div className="flex items-center gap-3 p-4 border-b border-border">
-              <div className="flex items-center gap-3">
+            {/* Header with Logo and Search */}
+            <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
+              {/* Logo - 1/3 */}
+              <div className="flex-shrink-0 w-1/3">
                 <img 
-                  src="/brand/logo.webp" 
+                  src="/brand/logo-solabs.png" 
                   alt="Solabs" 
-                  className="h-8 w-auto"
+                  className="h-8 w-auto object-contain"
                 />
-                <div>
-                  <h1 className="text-lg font-heading text-foreground">Solabs</h1>
-                </div>
+              </div>
+              
+              {/* Search Bar - 2/3 */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Buscar conversas por nome, email ou conteúdo..."
+                  value={localSearchQuery}
+                  onChange={(e) => setLocalSearchQuery(e.target.value)}
+                  className="pl-10 pr-10"
+                />
+                {localSearchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setLocalSearchQuery('')}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
               </div>
             </div>
 
