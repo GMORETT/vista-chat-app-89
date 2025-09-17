@@ -123,37 +123,7 @@ export const InboxPage: React.FC = () => {
         {/* Render if there's a selected conversation or mobile with chat view */}
         {((!isMobile || activePane === 'conversation') && selectedConversationId) && (
           <>
-            {/* Expanded Layout Header with Back Button */}
-            {isExpanded && !isMobile && (
-              <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsExpanded(false)}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back</span>
-                </Button>
-              </div>
-            )}
-
-            {/* Mobile Header with Back Button */}
-            {isMobile && (
-              <div className="flex items-center gap-3 p-4 border-b border-border bg-card">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActivePane('list')}
-                  className="p-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h2 className="font-heading text-foreground">Conversa</h2>
-              </div>
-            )}
-            
-            {/* Actions bar */}
+            {/* Actions bar with integrated navigation */}
             <ActionsBar />
             
             {/* Messages */}

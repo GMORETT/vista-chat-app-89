@@ -1,7 +1,9 @@
 import React from 'react';
 import { useChatStore } from '../../state/useChatStore';
+import { useUiStore } from '../../state/uiStore';
 import { useConversations } from '../../hooks/useConversations';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Button } from '../ui/button';
 import { 
   CheckCircle, 
   Clock, 
@@ -10,12 +12,16 @@ import {
   AlertTriangle,
   ArrowUp,
   Minus,
-  ArrowDown
+  ArrowDown,
+  ArrowLeft,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 
 export const ActionsBar: React.FC = () => {
   const { selectedConversation, filters } = useChatStore();
   const { toggleStatus, togglePriority } = useConversations(filters);
+  const { isMobile, isExpanded, setActivePane, setIsExpanded } = useUiStore();
 
   if (!selectedConversation) {
     return null;
@@ -61,18 +67,45 @@ export const ActionsBar: React.FC = () => {
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-border bg-card">
-      {/* Lead name and avatar */}
+      {/* Navigation controls and avatar */}
       <div className="flex items-center gap-3">
+        {/* Back button for mobile or expanded desktop view */}
+        {(isMobile || isExpanded) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => isMobile ? setActivePane('list') : setIsExpanded(false)}
+            className="p-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        )}
+        
+        {/* Avatar */}
         <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-heading">
           {selectedConversation.meta.sender.name?.charAt(0).toUpperCase() || '?'}
         </div>
+        
+        {/* Contact name */}
         <div className="font-heading text-foreground">
           {selectedConversation.meta.sender.name || selectedConversation.meta.sender.email || 'Sem nome'}
         </div>
       </div>
 
-      {/* Status and Priority selectors */}
+      {/* Status, Priority, and Expand controls */}
       <div className="flex items-center gap-3">
+        {/* Expand/collapse button (desktop only) */}
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 text-muted-foreground hover:text-foreground"
+            title={isExpanded ? 'Minimizar' : 'Expandir'}
+          >
+            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+        )}
         {/* Status selector */}
         <Select value={selectedConversation.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-36">
