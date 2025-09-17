@@ -147,7 +147,7 @@ export const useChatStore = create<ChatState>()(
           conv.id === updatedConversation.id ? updatedConversation : conv
         ),
         selectedConversation: state.selectedConversationId === updatedConversation.id 
-          ? updatedConversation 
+          ? updatedConversation
           : state.selectedConversation,
       })),
       

@@ -213,20 +213,20 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     +{conversation.labels.length - 2}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <div className="space-y-1">
-                    <p className="font-medium">Labels adicionais:</p>
-                    {conversation.labels.slice(2).map((label) => (
-                      <div key={label.id} className="flex items-center gap-2">
-                        <div 
-                          className="w-2 h-2 rounded-full" 
-                          style={{ backgroundColor: label.color }}
-                        />
-                        <span className="text-sm">{label.title}</span>
-                      </div>
-                    ))}
-                  </div>
-                </TooltipContent>
+                 <TooltipContent>
+                   <div className="space-y-1 max-w-48">
+                     <p className="font-medium text-sm">Labels adicionais:</p>
+                     {conversation.labels.slice(2).map((label) => (
+                       <div key={label.id} className="flex items-center gap-2">
+                         <div 
+                           className="w-2 h-2 rounded-full" 
+                           style={{ backgroundColor: label.color }}
+                         />
+                         <span className="text-sm">{label.title}</span>
+                       </div>
+                     ))}
+                   </div>
+                 </TooltipContent>
               </Tooltip>
             )}
           </div>

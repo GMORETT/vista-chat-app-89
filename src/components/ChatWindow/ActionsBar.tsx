@@ -27,6 +27,10 @@ export const ActionsBar: React.FC = () => {
     return null;
   }
 
+  // Get current values directly from the selected conversation
+  const currentStatus = selectedConversation.status;
+  const currentPriority = selectedConversation.priority;
+
   const handleStatusChange = (status: string) => {
     toggleStatus(selectedConversation.id, status as any);
   };
@@ -107,7 +111,7 @@ export const ActionsBar: React.FC = () => {
           </Button>
         )}
         {/* Status selector */}
-        <Select value={selectedConversation.status} onValueChange={handleStatusChange} disabled={isStatusLoading}>
+        <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isStatusLoading}>
           <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
@@ -140,7 +144,7 @@ export const ActionsBar: React.FC = () => {
         </Select>
 
         {/* Priority selector */}
-        <Select value={selectedConversation.priority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
+        <Select value={currentPriority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
           <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
