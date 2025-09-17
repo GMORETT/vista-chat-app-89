@@ -101,8 +101,8 @@ class ApiClient {
     try {
       const formData = new FormData();
       
-      files.forEach((file, index) => {
-        formData.append(`attachments[${index}]`, file);
+      files.forEach(file => {
+        formData.append('files', file);
       });
 
       if (data) {
