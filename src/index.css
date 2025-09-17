@@ -11,39 +11,39 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Background and surfaces */
-    --background: hsl(var(--color-bg));
-    --foreground: hsl(var(--color-foreground));
+    --background: var(--color-bg);
+    --foreground: var(--color-foreground);
     
-    --card: hsl(var(--color-card));
-    --card-foreground: hsl(var(--color-foreground));
+    --card: var(--color-card);
+    --card-foreground: var(--color-foreground);
     
     /* Popover - ensure solid background */
-    --popover: hsl(var(--color-card));
-    --popover-foreground: hsl(var(--color-foreground));
+    --popover: var(--color-card);
+    --popover-foreground: var(--color-foreground);
     
     /* Primary brand colors */
-    --primary: hsl(var(--color-primary));
-    --primary-foreground: hsl(var(--color-primary-foreground));
+    --primary: var(--color-primary);
+    --primary-foreground: var(--color-primary-foreground);
     
     /* Secondary and muted */
-    --secondary: hsl(var(--color-card));
-    --secondary-foreground: hsl(var(--color-foreground));
+    --secondary: var(--color-card);
+    --secondary-foreground: var(--color-foreground);
     
-    --muted: hsl(var(--color-muted));
-    --muted-foreground: hsl(var(--color-muted));
+    --muted: var(--color-muted);
+    --muted-foreground: var(--color-muted-foreground);
     
     /* Accent */
-    --accent: hsl(var(--color-accent));
-    --accent-foreground: hsl(var(--color-primary-foreground));
+    --accent: var(--color-accent);
+    --accent-foreground: var(--color-primary-foreground);
     
     /* States */
-    --destructive: hsl(var(--color-danger));
-    --destructive-foreground: hsl(var(--color-primary-foreground));
+    --destructive: var(--color-danger);
+    --destructive-foreground: var(--color-primary-foreground);
     
     /* Borders and inputs */
-    --border: hsl(var(--color-border));
-    --input: hsl(var(--color-border));
-    --ring: hsl(var(--color-primary));
+    --border: var(--color-border);
+    --input: var(--color-border);
+    --ring: var(--color-primary);
     
     /* Radius */
     --radius: var(--radius-md);

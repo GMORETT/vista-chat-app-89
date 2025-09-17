@@ -7,7 +7,8 @@
 
   /* Texto (AA) + muted (sua cor atual) */
   --color-foreground: #374151;     /* AA-friendly p/ corpo */
-  --color-muted: #808285;          /* usar p/ subtítulo/legenda */
+  --color-muted: #F3F4F6;          /* fundo muted claro */
+  --color-muted-foreground: #6B7280; /* texto em elementos muted */
 
   /* Marca */
   --color-primary: #7D19F3;           /* roxo */
@@ -38,6 +39,7 @@
     --color-card: #1F2937;
     --color-border: #374151;
     --color-foreground: #F9FAFB;
-    --color-muted: #9CA3AF;
+    --color-muted: #374151;
+    --color-muted-foreground: #9CA3AF;
   }
 }
