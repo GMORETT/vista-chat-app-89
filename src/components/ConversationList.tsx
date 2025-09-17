@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useChatStore } from '../state/useChatStore';
+import { useUiStore } from '../state/uiStore';
 import { ConversationItem } from './ConversationItem';
 import { Virtuoso } from 'react-virtuoso';
 import { Skeleton } from './ui/skeleton';
@@ -16,6 +17,8 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
     filters, 
     searchQuery 
   } = useChatStore();
+  
+  const { isMobile, setActivePane } = useUiStore();
 
   // Filter and sort conversations based on current filters
   const filteredConversations = useMemo(() => {
@@ -121,7 +124,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
   // Optimized callback with useCallback
   const handleConversationSelect = React.useCallback((id: number) => {
     setSelectedConversationId(id);
-  }, [setSelectedConversationId]);
+    // On mobile, switch to conversation pane when a conversation is selected
+    if (isMobile) {
+      setActivePane('conversation');
+    }
+  }, [setSelectedConversationId, isMobile, setActivePane]);
 
   // Loading skeleton
   const LoadingSkeleton = () => (
