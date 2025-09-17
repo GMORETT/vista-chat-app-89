@@ -26,7 +26,7 @@ export const ConversationToolbar: React.FC = () => {
           className="h-8 px-2 text-muted-foreground hover:text-foreground"
         >
           <Filter className="h-4 w-4 mr-2" />
-          Filtros
+          Filter conversations
         </Button>
 
         <SortByPopover />
