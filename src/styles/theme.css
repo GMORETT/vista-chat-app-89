@@ -1,0 +1,43 @@
+/* src/styles/theme.css — Solabs */
+:root {
+  /* Superfícies (light) */
+  --color-bg: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-border: #E5E7EB;
+
+  /* Texto (AA) + muted (sua cor atual) */
+  --color-foreground: #374151;     /* AA-friendly p/ corpo */
+  --color-muted: #808285;          /* usar p/ subtítulo/legenda */
+
+  /* Marca */
+  --color-primary: #7D19F3;           /* roxo */
+  --color-primary-foreground: #FFFFFF;
+  --color-accent: #1374AE;            /* azul */
+  --color-link: #1374AE;              /* substituir RoyalBlue legado */
+  --color-selection: #0274BE;         /* mantém do site (seleção/realce) */
+
+  /* Estados */
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+
+  /* Raios */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Tipografia */
+  --font-sans: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  --font-heading: "Montserrat", var(--font-sans);
+}
+
+/* Dark mode support (opcional) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #111827;
+    --color-card: #1F2937;
+    --color-border: #374151;
+    --color-foreground: #F9FAFB;
+    --color-muted: #9CA3AF;
+  }
+}
