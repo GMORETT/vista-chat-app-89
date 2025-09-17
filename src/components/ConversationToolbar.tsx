@@ -1,13 +1,29 @@
 import React, { useState } from 'react';
-import { Filter, ArrowUpDown, Maximize, Minimize } from 'lucide-react';
+import { Filter, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { useUiStore } from '../state/uiStore';
+import { useConversationStore } from '../state/conversationStore';
+import { useToast } from '../hooks/use-toast';
 import { AdvancedFiltersModal } from './AdvancedFiltersModal';
 import { SortByPopover } from './SortByPopover';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
+  const { selectedConversationId } = useConversationStore();
+  const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+
+  const handleExpandToggle = () => {
+    if (!isExpanded && !selectedConversationId) {
+      toast({
+        title: "Selecione uma conversa",
+        description: "Você precisa selecionar uma conversa antes de expandir a tela.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <>
@@ -27,17 +43,17 @@ export const ConversationToolbar: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={handleExpandToggle}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
         >
           {isExpanded ? (
             <>
-              <Minimize className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
               <span className="text-sm">Switch the layout</span>
             </>
           ) : (
             <>
-              <Maximize className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
               <span className="text-sm">Switch the layout</span>
             </>
           )}
