@@ -37,23 +37,36 @@ import {
  * Handles HTTP requests to the BFF layer which communicates with Chatwoot API
  */
 export class BffChatService implements IChatService {
+  private baseUrl = import.meta.env.VITE_BFF_BASE_URL || 'http://localhost:3001';
+
   // ============================================================================
   // CONVERSATION OPERATIONS
   // ============================================================================
   
   async listConversations(query?: ConversationQuery): Promise<ApiResponse<ConversationsResponse>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.listConversations not implemented');
+    const params = new URLSearchParams();
+    
+    if (query?.status) params.append('status', query.status);
+    if (query?.assignee_type) params.append('assignee_type', query.assignee_type);
+    if (query?.inbox_id) params.append('inbox_id', query.inbox_id.toString());
+    if (query?.team_id) params.append('team_id', query.team_id.toString());
+    if (query?.labels?.length) {
+      query.labels.forEach(label => params.append('labels', label));
+    }
+    if (query?.page) params.append('page', query.page.toString());
+
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations?${params}`);
+    return await response.json();
   }
   
   async getConversationsMeta(): Promise<ApiResponse<ConversationMeta>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.getConversationsMeta not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/meta`);
+    return await response.json();
   }
   
   async getConversation(id: number): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.getConversation not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${id}`);
+    return await response.json();
   }
   
   // ============================================================================
@@ -61,18 +74,42 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async getMessages(conversationId: number, query?: MessageQuery): Promise<ApiResponse<MessagesResponse>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.getMessages not implemented');
+    const params = new URLSearchParams();
+    
+    if (query?.before) params.append('before', query.before);
+    // Note: MessageQuery might not have 'after' and 'page' - check interface
+
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/messages?${params}`);
+    return await response.json();
   }
   
   async sendMessage(conversationId: number, request: SendMessageRequest): Promise<ApiResponse<Message>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.sendMessage not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   async sendAttachment(conversationId: number, request: SendFileRequest): Promise<ApiResponse<Message>> {
-    // TODO: Implement HTTP request to BFF endpoint with file upload
-    throw new Error('BffChatService.sendAttachment not implemented');
+    const formData = new FormData();
+    
+    request.files.forEach(file => {
+      formData.append('files', file);
+    });
+    
+    if (request.content) {
+      formData.append('content', request.content);
+    }
+
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      body: formData,
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -80,13 +117,25 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async toggleStatus(conversationId: number, request: UpdateStatusRequest): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.toggleStatus not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/toggle_status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   async togglePriority(conversationId: number, request: UpdatePriorityRequest): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.togglePriority not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/toggle_priority`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -94,13 +143,25 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async assignAgent(conversationId: number, request: AssignAgentRequest): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.assignAgent not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/assign_agent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   async assignTeam(conversationId: number, request: AssignTeamRequest): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.assignTeam not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/assign_team`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -108,13 +169,25 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async addLabels(conversationId: number, request: LabelOperation): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.addLabels not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/labels/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   async removeLabels(conversationId: number, request: LabelOperation): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.removeLabels not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/labels/remove`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -122,8 +195,14 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async updateCustomAttributes(conversationId: number, request: UpdateCustomAttributesRequest): Promise<ApiResponse<Conversation>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.updateCustomAttributes not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/custom_attributes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -131,13 +210,23 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async markRead(conversationId: number, request?: MarkReadRequest): Promise<ApiResponse<void>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.markRead not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/mark_read`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return await response.json();
   }
   
   async markUnread(conversationId: number): Promise<ApiResponse<void>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.markUnread not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/conversations/${conversationId}/mark_unread`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return await response.json();
   }
   
   // ============================================================================
@@ -145,8 +234,8 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async listInboxes(): Promise<ApiResponse<InboxesResponse>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.listInboxes not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/inboxes`);
+    return await response.json();
   }
   
   // ============================================================================
@@ -154,17 +243,26 @@ export class BffChatService implements IChatService {
   // ============================================================================
   
   async listContacts(query?: ContactQuery): Promise<ApiResponse<ContactsResponse>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.listContacts not implemented');
+    const params = new URLSearchParams();
+    
+    if (query?.page) params.append('page', query.page.toString());
+    if (query?.sort) params.append('sort', query.sort);
+    // Note: ContactQuery might not have 'q' and 'labels' - check interface
+
+    const response = await fetch(`${this.baseUrl}/api/messaging/contacts?${params}`);
+    return await response.json();
   }
   
   async getContact(id: number): Promise<ApiResponse<Contact>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.getContact not implemented');
+    const response = await fetch(`${this.baseUrl}/api/messaging/contacts/${id}`);
+    return await response.json();
   }
   
   async getContactConversations(contactId: number, query?: ConversationQuery): Promise<ApiResponse<ConversationsResponse>> {
-    // TODO: Implement HTTP request to BFF endpoint
-    throw new Error('BffChatService.getContactConversations not implemented');
+    const params = new URLSearchParams();
+    if (query?.page) params.append('page', query.page.toString());
+
+    const response = await fetch(`${this.baseUrl}/api/messaging/contacts/${contactId}/conversations?${params}`);
+    return await response.json();
   }
 }

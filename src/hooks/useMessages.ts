@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Message, MessagesResponse, MessageFilters, SendMessageRequest, SendFileRequest, MessageQuery } from '../models/chat';
 import { MockChatService } from '../api/MockChatService';
+import { BffChatService } from '../api/BffChatService';
 import { useChatStore } from '../state/useChatStore';
 
 export const useMessages = (conversationId: number | null, filters?: MessageFilters) => {
   const queryClient = useQueryClient();
   const { clearDraft } = useChatStore();
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   // Convert filters to query format
   const query: MessageQuery = {

@@ -1,68 +1,61 @@
 import { useQuery } from '@tanstack/react-query';
-import { Contact, ContactQuery, ContactsResponse } from '../models/chat';
+import { Contact, ContactQuery, ContactsResponse } from '../models';
 import { MockChatService } from '../api/MockChatService';
+import { BffChatService } from '../api/BffChatService';
+import { useMemo } from 'react';
 
-// Filter contacts based on query
+// Helper function to filter and sort contacts
 const filterContacts = (contacts: Contact[], query: ContactQuery): Contact[] => {
   let filtered = [...contacts];
 
-  // Filter by name
+  // Apply filters
   if (query.name) {
-    const nameQuery = query.name.toLowerCase();
-    filtered = filtered.filter(contact =>
-      contact.name.toLowerCase().includes(nameQuery)
+    const name = query.name.toLowerCase();
+    filtered = filtered.filter(contact => 
+      contact.name?.toLowerCase().includes(name)
     );
   }
 
-  // Filter by email
   if (query.email) {
-    const emailQuery = query.email.toLowerCase();
-    filtered = filtered.filter(contact =>
-      contact.email?.toLowerCase().includes(emailQuery)
+    const email = query.email.toLowerCase();
+    filtered = filtered.filter(contact => 
+      contact.email?.toLowerCase().includes(email)
     );
   }
 
-  // Filter by phone
   if (query.phone_number) {
-    filtered = filtered.filter(contact =>
+    filtered = filtered.filter(contact => 
       contact.phone_number?.includes(query.phone_number!)
     );
   }
 
-  // Filter by identifier
   if (query.identifier) {
-    filtered = filtered.filter(contact =>
-      contact.identifier?.includes(query.identifier!)
+    const identifier = query.identifier.toLowerCase();
+    filtered = filtered.filter(contact => 
+      contact.identifier?.toLowerCase().includes(identifier)
     );
   }
 
-  // Sort contacts
+  // Apply sorting
   if (query.sort) {
+    const [field, direction] = query.sort.split(':');
     filtered.sort((a, b) => {
-      switch (query.sort) {
-        case 'name_asc':
-          return a.name.localeCompare(b.name);
-        case 'name_desc':
-          return b.name.localeCompare(a.name);
-        case 'created_at_asc':
-          return a.created_at - b.created_at;
-        case 'created_at_desc':
-          return b.created_at - a.created_at;
-        case 'last_activity_at_asc':
-          return (a.last_activity_at || 0) - (b.last_activity_at || 0);
-        case 'last_activity_at_desc':
-          return (b.last_activity_at || 0) - (a.last_activity_at || 0);
-        default:
-          return b.created_at - a.created_at;
-      }
+      const aVal = (a as any)[field] || '';
+      const bVal = (b as any)[field] || '';
+      const result = aVal.localeCompare(bVal);
+      return direction === 'desc' ? -result : result;
     });
+  } else {
+    // Default sort by name
+    filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }
 
   return filtered;
 };
 
 export const useContacts = (query: ContactQuery = {}) => {
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
     queryKey: ['contacts', query],
@@ -78,30 +71,31 @@ export const useContacts = (query: ContactQuery = {}) => {
   });
 };
 
-// Hook for searching contacts with debounce
 export const useContactSearch = (searchQuery: string) => {
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
     queryKey: ['contacts', 'search', searchQuery],
     queryFn: async (): Promise<Contact[]> => {
-      if (!searchQuery.trim()) return [];
-      
+      if (searchQuery.length < 2) {
+        return [];
+      }
+
       const query: ContactQuery = {
         name: searchQuery,
-        email: searchQuery,
-        page: 1,
       };
-      
+
       const response = await chatService.listContacts(query);
       if (response.error) {
         throw new Error(response.error);
       }
       
-      // Return max 10 results for search
+      // Return only first 10 results for search
       return response.data!.payload.slice(0, 10);
     },
-    enabled: searchQuery.length >= 2, // Only search with 2+ characters
-    staleTime: 30000, // 30 seconds
+    enabled: searchQuery.length >= 2,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 2 * 60 * 1000, // 2 minutes
   });
 };

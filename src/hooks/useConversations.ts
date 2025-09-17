@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters, UpdateStatusRequest, UpdatePriorityRequest, AssignAgentRequest, AssignTeamRequest, StatusType, PriorityType } from '../models/chat';
 import { MockChatService } from '../api/MockChatService';
+import { BffChatService } from '../api/BffChatService';
 import { useChatStore } from '../state/useChatStore';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   // Convert filters to query format
   const query: ConversationQuery = {
@@ -112,7 +114,8 @@ export const useConversations = (filters: ConversationFilters) => {
 };
 
 export const useConversationsMeta = (filters?: ConversationFilters) => {
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
     queryKey: ['conversations', 'meta', filters],
@@ -130,7 +133,8 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
 };
 
 export const useConversation = (id: number | null) => {
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
     queryKey: ['conversation', id],

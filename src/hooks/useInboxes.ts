@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Inbox, InboxesResponse } from '../models';
 import { MockChatService } from '../api/MockChatService';
+import { BffChatService } from '../api/BffChatService';
 
 export const useInboxes = () => {
-  const chatService = new MockChatService();
+  const useBff = import.meta.env.VITE_USE_BFF === 'true';
+  const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
     queryKey: ['inboxes'],
