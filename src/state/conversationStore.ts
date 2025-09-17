@@ -7,6 +7,7 @@ import {
   StatusType,
   SortBy 
 } from '../models';
+import { mockConversations } from '../data/mockData';
 
 interface ConversationFilters extends ConversationQuery {
   assignee_type: AssignType;
@@ -71,7 +72,7 @@ const defaultMeta: ConversationMeta = {
 
 export const useConversationStore = create<ConversationState>((set, get) => ({
   // Initial state
-  conversations: [],
+  conversations: mockConversations, // Load mock data initially
   meta: defaultMeta,
   selectedConversationId: null,
   selectedConversation: null,
@@ -109,7 +110,15 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   setMeta: (meta) => set({ meta }),
   
   setSelectedConversation: (id) => {
-    const conversation = id ? get().conversations.find(c => c.id === id) || null : null;
+    let conversation = null;
+    if (id) {
+      // First try to find in store conversations
+      conversation = get().conversations.find(c => c.id === id);
+      // If not found, fallback to mockConversations
+      if (!conversation) {
+        conversation = mockConversations.find(c => c.id === id) || null;
+      }
+    }
     set({ 
       selectedConversationId: id,
       selectedConversation: conversation,
@@ -139,7 +148,7 @@ export const useConversationStore = create<ConversationState>((set, get) => ({
   setHasNextPage: (hasNext) => set({ hasNextPage: hasNext }),
   
   reset: () => set({
-    conversations: [],
+    conversations: mockConversations, // Reset to mock data instead of empty array
     meta: defaultMeta,
     selectedConversationId: null,
     selectedConversation: null,
