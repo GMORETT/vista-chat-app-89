@@ -18,38 +18,42 @@ export const ConversationToolbar: React.FC = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center justify-end gap-2 p-3 bg-card">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowFiltersModal(true)}
-          className="h-8 px-2 text-muted-foreground hover:text-foreground"
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Filtros
-        </Button>
+      <div className="flex items-center justify-between w-full gap-2 p-3 bg-card">
+        <div></div> {/* Empty space on left */}
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowFiltersModal(true)}
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filtros
+          </Button>
 
-        <SortByPopover />
+          <SortByPopover />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleExpandToggle}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-            >
-              {isExpanded ? (
-                <ArrowLeft className="h-4 w-4" />
-              ) : (
-                <ArrowRight className="h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Switch the layout</p>
-          </TooltipContent>
-        </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleExpandToggle}
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              >
+                {isExpanded ? (
+                  <ArrowLeft className="h-4 w-4" />
+                ) : (
+                  <ArrowRight className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Switch the layout</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
 
       <AdvancedFiltersModal 
