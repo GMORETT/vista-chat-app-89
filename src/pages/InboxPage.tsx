@@ -20,6 +20,7 @@ export const InboxPage: React.FC = () => {
     setActivePane,
     setIsExpanded
   } = useUiStore();
+  
   const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
