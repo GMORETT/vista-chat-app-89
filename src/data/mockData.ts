@@ -28,14 +28,14 @@ export const mockInboxes: Inbox[] = [
 
 // Mock Labels
 export const mockLabels: Label[] = [
-  { id: 1, title: 'Urgente', description: 'Requer atenção imediata', color: '#ef4444', show_on_sidebar: true },
-  { id: 2, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true },
-  { id: 3, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false },
-  { id: 4, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true },
-  { id: 5, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true },
-  { id: 6, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false },
-  { id: 7, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false },
-  { id: 8, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true },
+  { id: 1, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true },
+  { id: 2, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false },
+  { id: 3, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true },
+  { id: 4, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true },
+  { id: 5, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false },
+  { id: 6, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false },
+  { id: 7, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true },
+  { id: 8, title: 'Cliente VIP', description: 'Cliente importante', color: '#fbbf24', show_on_sidebar: true },
 ];
 
 // Mock Contacts

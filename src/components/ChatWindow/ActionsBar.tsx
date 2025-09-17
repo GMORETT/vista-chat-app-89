@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useChatStore } from '../../state/useChatStore';
 import { useUiStore } from '../../state/uiStore';
 import { useConversations } from '../../hooks/useConversations';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { 
   CheckCircle, 
   Clock, 
@@ -15,13 +18,18 @@ import {
   ArrowDown,
   ArrowLeft,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Tags,
+  X
 } from 'lucide-react';
+import { mockLabels } from '../../data/mockData';
+import { Label } from '../../models/chat';
 
 export const ActionsBar: React.FC = () => {
   const { selectedConversation, filters } = useChatStore();
-  const { toggleStatus, togglePriority, isStatusLoading, isPriorityLoading } = useConversations(filters);
+  const { toggleStatus, togglePriority, updateLabels, isStatusLoading, isPriorityLoading, isLabelsLoading } = useConversations(filters);
   const { isMobile, isExpanded, setActivePane, setIsExpanded } = useUiStore();
+  const [isLabelPopoverOpen, setIsLabelPopoverOpen] = useState(false);
 
   if (!selectedConversation) {
     return null;
@@ -37,6 +45,20 @@ export const ActionsBar: React.FC = () => {
 
   const handlePriorityChange = (priority: string) => {
     togglePriority(selectedConversation.id, priority === 'none' ? null : priority as any);
+  };
+
+  const handleLabelToggle = (label: Label) => {
+    const currentLabels = selectedConversation.labels || [];
+    const isLabelSelected = currentLabels.some(l => l.id === label.id);
+    
+    let newLabels;
+    if (isLabelSelected) {
+      newLabels = currentLabels.filter(l => l.id !== label.id);
+    } else {
+      newLabels = [...currentLabels, label];
+    }
+    
+    updateLabels(selectedConversation.id, newLabels);
   };
 
   const getStatusIcon = (status: string) => {
@@ -86,9 +108,12 @@ export const ActionsBar: React.FC = () => {
         )}
         
         {/* Avatar */}
-        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-heading">
-          {selectedConversation.meta.sender.name?.charAt(0).toUpperCase() || '?'}
-        </div>
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={selectedConversation.meta.sender.avatar || undefined} />
+          <AvatarFallback className="text-sm font-medium">
+            {selectedConversation.meta.sender.name?.charAt(0).toUpperCase() || '?'}
+          </AvatarFallback>
+        </Avatar>
         
         {/* Contact name */}
         <div className="font-heading text-foreground">
@@ -181,6 +206,76 @@ export const ActionsBar: React.FC = () => {
             </SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Labels selector */}
+        <Popover open={isLabelPopoverOpen} onOpenChange={setIsLabelPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={isLabelsLoading}
+              className="flex items-center gap-2 h-8"
+            >
+              <Tags className="h-4 w-4" />
+              <span>Labels</span>
+              {selectedConversation.labels?.length > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
+                  {selectedConversation.labels.length}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-0" align="end">
+            <div className="p-3 border-b">
+              <h4 className="font-medium text-sm">Gerenciar Labels</h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecione as labels para esta conversa
+              </p>
+            </div>
+            <div className="p-2 max-h-64 overflow-y-auto">
+              {mockLabels.map((label) => {
+                const isSelected = selectedConversation.labels?.some(l => l.id === label.id) || false;
+                return (
+                  <button
+                    key={label.id}
+                    onClick={() => handleLabelToggle(label)}
+                    className="w-full flex items-center justify-between p-2 rounded-md hover:bg-muted text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: label.color }}
+                      />
+                      <span className="text-sm">{label.title}</span>
+                    </div>
+                    {isSelected && (
+                      <div className="w-4 h-4 bg-primary rounded-sm flex items-center justify-center">
+                        <X className="w-2 h-2 text-primary-foreground" />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedConversation.labels?.length > 0 && (
+              <div className="p-3 border-t">
+                <p className="text-xs text-muted-foreground mb-2">Labels selecionadas:</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedConversation.labels.map((label) => (
+                    <Badge 
+                      key={label.id} 
+                      variant="secondary" 
+                      className="text-xs h-5"
+                      style={{ backgroundColor: `${label.color}20`, color: label.color }}
+                    >
+                      {label.title}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

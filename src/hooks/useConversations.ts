@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters, UpdateStatusRequest, UpdatePriorityRequest, AssignAgentRequest, AssignTeamRequest, StatusType, PriorityType } from '../models/chat';
+import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters, UpdateStatusRequest, UpdatePriorityRequest, AssignAgentRequest, AssignTeamRequest, StatusType, PriorityType, Label } from '../models/chat';
 import { MockChatService } from '../api/MockChatService';
 import { BffChatService } from '../api/BffChatService';
 import { useChatStore } from '../state/useChatStore';
@@ -131,6 +131,38 @@ export const useConversations = (filters: ConversationFilters) => {
     },
   });
 
+  const updateLabelsMutation = useMutation({
+    mutationFn: async ({ conversationId, labels }: { conversationId: number; labels: Label[] }) => {
+      // Mock implementation for updating labels
+      const conversation = selectedConversation;
+      if (!conversation) throw new Error('No conversation selected');
+      
+      const updatedConversation = { ...conversation, labels };
+      return updatedConversation;
+    },
+    onSuccess: (updatedConversation, { conversationId, labels }) => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      
+      // Update the conversation in the store if it's currently selected
+      if (selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, labels });
+      }
+      
+      toast({
+        title: "Labels atualizadas",
+        description: `Labels da conversa foram atualizadas`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar labels",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     // Data
     conversations: conversationsQuery.data?.data?.payload || [],
@@ -144,10 +176,13 @@ export const useConversations = (filters: ConversationFilters) => {
       toggleStatusMutation.mutate({ conversationId, status }),
     togglePriority: (conversationId: number, priority: PriorityType) => 
       togglePriorityMutation.mutate({ conversationId, priority }),
+    updateLabels: (conversationId: number, labels: Label[]) => 
+      updateLabelsMutation.mutate({ conversationId, labels }),
     
     // Loading states
     isStatusLoading: toggleStatusMutation.isPending,
     isPriorityLoading: togglePriorityMutation.isPending,
+    isLabelsLoading: updateLabelsMutation.isPending,
     assignAgent: (conversationId: number, agentId: number) => 
       assignAgentMutation.mutate({ conversationId, agentId }),
     assignTeam: (conversationId: number, teamId: number) => 
