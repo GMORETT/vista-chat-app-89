@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useChatStore } from '../../state/useChatStore';
+import { useMessages } from '../../hooks/useMessages';
 import { Message } from '../../models';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -7,18 +8,22 @@ import { mockMessages } from '../../data/mockData';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
+import { LoadNewerMessagesButton } from './LoadNewerMessagesButton';
 
 interface MessageListProps {}
 
 export const MessageList: React.FC<MessageListProps> = () => {
   const { selectedConversationId } = useChatStore();
+  const { messages, isLoading, loadMoreMessages, loadNewerMessages } = useMessages(selectedConversationId);
   const listRef = useRef<VirtuosoHandle>(null);
 
-  // Get messages from mock data
-  const messages = useMemo(() => {
+  // Use messages from the hook or fallback to mock data for demo
+  const displayMessages = useMemo(() => {
+    if (messages.length > 0) return messages;
+    
     if (!selectedConversationId) return [];
     
-    // Generate messages if not already generated
+    // Generate messages if not already generated (for demo purposes)
     if (!mockMessages[selectedConversationId]) {
       const messageCount = Math.floor(Math.random() * 15) + 5;
       const messageTypes = [
@@ -97,14 +102,14 @@ export const MessageList: React.FC<MessageListProps> = () => {
     }
     
     return mockMessages[selectedConversationId] || [];
-  }, [selectedConversationId]);
+  }, [selectedConversationId, messages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (listRef.current && messages.length > 0) {
-      listRef.current.scrollToIndex({ index: messages.length - 1, align: 'end' });
+    if (listRef.current && displayMessages.length > 0) {
+      listRef.current.scrollToIndex({ index: displayMessages.length - 1, align: 'end' });
     }
-  }, [messages.length]);
+  }, [displayMessages.length]);
 
   if (!selectedConversationId) {
     return (
@@ -131,7 +136,7 @@ export const MessageList: React.FC<MessageListProps> = () => {
     </div>
   );
 
-  if (messages.length === 0) {
+  if (displayMessages.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-muted">
         <div className="text-center">
@@ -160,7 +165,7 @@ export const MessageList: React.FC<MessageListProps> = () => {
 
     // Group messages by time (show timestamp only if >5 min apart)
     const showTimestamp = index === 0 || 
-      (messages[index - 1] && message.created_at - messages[index - 1].created_at > 300);
+      (displayMessages[index - 1] && message.created_at - displayMessages[index - 1].created_at > 300);
 
     return (
       <div className="px-4 py-1">
@@ -258,31 +263,41 @@ export const MessageList: React.FC<MessageListProps> = () => {
   };
 
   return (
-    <div className="h-full">
-      <Virtuoso
-        ref={listRef}
-        data={messages}
-        itemContent={(index, message) => (
-          <MessageItem key={message.id} message={message} index={index} />
-        )}
-        followOutput="smooth"
-        className="message-list h-full"
-        components={{
-          EmptyPlaceholder: () => (
-            <div className="flex items-center justify-center h-full text-center p-8">
-              <div>
-                <div className="text-6xl mb-4">💬</div>
-                <div className="text-lg font-heading text-foreground mb-2">
-                  Inicie a conversa
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Envie a primeira mensagem para começar o atendimento
+    <div className="h-full flex flex-col">
+      {/* Load newer messages button */}
+      <LoadNewerMessagesButton
+        onLoadNewer={loadNewerMessages}
+        isLoading={isLoading}
+        hasNewerMessages={false} // TODO: Implement logic to detect newer messages
+      />
+      
+      <div className="flex-1">
+        <Virtuoso
+          ref={listRef}
+          data={displayMessages}
+          itemContent={(index, message) => (
+            <MessageItem key={message.id} message={message} index={index} />
+          )}
+          followOutput="smooth"
+          className="message-list h-full"
+          startReached={loadMoreMessages}
+          components={{
+            EmptyPlaceholder: () => (
+              <div className="flex items-center justify-center h-full text-center p-8">
+                <div>
+                  <div className="text-6xl mb-4">💬</div>
+                  <div className="text-lg font-heading text-foreground mb-2">
+                    Inicie a conversa
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Envie a primeira mensagem para começar o atendimento
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        }}
-      />
+            )
+          }}
+        />
+      </div>
     </div>
   );
 };

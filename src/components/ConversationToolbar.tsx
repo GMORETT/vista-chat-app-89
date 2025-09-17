@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Filter, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Filter, ArrowUpDown, ArrowRight, ArrowLeft, Search } from 'lucide-react';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useUiStore } from '../state/uiStore';
 import { useChatStore } from '../state/useChatStore';
@@ -10,7 +11,7 @@ import { SortByPopover } from './SortByPopover';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
-  const { selectedConversationId } = useChatStore();
+  const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
   const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
@@ -29,6 +30,17 @@ export const ConversationToolbar: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-2 p-3 bg-card">
+        {/* Search input */}
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar conversas..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-8"
+          />
+        </div>
+
         <Button
           variant="ghost"
           size="sm"
@@ -36,7 +48,7 @@ export const ConversationToolbar: React.FC = () => {
           className="h-8 px-2 text-muted-foreground hover:text-foreground"
         >
           <Filter className="h-4 w-4 mr-2" />
-          Filter conversations
+          Filtros
         </Button>
 
         <SortByPopover />

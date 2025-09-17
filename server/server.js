@@ -69,8 +69,83 @@ const filterConversations = (conversations, query) => {
     );
   }
 
-  // Sort by created_at descending by default
-  filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  // Text search (q parameter)
+  if (query.q) {
+    const searchTerm = query.q.toLowerCase();
+    filtered = filtered.filter(conv => {
+      const contactName = conv.meta.sender.name?.toLowerCase() || '';
+      const contactEmail = conv.meta.sender.email?.toLowerCase() || '';
+      const contactPhone = conv.meta.sender.phone_number?.toLowerCase() || '';
+      
+      return contactName.includes(searchTerm) || 
+             contactEmail.includes(searchTerm) || 
+             contactPhone.includes(searchTerm);
+    });
+  }
+
+  // Updated within filter
+  if (query.updated_within) {
+    const now = new Date();
+    let cutoffDate;
+    
+    switch (query.updated_within) {
+      case '1d':
+        cutoffDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case '7d':
+        cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        cutoffDate = null;
+    }
+    
+    if (cutoffDate) {
+      filtered = filtered.filter(conv => new Date(conv.updated_at) >= cutoffDate);
+    }
+  }
+
+  // Sorting
+  if (query.sort_by) {
+    switch (query.sort_by) {
+      case 'last_activity_at_desc':
+        filtered.sort((a, b) => new Date(b.last_activity_at) - new Date(a.last_activity_at));
+        break;
+      case 'last_activity_at_asc':
+        filtered.sort((a, b) => new Date(a.last_activity_at) - new Date(b.last_activity_at));
+        break;
+      case 'created_at_desc':
+        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      case 'created_at_asc':
+        filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        break;
+      case 'priority_desc':
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1, null: 0 };
+        filtered.sort((a, b) => (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0));
+        break;
+      case 'priority_asc':
+        const priorityOrderAsc = { urgent: 4, high: 3, medium: 2, low: 1, null: 0 };
+        filtered.sort((a, b) => (priorityOrderAsc[a.priority] || 0) - (priorityOrderAsc[b.priority] || 0));
+        break;
+      case 'waiting_since_desc':
+        filtered.sort((a, b) => (b.waiting_since || 0) - (a.waiting_since || 0));
+        break;
+      case 'waiting_since_asc':
+        filtered.sort((a, b) => (a.waiting_since || 0) - (b.waiting_since || 0));
+        break;
+      default:
+        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+  } else {
+    // Default sort by created_at descending
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
 
   return filtered;
 };
@@ -80,13 +155,27 @@ app.get('/api/messaging/conversations', async (req, res) => {
   await delay();
   
   try {
-    const { page = 1, status, assignee_type, inbox_id, team_id, labels } = req.query;
+    const { 
+      page = 1, 
+      status, 
+      assignee_type, 
+      inbox_id, 
+      team_id, 
+      labels, 
+      q, 
+      sort_by, 
+      updated_within 
+    } = req.query;
+    
     const query = {
       status,
       assignee_type,
       inbox_id,
       team_id,
-      labels: labels ? (Array.isArray(labels) ? labels : [labels]) : []
+      labels: labels ? (Array.isArray(labels) ? labels : [labels]) : [],
+      q,
+      sort_by,
+      updated_within
     };
 
     const filtered = filterConversations(mockData.conversations, query);
@@ -108,8 +197,30 @@ app.get('/api/messaging/conversations/meta', async (req, res) => {
   await delay();
   
   try {
+    const { status, assignee_type, inbox_id, team_id, labels, q, updated_within } = req.query;
+    const query = {
+      status,
+      assignee_type,
+      inbox_id,
+      team_id,
+      labels: labels ? (Array.isArray(labels) ? labels : [labels]) : [],
+      q,
+      updated_within
+    };
+
+    // Calculate dynamic meta counts based on current filters
+    const allConversations = mockData.conversations;
+    const filteredConversations = filterConversations(allConversations, query);
+    
+    const dynamicMeta = {
+      mine_count: filterConversations(allConversations, { ...query, assignee_type: 'me' }).length,
+      unassigned_count: filterConversations(allConversations, { ...query, assignee_type: 'unassigned' }).length,
+      assigned_count: filterConversations(allConversations, { ...query, assignee_type: 'assigned' }).length,
+      all_count: filteredConversations.length,
+    };
+
     res.json({
-      data: mockData.conversationMeta,
+      data: dynamicMeta,
       error: null
     });
   } catch (error) {
@@ -151,19 +262,24 @@ app.get('/api/messaging/conversations/:id/messages', async (req, res) => {
   
   try {
     const conversationId = parseInt(req.params.id);
-    const { page = 1, before, after } = req.query;
+    const { page = 1, before, after, limit = 20 } = req.query;
     
     let messages = mockData.getMessages(conversationId);
     
-    // Simple before/after filtering (in real implementation, this would be more sophisticated)
+    // Before/after filtering for pagination
     if (before) {
-      messages = messages.filter(m => new Date(m.created_at) < new Date(before));
+      const beforeTimestamp = parseInt(before);
+      messages = messages.filter(m => m.created_at < beforeTimestamp);
     }
     if (after) {
-      messages = messages.filter(m => new Date(m.created_at) > new Date(after));
+      const afterTimestamp = parseInt(after);
+      messages = messages.filter(m => m.created_at > afterTimestamp);
     }
 
-    const result = paginate(messages, parseInt(page));
+    // Sort messages by timestamp (oldest first for proper pagination)
+    messages.sort((a, b) => a.created_at - b.created_at);
+
+    const result = paginate(messages, parseInt(page), parseInt(limit));
 
     res.json({
       data: result,

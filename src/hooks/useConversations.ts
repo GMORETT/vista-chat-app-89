@@ -17,7 +17,8 @@ export const useConversations = (filters: ConversationFilters) => {
     team_id: filters.team_id,
     labels: filters.labels,
     sort_by: filters.sort_by,
-    q: filters.search,
+    q: filters.q,
+    updated_within: filters.updated_within,
   };
 
   const conversationsQuery = useQuery({
@@ -44,7 +45,7 @@ export const useConversations = (filters: ConversationFilters) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations', 'meta'] });
+      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
     },
   });
 
@@ -59,7 +60,7 @@ export const useConversations = (filters: ConversationFilters) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations', 'meta'] });
+      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
     },
   });
 
@@ -74,7 +75,7 @@ export const useConversations = (filters: ConversationFilters) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations', 'meta'] });
+      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
     },
   });
 
@@ -89,7 +90,7 @@ export const useConversations = (filters: ConversationFilters) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations', 'meta'] });
+      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
     },
   });
 
@@ -118,7 +119,7 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
   return useQuery({
-    queryKey: ['conversations', 'meta', filters],
+    queryKey: ['conversationsMeta', filters],
     queryFn: async (): Promise<ConversationMeta> => {
       const response = await chatService.getConversationsMeta();
       if (response.error) {

@@ -92,7 +92,8 @@ const defaultFilters: ConversationFilters = {
   team_id: undefined,
   labels: [],
   sort_by: 'last_activity_at_desc',
-  search: undefined,
+  q: undefined,
+  updated_within: undefined,
   page: 1,
 };
 
@@ -175,7 +176,7 @@ export const useChatStore = create<ChatState>()(
       setSearchQuery: (query) => {
         set({ 
           searchQuery: query,
-          filters: { ...get().filters, search: query || undefined, page: 1 },
+          filters: { ...get().filters, q: query || undefined, page: 1 },
           currentPage: 1,
         });
       },

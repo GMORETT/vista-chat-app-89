@@ -170,6 +170,7 @@ export interface ConversationQuery {
 
 export interface MessageQuery {
   before?: string;
+  after?: string;
   limit?: number;
 }
 
@@ -369,7 +370,8 @@ export interface ConversationFilters {
   team_id?: number;
   labels: string[];
   sort_by: SortBy;
-  search?: string;
+  q?: string;
+  updated_within?: string;
   page?: number;
 }
 

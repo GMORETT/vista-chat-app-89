@@ -49,6 +49,9 @@ export class BffChatService implements IChatService {
     if (query?.inbox_id) params.inbox_id = query.inbox_id;
     if (query?.team_id) params.team_id = query.team_id;
     if (query?.labels?.length) params.labels = query.labels;
+    if (query?.q) params.q = query.q;
+    if (query?.sort_by) params.sort_by = query.sort_by;
+    if (query?.updated_within) params.updated_within = query.updated_within;
     if (query?.page) params.page = query.page;
 
     return apiClient.get('/api/messaging/conversations', params);
@@ -70,6 +73,8 @@ export class BffChatService implements IChatService {
     const params: Record<string, any> = {};
     
     if (query?.before) params.before = query.before;
+    if (query?.after) params.after = query.after;
+    if (query?.limit) params.limit = query.limit;
 
     return apiClient.get(`/api/messaging/conversations/${conversationId}/messages`, params);
   }

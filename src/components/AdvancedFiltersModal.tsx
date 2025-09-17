@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
 import { useChatStore } from '../state/useChatStore';
+import { useToast } from '../hooks/use-toast';
 
 interface FilterRule {
   id: string;
@@ -27,6 +28,7 @@ const filterFields = [
   { value: 'labels', label: 'Label' },
   { value: 'inbox_id', label: 'Inbox' },
   { value: 'priority', label: 'Priority' },
+  { value: 'updated_within', label: 'Updated Within' },
 ];
 
 const statusOptions = [
@@ -49,11 +51,19 @@ const priorityOptions = [
   { value: 'low', label: 'Low' },
 ];
 
+const updatedWithinOptions = [
+  { value: '1d', label: 'Last 24 hours' },
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+];
+
 export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   open,
   onOpenChange,
 }) => {
   const { filters, setFilters } = useChatStore();
+  const { toast } = useToast();
   const [rules, setRules] = useState<FilterRule[]>([]);
 
   const addNewRule = () => {
@@ -82,14 +92,55 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
       case 'status': return statusOptions;
       case 'assignee_type': return activityOptions;
       case 'priority': return priorityOptions;
+      case 'updated_within': return updatedWithinOptions;
       default: return [];
     }
   };
 
   const applyFilters = () => {
-    // Here you would convert the rules to the appropriate filter format
-    // For now, we'll just close the modal
-    onOpenChange(false);
+    try {
+      const newFilters = { ...filters };
+      
+      rules.forEach(rule => {
+        switch (rule.field) {
+          case 'status':
+            newFilters.status = rule.value as any;
+            break;
+          case 'assignee_type':
+            newFilters.assignee_type = rule.value as any;
+            break;
+          case 'team_id':
+            newFilters.team_id = parseInt(rule.value);
+            break;
+          case 'inbox_id':
+            newFilters.inbox_id = parseInt(rule.value);
+            break;
+          case 'updated_within':
+            newFilters.updated_within = rule.value;
+            break;
+          case 'labels':
+            if (!newFilters.labels.includes(rule.value)) {
+              newFilters.labels.push(rule.value);
+            }
+            break;
+          default:
+            break;
+        }
+      });
+      
+      setFilters(newFilters);
+      toast({
+        title: "Filtros aplicados",
+        description: "Os filtros foram aplicados com sucesso.",
+      });
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Erro ao aplicar filtros",
+        description: "Ocorreu um erro ao aplicar os filtros.",
+        variant: "destructive",
+      });
+    }
   };
 
   const clearAllRules = () => {

@@ -121,6 +121,38 @@ export const useMessages = (conversationId: number | null, filters?: MessageFilt
     }
   };
 
+  const loadNewerMessages = async () => {
+    if (!conversationId || messagesQuery.isFetching) return;
+    
+    const currentMessages = messagesQuery.data?.payload || [];
+    if (currentMessages.length === 0) return;
+    
+    const newestMessage = currentMessages[0];
+    const afterTimestamp = newestMessage.created_at.toString();
+    
+    const newerQuery: MessageQuery = {
+      after: afterTimestamp,
+      limit: filters?.limit || 20,
+    };
+    
+    const response = await chatService.getMessages(conversationId, newerQuery);
+    if (response.error || !response.data) return;
+    
+    const newerMessages = response.data;
+    
+    if (newerMessages.payload.length > 0) {
+      // Merge with existing data
+      queryClient.setQueryData(['messages', conversationId, query], (old: MessagesResponse | undefined) => {
+        if (!old) return newerMessages;
+        
+        return {
+          ...old,
+          payload: [...newerMessages.payload, ...old.payload],
+        };
+      });
+    }
+  };
+
   return {
     // Data
     messages: messagesQuery.data?.payload || [],
@@ -136,6 +168,7 @@ export const useMessages = (conversationId: number | null, filters?: MessageFilt
       sendFilesMutation.mutate({ files, content });
     },
     loadMoreMessages,
+    loadNewerMessages,
     refetch: messagesQuery.refetch,
   };
 };
