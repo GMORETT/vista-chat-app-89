@@ -20,7 +20,6 @@ export const TabsCounts: React.FC = () => {
   const tabs: { value: AssignType; label: string; countKey: keyof typeof counts }[] = [
     { value: 'me', label: 'Minhas', countKey: 'mine_count' },
     { value: 'unassigned', label: 'Não Atribuídas', countKey: 'unassigned_count' },
-    { value: 'assigned', label: 'Atribuídas', countKey: 'assigned_count' },
     { value: 'all', label: 'Todas', countKey: 'all_count' },
   ];
 

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useUiStore } from '../state/uiStore';
 import { ConversationFilters } from '../components/ConversationFilters';
+import { ConversationToolbar } from '../components/ConversationToolbar';
 import { TabsCounts } from '../components/TabsCounts';
 import { ConversationList } from '../components/ConversationList';
 import { MessageList } from '../components/ChatWindow/MessageList';
@@ -12,6 +13,7 @@ export const InboxPage: React.FC = () => {
   const { 
     isMobile, 
     activePane, 
+    isExpanded,
     setIsMobile, 
     setActivePane 
   } = useUiStore();
@@ -39,12 +41,12 @@ export const InboxPage: React.FC = () => {
         className={`
           ${isMobile 
             ? activePane === 'list' ? 'w-full' : 'hidden'
-            : 'w-[420px]'
+            : isExpanded ? 'hidden' : 'w-[420px]'
           } 
           border-r border-border bg-card flex-shrink-0 flex flex-col
         `}
       >
-        {(!isMobile || activePane === 'list') && (
+        {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
             {/* Header with brand */}
             <div className="p-4 border-b border-border">
@@ -64,12 +66,15 @@ export const InboxPage: React.FC = () => {
             {/* Filters */}
             <ConversationFilters />
             
+            {/* Toolbar */}
+            <ConversationToolbar />
+            
             {/* Tabs */}
             <TabsCounts />
             
             {/* List */}
             <div className="flex-1">
-              <ConversationList height={isMobile ? window.innerHeight - 220 : window.innerHeight - 180} />
+              <ConversationList height={isMobile ? window.innerHeight - 300 : window.innerHeight - 260} />
             </div>
           </>
         )}
