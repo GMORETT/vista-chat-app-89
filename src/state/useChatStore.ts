@@ -7,22 +7,34 @@ import {
   AssignType, 
   StatusType, 
   SortBy,
-  Message 
+  Message,
+  ConversationMeta 
 } from '../models';
+import { mockConversations } from '../data/mockData';
 
 // Centralized chat state interface
 interface ChatState {
+  // Data
+  conversations: Conversation[];
+  meta: ConversationMeta | null;
+  
   // Active tab
   activeTab: AssignType;
   
   // Filters state
   filters: ConversationFilters;
   searchQuery: string;
+  isLoading: boolean;
+  error: string | null;
   
   // Selected entities
   selectedConversationId: number | null;
   selectedConversation: Conversation | null;
   selectedContact: Contact | null;
+  
+  // Pagination
+  currentPage: number;
+  hasNextPage: boolean;
   
   // Draft messages (by conversation ID)
   drafts: Record<number, string>;
@@ -36,6 +48,12 @@ interface ChatState {
   activePane: 'sidebar' | 'list' | 'conversation';
   
   // Actions
+  setConversations: (conversations: Conversation[]) => void;
+  addConversation: (conversation: Conversation) => void;
+  updateConversation: (conversation: Conversation) => void;
+  removeConversation: (id: number) => void;
+  setMeta: (meta: ConversationMeta) => void;
+  
   setActiveTab: (tab: AssignType) => void;
   setFilters: (filters: Partial<ConversationFilters>) => void;
   setSearchQuery: (query: string) => void;
@@ -43,7 +61,14 @@ interface ChatState {
   
   setSelectedConversationId: (id: number | null) => void;
   setSelectedConversation: (conversation: Conversation | null) => void;
+  setSelectedConversationData: (conversation: Conversation | null) => void;
   setSelectedContact: (contact: Contact | null) => void;
+  
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  
+  setCurrentPage: (page: number) => void;
+  setHasNextPage: (hasNext: boolean) => void;
   
   setDraft: (conversationId: number, draft: string) => void;
   getDraft: (conversationId: number) => string;
@@ -68,6 +93,14 @@ const defaultFilters: ConversationFilters = {
   labels: [],
   sort_by: 'last_activity_at_desc',
   search: undefined,
+  page: 1,
+};
+
+const defaultMeta: ConversationMeta = {
+  mine_count: 0,
+  unassigned_count: 0,
+  assigned_count: 0,
+  all_count: 0,
 };
 
 // Persistent fields
@@ -77,13 +110,21 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       // Initial state
+      conversations: mockConversations,
+      meta: defaultMeta,
+      
       activeTab: 'all',
       filters: defaultFilters,
       searchQuery: '',
+      isLoading: false,
+      error: null,
       
       selectedConversationId: null,
       selectedConversation: null,
       selectedContact: null,
+      
+      currentPage: 1,
+      hasNextPage: false,
       
       drafts: {},
       
@@ -94,6 +135,29 @@ export const useChatStore = create<ChatState>()(
       activePane: 'list',
       
       // Actions
+      setConversations: (conversations) => set({ conversations }),
+      
+      addConversation: (conversation) => set((state) => ({
+        conversations: [conversation, ...state.conversations],
+      })),
+      
+      updateConversation: (updatedConversation) => set((state) => ({
+        conversations: state.conversations.map(conv => 
+          conv.id === updatedConversation.id ? updatedConversation : conv
+        ),
+        selectedConversation: state.selectedConversationId === updatedConversation.id 
+          ? updatedConversation 
+          : state.selectedConversation,
+      })),
+      
+      removeConversation: (id) => set((state) => ({
+        conversations: state.conversations.filter(conv => conv.id !== id),
+        selectedConversationId: state.selectedConversationId === id ? null : state.selectedConversationId,
+        selectedConversation: state.selectedConversationId === id ? null : state.selectedConversation,
+      })),
+      
+      setMeta: (meta) => set({ meta }),
+      
       setActiveTab: (tab) => {
         set({ 
           activeTab: tab,
@@ -103,14 +167,16 @@ export const useChatStore = create<ChatState>()(
       
       setFilters: (newFilters) => {
         set((state) => ({
-          filters: { ...state.filters, ...newFilters }
+          filters: { ...state.filters, ...newFilters, page: 1 },
+          currentPage: 1,
         }));
       },
       
       setSearchQuery: (query) => {
         set({ 
           searchQuery: query,
-          filters: { ...get().filters, search: query || undefined }
+          filters: { ...get().filters, search: query || undefined, page: 1 },
+          currentPage: 1,
         });
       },
       
@@ -122,7 +188,17 @@ export const useChatStore = create<ChatState>()(
       },
       
       setSelectedConversationId: (id) => {
-        set({ selectedConversationId: id });
+        let conversation = null;
+        if (id) {
+          conversation = get().conversations.find(c => c.id === id);
+          if (!conversation) {
+            conversation = mockConversations.find(c => c.id === id) || null;
+          }
+        }
+        set({ 
+          selectedConversationId: id,
+          selectedConversation: conversation,
+        });
       },
       
       setSelectedConversation: (conversation) => {
@@ -133,9 +209,20 @@ export const useChatStore = create<ChatState>()(
         });
       },
       
+      setSelectedConversationData: (conversation) => set({ selectedConversation: conversation }),
+      
       setSelectedContact: (contact) => {
         set({ selectedContact: contact });
       },
+      
+      setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
+      
+      setCurrentPage: (page) => set((state) => ({ 
+        currentPage: page,
+        filters: { ...state.filters, page },
+      })),
+      setHasNextPage: (hasNext) => set({ hasNextPage: hasNext }),
       
       setDraft: (conversationId, draft) => {
         set((state) => ({
@@ -176,12 +263,18 @@ export const useChatStore = create<ChatState>()(
       
       reset: () => {
         set({
+          conversations: mockConversations,
+          meta: defaultMeta,
           activeTab: 'all',
           filters: defaultFilters,
           searchQuery: '',
+          isLoading: false,
+          error: null,
           selectedConversationId: null,
           selectedConversation: null,
           selectedContact: null,
+          currentPage: 1,
+          hasNextPage: false,
           activePane: 'list',
         });
       },

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
-import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 
 interface FilterRule {
   id: string;
@@ -53,7 +53,7 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { filters, setFilters } = useConversationStore();
+  const { filters, setFilters } = useChatStore();
   const [rules, setRules] = useState<FilterRule[]>([]);
 
   const addNewRule = () => {

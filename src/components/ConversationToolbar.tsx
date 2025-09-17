@@ -3,14 +3,14 @@ import { Filter, ArrowUpDown, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useUiStore } from '../state/uiStore';
-import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 import { useToast } from '../hooks/use-toast';
 import { AdvancedFiltersModal } from './AdvancedFiltersModal';
 import { SortByPopover } from './SortByPopover';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
-  const { selectedConversationId } = useConversationStore();
+  const { selectedConversationId } = useChatStore();
   const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 

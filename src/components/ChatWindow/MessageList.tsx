@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import { useConversationStore } from '../../state/conversationStore';
+import { useChatStore } from '../../state/useChatStore';
 import { Message } from '../../models';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -13,7 +13,7 @@ interface MessageListProps {
 }
 
 export const MessageList: React.FC<MessageListProps> = ({ height }) => {
-  const { selectedConversationId } = useConversationStore();
+  const { selectedConversationId } = useChatStore();
   const listRef = useRef<VirtuosoHandle>(null);
 
   // Get messages from mock data

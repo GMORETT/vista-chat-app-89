@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useUiStore } from '../state/uiStore';
-import { useConversationStore } from '../state/conversationStore';
 import { useChatStore } from '../state/useChatStore';
 import { ConversationFilters } from '../components/ConversationFilters';
 import { TabsCounts } from '../components/TabsCounts';
@@ -21,8 +20,7 @@ export const InboxPage: React.FC = () => {
     setActivePane,
     setIsExpanded
   } = useUiStore();
-  const { selectedConversationId } = useConversationStore();
-  const { searchQuery, setSearchQuery } = useChatStore();
+  const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   // Debounce search

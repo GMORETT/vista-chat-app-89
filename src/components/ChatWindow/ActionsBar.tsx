@@ -1,7 +1,6 @@
 import React from 'react';
-import { useConversationStore } from '../../state/conversationStore';
-import { useConversations } from '../../hooks/useConversations';
 import { useChatStore } from '../../state/useChatStore';
+import { useConversations } from '../../hooks/useConversations';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { 
   CheckCircle, 
@@ -15,8 +14,7 @@ import {
 } from 'lucide-react';
 
 export const ActionsBar: React.FC = () => {
-  const { selectedConversation } = useConversationStore();
-  const { filters } = useChatStore();
+  const { selectedConversation, filters } = useChatStore();
   const { toggleStatus, togglePriority } = useConversations(filters);
 
   if (!selectedConversation) {

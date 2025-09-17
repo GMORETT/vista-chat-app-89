@@ -370,6 +370,7 @@ export interface ConversationFilters {
   labels: string[];
   sort_by: SortBy;
   search?: string;
+  page?: number;
 }
 
 export interface MessageFilters {

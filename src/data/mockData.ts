@@ -2,11 +2,11 @@ import { Conversation, Message, Contact, Agent, Team, Inbox, Label, StatusType, 
 
 // Mock Agents
 export const mockAgents: Agent[] = [
-  { id: 1, name: 'Ana Silva', email: 'ana@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 2, name: 'Carlos Santos', email: 'carlos@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 3, name: 'Maria Costa', email: 'maria@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent' },
-  { id: 4, name: 'João Pereira', email: 'joao@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 5, name: 'Lucia Oliveira', email: 'lucia@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator' },
+  { id: 1, name: 'Samuel França', email: 'samuel@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 2, name: 'Marina Costa', email: 'marina@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 3, name: 'Rafael Duarte', email: 'rafael@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent' },
+  { id: 4, name: 'Camila Barros', email: 'camila@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 5, name: 'Diego Fernandes', email: 'diego@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator' },
 ];
 
 // Mock Teams

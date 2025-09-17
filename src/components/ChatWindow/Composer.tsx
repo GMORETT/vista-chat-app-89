@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { useConversationStore } from '../../state/conversationStore';
+import { useChatStore } from '../../state/useChatStore';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Send, Paperclip, X, Image, FileText } from 'lucide-react';
@@ -17,7 +17,7 @@ export const Composer: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const { selectedConversationId } = useConversationStore();
+  const { selectedConversationId } = useChatStore();
 
   const handleSendMessage = useCallback(() => {
     if (!selectedConversationId) return;

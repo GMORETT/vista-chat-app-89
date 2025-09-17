@@ -2,54 +2,58 @@
 // This uses the same data structure as the frontend MockChatService
 
 const mockAgents = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', availability_status: 'online' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', availability_status: 'busy' },
-  { id: 3, name: 'Bob Wilson', email: 'bob@example.com', availability_status: 'offline' },
+  { id: 1, name: 'Samuel França', email: 'samuel@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 2, name: 'Marina Costa', email: 'marina@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 3, name: 'Rafael Duarte', email: 'rafael@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent' },
+  { id: 4, name: 'Camila Barros', email: 'camila@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
+  { id: 5, name: 'Diego Fernandes', email: 'diego@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator' },
 ];
 
 const mockTeams = [
-  { id: 1, name: 'Support Team', description: 'Customer support team' },
-  { id: 2, name: 'Sales Team', description: 'Sales and business development' },
+  { id: 1, name: 'Vendas', description: 'Equipe de vendas', allow_auto_assign: true, account_id: 1 },
+  { id: 2, name: 'Suporte', description: 'Equipe de suporte técnico', allow_auto_assign: true, account_id: 1 },
+  { id: 3, name: 'Marketing', description: 'Equipe de marketing', allow_auto_assign: false, account_id: 1 },
+  { id: 4, name: 'Financeiro', description: 'Equipe financeira', allow_auto_assign: true, account_id: 1 },
 ];
 
 const mockInboxes = [
-  { id: 1, name: 'Website', channel_type: 'Channel::WebWidget' },
-  { id: 2, name: 'Email Support', channel_type: 'Channel::Email' },
-  { id: 3, name: 'Facebook', channel_type: 'Channel::FacebookPage' },
-  { id: 4, name: 'WhatsApp', channel_type: 'Channel::Whatsapp' },
+  { id: 1, name: 'Site Principal', channel_type: 'website', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 2, name: 'WhatsApp Business', channel_type: 'whatsapp', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 3, name: 'Email Suporte', channel_type: 'email', greeting_enabled: false, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 4, name: 'Instagram', channel_type: 'instagram', greeting_enabled: true, enable_auto_assignment: false, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 5, name: 'Facebook', channel_type: 'facebook', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
 ];
 
 const mockLabels = [
-  { id: 1, title: 'bug', color: '#FF0000', show_on_sidebar: true },
-  { id: 2, title: 'feature-request', color: '#00FF00', show_on_sidebar: true },
-  { id: 3, title: 'urgent', color: '#FFA500', show_on_sidebar: true },
-  { id: 4, title: 'billing', color: '#0000FF', show_on_sidebar: false },
-  { id: 5, title: 'refund', color: '#800080', show_on_sidebar: false },
+  { id: 1, title: 'Urgente', description: 'Requer atenção imediata', color: '#ef4444', show_on_sidebar: true },
+  { id: 2, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true },
+  { id: 3, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false },
+  { id: 4, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true },
+  { id: 5, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true },
+  { id: 6, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false },
+  { id: 7, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false },
+  { id: 8, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true },
 ];
 
 const generateContacts = () => {
-  const names = [
-    'Alice Johnson', 'Bob Smith', 'Carol Davis', 'David Brown', 'Emma Wilson',
-    'Frank Miller', 'Grace Lee', 'Henry Taylor', 'Ivy Chen', 'Jack Anderson',
-    'Kate Thompson', 'Liam Garcia', 'Mia Rodriguez', 'Noah Martinez', 'Olivia Lopez',
-    'Paul Hernandez', 'Quinn Moore', 'Rachel Jackson', 'Sam White', 'Tina Hall'
-  ];
-  
+  const firstNames = ['Ana', 'Carlos', 'Maria', 'João', 'Lucia', 'Pedro', 'Julia', 'Roberto', 'Fernanda', 'Marcos'];
+  const lastNames = ['Silva', 'Santos', 'Costa', 'Pereira', 'Oliveira', 'Souza', 'Lima', 'Ferreira', 'Alves', 'Ribeiro'];
+  const domains = ['gmail.com', 'outlook.com', 'empresa.com', 'teste.com', 'exemplo.com'];
+
   const contacts = [];
   for (let i = 1; i <= 50; i++) {
-    const name = names[i % names.length] || `Contact ${i}`;
+    const firstName = firstNames[i % firstNames.length];
+    const lastName = lastNames[Math.floor(i / firstNames.length) % lastNames.length];
+    const domain = domains[i % domains.length];
+    
     contacts.push({
       id: i,
-      name,
-      email: `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-      phone_number: `+1${String(Math.floor(Math.random() * 9000000000) + 1000000000)}`,
-      identifier: `contact_${i}`,
-      additional_attributes: {
-        city: 'New York',
-        country: 'USA',
-        labels: i % 3 === 0 ? ['vip'] : []
-      },
-      created_at: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`,
+      phone_number: `+5511${String(Math.floor(Math.random() * 900000000) + 100000000)}`,
+      avatar_url: null,
+      created_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 365 * 24 * 60 * 60),
+      custom_attributes: {},
     });
   }
   return contacts;
@@ -58,101 +62,150 @@ const generateContacts = () => {
 const mockContacts = generateContacts();
 
 const generateMessages = (conversationId, count = 10) => {
-  const messages = [];
-  const messageTypes = ['incoming', 'outgoing'];
-  const sampleMessages = [
-    'Hello, how can I help you today?',
-    'I have a question about my order',
-    'Thank you for contacting us',
-    'Can you please provide more details?',
-    'I\'ll look into this right away',
-    'Is there anything else I can help with?',
-    'Thanks for your patience',
-    'Let me check that for you',
-    'I understand your concern',
-    'We appreciate your feedback'
+  const messageTypes = [
+    'Olá! Preciso de ajuda com minha conta.',
+    'Não consigo acessar o sistema.',
+    'Quando será lançada a nova funcionalidade?',
+    'Obrigado pelo excelente atendimento!',
+    'Há quanto tempo vocês estão no mercado?',
+    'Qual é o valor do plano premium?',
+    'Posso cancelar a qualquer momento?',
+    'Vocês oferecem suporte 24/7?',
+    'Como faço para alterar minha senha?',
+    'Estou interessado nos seus serviços.',
   ];
 
+  const responses = [
+    'Olá! Claro, posso ajudá-lo. Qual é o problema específico?',
+    'Vou verificar isso para você. Um momento, por favor.',
+    'Entendo sua situação. Vamos resolver isso juntos.',
+    'Muito obrigado pelo feedback! Ficamos felizes em ajudar.',
+    'Deixe-me encaminhar sua solicitação para o setor responsável.',
+    'Sim, posso fornecer essas informações para você.',
+    'Perfeito! Vou processar sua solicitação agora.',
+    'Claro! Vou explicar o processo passo a passo.',
+    'Obrigado por entrar em contato conosco.',
+    'Fico à disposição para mais esclarecimentos.',
+  ];
+
+  const messages = [];
   for (let i = 1; i <= count; i++) {
-    const messageType = messageTypes[Math.floor(Math.random() * messageTypes.length)];
-    const isIncoming = messageType === 'incoming';
+    const isOutgoing = i % 3 === 0; // 1/3 são respostas do agente
+    const isPrivate = i % 10 === 9; // 1/10 são notas privadas
+    const hasAttachment = i % 15 === 14; // 1/15 têm anexos
     
-    messages.push({
+    const baseMessage = {
       id: conversationId * 1000 + i,
-      content: sampleMessages[Math.floor(Math.random() * sampleMessages.length)],
-      message_type: messageType,
-      created_at: new Date(Date.now() - (count - i) * 5 * 60 * 1000).toISOString(),
-      private: false,
-      source_id: null,
-      sender: isIncoming ? mockContacts[conversationId % mockContacts.length] : mockAgents[0],
+      content: isOutgoing 
+        ? responses[i % responses.length]
+        : messageTypes[i % messageTypes.length],
+      inbox_id: mockInboxes[conversationId % mockInboxes.length].id,
       conversation_id: conversationId,
-      attachments: Math.random() > 0.8 ? [{
-        id: i * 100,
+      message_type: isOutgoing ? 1 : 0, // 1 = outgoing, 0 = incoming
+      created_at: Math.floor(Date.now() / 1000) - ((count - i) * 60 * 5), // 5 min intervals
+      updated_at: Math.floor(Date.now() / 1000) - ((count - i) * 60 * 5),
+      private: isPrivate,
+      status: 'sent',
+      source_id: `msg_${conversationId}_${i}`,
+      content_type: 'text',
+      content_attributes: {},
+      sender_type: isOutgoing ? 'agent' : 'contact',
+      sender_id: isOutgoing ? mockAgents[0].id : conversationId,
+      external_source_ids: {},
+      additional_attributes: {},
+      processed_message_content: null,
+      sentiment: {},
+      conversation: {},
+      attachments: [],
+    };
+
+    if (hasAttachment) {
+      baseMessage.attachments = [{
+        id: i + 1,
         file_type: 'image',
-        account_id: 1,
-        file_size: 1024 * 50,
-        data_url: '/placeholder.svg',
-        thumb_url: '/placeholder.svg'
-      }] : []
-    });
+        extension: 'jpg',
+        data_url: `https://picsum.photos/200/200?random=${i}`,
+        thumb_url: `https://picsum.photos/100/100?random=${i}`,
+        file_url: `https://picsum.photos/200/200?random=${i}`,
+        file_size: Math.floor(Math.random() * 1000000) + 50000,
+        fallback_title: `imagem_${i + 1}.jpg`,
+        coordinates_lat: null,
+        coordinates_long: null,
+      }];
+    }
+
+    messages.push(baseMessage);
   }
 
   return messages;
 };
 
 const generateConversations = () => {
+  const statuses = ['open', 'pending', 'snoozed', 'resolved'];
+  const priorities = [null, 'low', 'medium', 'high', 'urgent'];
+  
   const conversations = [];
-  const statuses = ['open', 'resolved', 'pending'];
-  const priorities = ['low', 'medium', 'high', 'urgent'];
-
   for (let i = 1; i <= 60; i++) {
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const priority = Math.random() > 0.7 ? priorities[Math.floor(Math.random() * priorities.length)] : null;
-    const inbox = mockInboxes[Math.floor(Math.random() * mockInboxes.length)];
     const contact = mockContacts[i % mockContacts.length];
-    const assignee = Math.random() > 0.4 ? mockAgents[Math.floor(Math.random() * mockAgents.length)] : null;
-    const team = Math.random() > 0.6 ? mockTeams[Math.floor(Math.random() * mockTeams.length)] : null;
+    const inbox = mockInboxes[i % mockInboxes.length];
+    const status = statuses[i % statuses.length];
+    const priority = priorities[i % priorities.length];
+    const assignee = i % 3 === 0 ? mockAgents[i % mockAgents.length] : null;
+    const unreadCount = status === 'open' ? Math.floor(Math.random() * 5) : 0;
+    const labelCount = Math.floor(Math.random() * 4);
+    const conversationLabels = mockLabels.slice(0, labelCount);
     
-    // Random labels (0-3 labels per conversation)
-    const conversationLabels = [];
-    const numLabels = Math.floor(Math.random() * 4);
-    for (let j = 0; j < numLabels; j++) {
-      const label = mockLabels[Math.floor(Math.random() * mockLabels.length)];
-      if (!conversationLabels.find(l => l.id === label.id)) {
-        conversationLabels.push(label);
-      }
-    }
-
     conversations.push({
       id: i,
+      messages: [],
       account_id: 1,
-      inbox,
-      contact,
-      assignee,
-      team,
+      inbox_id: inbox.id,
+      inbox: inbox,
       status,
+      assignee_id: assignee?.id || null,
+      team_id: assignee ? mockTeams[i % mockTeams.length].id : null,
+      display_id: i + 1000,
+      additional_attributes: {},
+      agent_last_seen_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400),
+      assignee_last_seen_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400),
+      can_reply: true,
+      channel: inbox.channel_type,
+      contact_last_seen_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
+      created_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 365 * 24 * 60 * 60),
+      custom_attributes: {},
+      first_reply_created_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 365 * 24 * 60 * 60),
+      identifier: `conv_${i}`,
+      last_activity_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400),
+      last_non_activity_message: null,
+      muted: false,
       priority,
+      snoozed_until: status === 'snoozed' ? Math.floor(Date.now() / 1000) + 86400 : null,
+      timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400),
+      unread_count: unreadCount,
+      updated_at: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
+      uuid: `uuid_${i}`,
+      waiting_since: status === 'pending' ? Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400) : null,
       labels: conversationLabels,
-      unread_count: status === 'open' ? Math.floor(Math.random() * 5) : 0,
-      last_activity_at: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      timestamp: Date.now() - Math.random() * 24 * 60 * 60 * 1000,
-      first_reply_created_at: new Date(Date.now() - Math.random() * 23 * 60 * 60 * 1000).toISOString(),
-      waiting_since: Math.random() > 0.5 ? Date.now() - Math.random() * 60 * 60 * 1000 : null,
-      snoozed_until: null,
-      custom_attributes: {
-        source: inbox.channel_type,
-        browser: 'Chrome',
-        referer: 'https://example.com'
-      },
       meta: {
         sender: contact,
-        assignee: assignee
-      }
+        assignee: assignee,
+        team: assignee ? mockTeams.find(t => t.id === mockTeams[i % mockTeams.length].id) || null : null,
+        hmac_verified: true,
+        channel: inbox.channel_type,
+        browser: {
+          device_name: 'Desktop',
+          browser_name: 'Chrome',
+          browser_version: '120.0.0.0',
+          platform_name: 'Windows',
+          platform_version: '10',
+        },
+        referer: null,
+        custom_attributes: {},
+      },
     });
   }
 
-  return conversations.sort((a, b) => new Date(b.last_activity_at) - new Date(a.last_activity_at));
+  return conversations;
 };
 
 const mockConversations = generateConversations();

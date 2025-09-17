@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useConversation } from '../hooks/useConversations';
-import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
@@ -10,14 +10,14 @@ export const ConversationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const conversationId = id ? parseInt(id, 10) : null;
   
-  const { setSelectedConversation } = useConversationStore();
+  const { setSelectedConversationId } = useChatStore();
   const { data: conversation, isLoading, error } = useConversation(conversationId);
 
   React.useEffect(() => {
     if (conversationId) {
-      setSelectedConversation(conversationId);
+      setSelectedConversationId(conversationId);
     }
-  }, [conversationId, setSelectedConversation]);
+  }, [conversationId, setSelectedConversationId]);
 
   if (isLoading) {
     return (

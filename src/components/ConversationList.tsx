@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
-import { useConversationStore } from '../state/conversationStore';
+import { useChatStore } from '../state/useChatStore';
 import { ConversationItem } from './ConversationItem';
 import { Virtuoso } from 'react-virtuoso';
-import { mockConversations } from '../data/mockData';
 import { Skeleton } from './ui/skeleton';
 
 interface ConversationListProps {
@@ -10,11 +9,17 @@ interface ConversationListProps {
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({ height }) => {
-  const { selectedConversationId, setSelectedConversation, filters, searchQuery } = useConversationStore();
+  const { 
+    conversations, 
+    selectedConversationId, 
+    setSelectedConversationId, 
+    filters, 
+    searchQuery 
+  } = useChatStore();
 
   // Filter and sort conversations based on current filters
   const filteredConversations = useMemo(() => {
-    let filtered = [...mockConversations];
+    let filtered = [...conversations];
 
     // Filter by search query
     if (searchQuery) {
@@ -74,7 +79,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
   }, [filters, searchQuery]);
 
   const handleConversationSelect = (id: number) => {
-    setSelectedConversation(id);
+    setSelectedConversationId(id);
   };
 
   // Loading skeleton
