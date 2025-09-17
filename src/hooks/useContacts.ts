@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Contact, ContactsResponse, ContactQuery } from '../models';
-import { mockContacts } from '../data/mockData';
+import { Contact, ContactQuery, ContactsResponse } from '../models/chat';
+import { MockChatService } from '../api/MockChatService';
 
 // Filter contacts based on query
 const filterContacts = (contacts: Contact[], query: ContactQuery): Contact[] => {
@@ -62,30 +62,16 @@ const filterContacts = (contacts: Contact[], query: ContactQuery): Contact[] => 
 };
 
 export const useContacts = (query: ContactQuery = {}) => {
+  const chatService = new MockChatService();
+  
   return useQuery({
     queryKey: ['contacts', query],
     queryFn: async (): Promise<ContactsResponse> => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 400));
-      
-      const filteredContacts = filterContacts(mockContacts, query);
-      
-      // Simulate pagination
-      const page = query.page || 1;
-      const limit = 25;
-      const start = (page - 1) * limit;
-      const end = start + limit;
-      const paginatedContacts = filteredContacts.slice(start, end);
-      
-      return {
-        payload: paginatedContacts,
-        meta: {
-          count: paginatedContacts.length,
-          current_page: page,
-          total_count: filteredContacts.length,
-          total_pages: Math.ceil(filteredContacts.length / limit),
-        },
-      };
+      const response = await chatService.listContacts(query);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data!;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -94,20 +80,26 @@ export const useContacts = (query: ContactQuery = {}) => {
 
 // Hook for searching contacts with debounce
 export const useContactSearch = (searchQuery: string) => {
+  const chatService = new MockChatService();
+  
   return useQuery({
     queryKey: ['contacts', 'search', searchQuery],
     queryFn: async (): Promise<Contact[]> => {
       if (!searchQuery.trim()) return [];
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 200));
+      const query: ContactQuery = {
+        name: searchQuery,
+        email: searchQuery,
+        page: 1,
+      };
       
-      const query = searchQuery.toLowerCase();
-      return mockContacts.filter(contact =>
-        contact.name.toLowerCase().includes(query) ||
-        contact.email?.toLowerCase().includes(query) ||
-        contact.phone_number?.includes(searchQuery)
-      ).slice(0, 10); // Limit to 10 results for search
+      const response = await chatService.listContacts(query);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // Return max 10 results for search
+      return response.data!.payload.slice(0, 10);
     },
     enabled: searchQuery.length >= 2, // Only search with 2+ characters
     staleTime: 30000, // 30 seconds
