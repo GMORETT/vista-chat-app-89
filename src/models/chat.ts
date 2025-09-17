@@ -369,6 +369,7 @@ export interface ConversationFilters {
   inbox_id?: number;
   team_id?: number;
   labels: string[];
+  priority?: PriorityType;
   sort_by: SortBy;
   q?: string;
   updated_within?: string;

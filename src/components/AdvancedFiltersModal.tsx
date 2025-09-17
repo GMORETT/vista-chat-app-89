@@ -119,6 +119,9 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
             newFilters.updated_within = rule.value;
             break;
           case 'labels':
+            if (!newFilters.labels) {
+              newFilters.labels = [];
+            }
             if (!newFilters.labels.includes(rule.value)) {
               newFilters.labels.push(rule.value);
             }

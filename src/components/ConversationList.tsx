@@ -51,6 +51,46 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
       filtered = filtered.filter(conv => conv.status === filters.status);
     }
 
+    // Filter by inbox_id
+    if (filters.inbox_id) {
+      filtered = filtered.filter(conv => conv.inbox_id === filters.inbox_id);
+    }
+
+    // Filter by team_id
+    if (filters.team_id) {
+      filtered = filtered.filter(conv => conv.team_id === filters.team_id);
+    }
+
+    // Filter by labels
+    if (filters.labels && filters.labels.length > 0) {
+      filtered = filtered.filter(conv => 
+        filters.labels!.some(filterLabel => 
+          conv.labels.some(convLabel => convLabel.title === filterLabel)
+        )
+      );
+    }
+
+    // Filter by priority
+    if (filters.priority) {
+      filtered = filtered.filter(conv => conv.priority === filters.priority);
+    }
+
+    // Filter by updated_within
+    if (filters.updated_within) {
+      const now = Date.now();
+      const withinDays = {
+        '1d': 1,
+        '7d': 7,
+        '30d': 30,
+        '90d': 90
+      }[filters.updated_within];
+      
+      if (withinDays) {
+        const cutoff = now - (withinDays * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(conv => conv.last_activity_at >= cutoff);
+      }
+    }
+
     // Sort conversations
     filtered.sort((a, b) => {
       switch (filters.sort_by) {
@@ -76,7 +116,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
     });
 
     return filtered;
-  }, [filters, searchQuery]);
+  }, [conversations, filters, searchQuery]);
 
   const handleConversationSelect = (id: number) => {
     setSelectedConversationId(id);
