@@ -5,6 +5,35 @@ import { ptBR } from 'date-fns/locale';
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
+// Move constants outside component for better performance
+const STATUS_COLORS = {
+  open: 'bg-green-500 text-white',
+  pending: 'bg-yellow-500 text-white',
+  snoozed: 'bg-blue-500 text-white',
+  resolved: 'bg-gray-500 text-white',
+} as const;
+
+const STATUS_LABELS = {
+  open: 'Aberta',
+  pending: 'Pendente',
+  snoozed: 'Adiada',
+  resolved: 'Resolvida',
+} as const;
+
+const PRIORITY_COLORS = {
+  urgent: 'bg-red-500 text-white',
+  high: 'bg-orange-500 text-white',
+  medium: 'bg-yellow-500 text-white',
+  low: 'bg-green-500 text-white',
+} as const;
+
+const PRIORITY_LABELS = {
+  urgent: 'Urgente',
+  high: 'Alta',
+  medium: 'Média',
+  low: 'Baixa',
+} as const;
+
 interface ConversationItemProps {
   conversation: Conversation;
   isSelected: boolean;
@@ -12,71 +41,29 @@ interface ConversationItemProps {
   index?: number;
 }
 
-export const ConversationItem: React.FC<ConversationItemProps> = ({
+// Optimized component with React.memo
+export const ConversationItem = React.memo<ConversationItemProps>(({
   conversation,
   isSelected,
   onClick,
   index = 0,
 }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'open':
-        return 'bg-green-500 text-white';
-      case 'pending':
-        return 'bg-yellow-500 text-white';
-      case 'snoozed':
-        return 'bg-blue-500 text-white';
-      case 'resolved':
-        return 'bg-gray-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  };
+  // Use optimized lookup functions
+  const getStatusColor = React.useCallback((status: string) => {
+    return STATUS_COLORS[status as keyof typeof STATUS_COLORS] || 'bg-gray-500 text-white';
+  }, []);
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'open':
-        return 'Aberta';
-      case 'pending':
-        return 'Pendente';
-      case 'snoozed':
-        return 'Adiada';
-      case 'resolved':
-        return 'Resolvida';
-      default:
-        return status;
-    }
-  };
+  const getStatusLabel = React.useCallback((status: string) => {
+    return STATUS_LABELS[status as keyof typeof STATUS_LABELS] || status;
+  }, []);
 
-  const getPriorityColor = (priority: string | null) => {
-    switch (priority) {
-      case 'urgent':
-        return 'bg-red-500 text-white';
-      case 'high':
-        return 'bg-orange-500 text-white';
-      case 'medium':
-        return 'bg-yellow-500 text-white';
-      case 'low':
-        return 'bg-green-500 text-white';
-      default:
-        return null;
-    }
-  };
+  const getPriorityColor = React.useCallback((priority: string | null) => {
+    return priority ? PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS] : null;
+  }, []);
 
-  const getPriorityLabel = (priority: string | null) => {
-    switch (priority) {
-      case 'urgent':
-        return 'Urgente';
-      case 'high':
-        return 'Alta';
-      case 'medium':
-        return 'Média';
-      case 'low':
-        return 'Baixa';
-      default:
-        return 'Nenhuma';
-    }
-  };
+  const getPriorityLabel = React.useCallback((priority: string | null) => {
+    return priority ? PRIORITY_LABELS[priority as keyof typeof PRIORITY_LABELS] : 'Nenhuma';
+  }, []);
 
   const formattedTime = React.useMemo(() => {
     try {
@@ -257,4 +244,15 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function for optimal re-rendering
+  return (
+    prevProps.conversation.id === nextProps.conversation.id &&
+    prevProps.conversation.status === nextProps.conversation.status &&
+    prevProps.conversation.priority === nextProps.conversation.priority &&
+    prevProps.conversation.unread_count === nextProps.conversation.unread_count &&
+    prevProps.conversation.last_activity_at === nextProps.conversation.last_activity_at &&
+    prevProps.conversation.labels.length === nextProps.conversation.labels.length &&
+    prevProps.isSelected === nextProps.isSelected
+  );
+});

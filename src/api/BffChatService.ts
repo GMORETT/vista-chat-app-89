@@ -57,8 +57,18 @@ export class BffChatService implements IChatService {
     return apiClient.get('/api/messaging/conversations', params);
   }
   
-  async getConversationsMeta(): Promise<ApiResponse<ConversationMeta>> {
-    return apiClient.get('/api/messaging/conversations/meta');
+  async getConversationsMeta(query?: ConversationQuery): Promise<ApiResponse<ConversationMeta>> {
+    const params: Record<string, any> = {};
+    
+    if (query?.status) params.status = query.status;
+    if (query?.assignee_type) params.assignee_type = query.assignee_type;
+    if (query?.inbox_id) params.inbox_id = query.inbox_id;
+    if (query?.team_id) params.team_id = query.team_id;
+    if (query?.labels?.length) params.labels = query.labels;
+    if (query?.q) params.q = query.q;
+    if (query?.updated_within) params.updated_within = query.updated_within;
+
+    return apiClient.get('/api/messaging/conversations/meta', params);
   }
   
   async getConversation(id: number): Promise<ApiResponse<Conversation>> {

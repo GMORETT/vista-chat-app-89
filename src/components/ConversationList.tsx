@@ -118,9 +118,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
     return filtered;
   }, [conversations, filters, searchQuery]);
 
-  const handleConversationSelect = (id: number) => {
+  // Optimized callback with useCallback
+  const handleConversationSelect = React.useCallback((id: number) => {
     setSelectedConversationId(id);
-  };
+  }, [setSelectedConversationId]);
 
   // Loading skeleton
   const LoadingSkeleton = () => (

@@ -52,6 +52,9 @@ const filterConversations = (conversations, query) => {
       filtered = filtered.filter(conv => !conv.assignee);
     } else if (query.assignee_type === 'assigned') {
       filtered = filtered.filter(conv => conv.assignee);
+    } else if (query.assignee_type === 'me') {
+      // Assuming current user is Samuel França (agent with ID 1)
+      filtered = filtered.filter(conv => conv.assignee && conv.assignee.id === 1);
     }
   }
 

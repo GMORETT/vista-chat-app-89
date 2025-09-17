@@ -7,7 +7,7 @@ import { mockConversationMeta } from '../data/mockData';
 
 export const TabsCounts: React.FC = () => {
   const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
-  const { data: metaData, isLoading } = useConversationsMeta();
+  const { data: metaData, isLoading } = useConversationsMeta(filters);
 
   // Use real data or fallback to mock
   const counts = metaData || {

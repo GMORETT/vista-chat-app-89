@@ -194,10 +194,21 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
+  // Convert filters to query format
+  const query: ConversationQuery | undefined = filters ? {
+    status: filters.status,
+    assignee_type: filters.assignee_type,
+    inbox_id: filters.inbox_id,
+    team_id: filters.team_id,
+    labels: filters.labels,
+    q: filters.q,
+    updated_within: filters.updated_within,
+  } : undefined;
+  
   return useQuery({
-    queryKey: ['conversationsMeta', filters],
+    queryKey: ['conversationsMeta', query],
     queryFn: async (): Promise<ConversationMeta> => {
-      const response = await chatService.getConversationsMeta();
+      const response = await chatService.getConversationsMeta(query);
       if (response.error) {
         throw new Error(response.error);
       }
