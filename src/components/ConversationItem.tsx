@@ -3,6 +3,7 @@ import { Conversation } from '../models';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Badge } from './ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -20,30 +21,60 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open':
-        return 'bg-success text-white';
+        return 'bg-green-500 text-white';
       case 'pending':
-        return 'bg-warning text-white';
+        return 'bg-yellow-500 text-white';
       case 'snoozed':
-        return 'bg-accent text-white';
+        return 'bg-blue-500 text-white';
       case 'resolved':
-        return 'bg-muted text-foreground';
+        return 'bg-gray-500 text-white';
       default:
-        return 'bg-muted text-foreground';
+        return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'open':
+        return 'Aberta';
+      case 'pending':
+        return 'Pendente';
+      case 'snoozed':
+        return 'Adiada';
+      case 'resolved':
+        return 'Resolvida';
+      default:
+        return status;
     }
   };
 
   const getPriorityColor = (priority: string | null) => {
     switch (priority) {
       case 'urgent':
-        return 'bg-danger text-white';
+        return 'bg-red-500 text-white';
       case 'high':
-        return 'bg-warning text-white';
+        return 'bg-orange-500 text-white';
       case 'medium':
-        return 'bg-accent text-white';
+        return 'bg-yellow-500 text-white';
       case 'low':
-        return 'bg-muted text-foreground';
+        return 'bg-green-500 text-white';
       default:
         return null;
+    }
+  };
+
+  const getPriorityLabel = (priority: string | null) => {
+    switch (priority) {
+      case 'urgent':
+        return 'Urgente';
+      case 'high':
+        return 'Alta';
+      case 'medium':
+        return 'Média';
+      case 'low':
+        return 'Baixa';
+      default:
+        return 'Nenhuma';
     }
   };
 
@@ -129,7 +160,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
               ${isSelected ? 'shadow-sm' : ''}
             `}
           >
-            {conversation.status}
+            {getStatusLabel(conversation.status)}
           </Badge>
           
           {conversation.priority && (
@@ -141,7 +172,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                 ${isSelected ? 'shadow-sm' : ''}
               `}
             >
-              {conversation.priority}
+              {getPriorityLabel(conversation.priority)}
             </Badge>
           )}
           
@@ -176,9 +207,27 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
               </Badge>
             ))}
             {conversation.labels.length > 2 && (
-              <Badge variant="outline" className="text-xs text-muted-foreground">
-                +{conversation.labels.length - 2}
-              </Badge>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="outline" className="text-xs text-muted-foreground cursor-help">
+                    +{conversation.labels.length - 2}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="space-y-1">
+                    <p className="font-medium">Labels adicionais:</p>
+                    {conversation.labels.slice(2).map((label) => (
+                      <div key={label.id} className="flex items-center gap-2">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: label.color }}
+                        />
+                        <span className="text-sm">{label.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         )}

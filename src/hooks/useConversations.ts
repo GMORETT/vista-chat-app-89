@@ -3,9 +3,12 @@ import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters,
 import { MockChatService } from '../api/MockChatService';
 import { BffChatService } from '../api/BffChatService';
 import { useChatStore } from '../state/useChatStore';
+import { useToast } from '../hooks/use-toast';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
+  const { updateConversation, selectedConversation } = useChatStore();
+  const { toast } = useToast();
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
@@ -43,9 +46,26 @@ export const useConversations = (filters: ConversationFilters) => {
       }
       return response.data!;
     },
-    onSuccess: () => {
+    onSuccess: (updatedConversation, { conversationId, status }) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      
+      // Update the conversation in the store if it's currently selected
+      if (selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, status });
+      }
+      
+      toast({
+        title: "Status atualizado",
+        description: `Conversa marcada como ${status === 'open' ? 'aberta' : status === 'pending' ? 'pendente' : status === 'snoozed' ? 'adiada' : 'resolvida'}`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar status",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -58,9 +78,26 @@ export const useConversations = (filters: ConversationFilters) => {
       }
       return response.data!;
     },
-    onSuccess: () => {
+    onSuccess: (updatedConversation, { conversationId, priority }) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      
+      // Update the conversation in the store if it's currently selected
+      if (selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, priority });
+      }
+      
+      toast({
+        title: "Prioridade atualizada",
+        description: `Prioridade definida como ${priority === 'urgent' ? 'urgente' : priority === 'high' ? 'alta' : priority === 'medium' ? 'média' : priority === 'low' ? 'baixa' : 'nenhuma'}`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao atualizar prioridade",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -107,6 +144,10 @@ export const useConversations = (filters: ConversationFilters) => {
       toggleStatusMutation.mutate({ conversationId, status }),
     togglePriority: (conversationId: number, priority: PriorityType) => 
       togglePriorityMutation.mutate({ conversationId, priority }),
+    
+    // Loading states
+    isStatusLoading: toggleStatusMutation.isPending,
+    isPriorityLoading: togglePriorityMutation.isPending,
     assignAgent: (conversationId: number, agentId: number) => 
       assignAgentMutation.mutate({ conversationId, agentId }),
     assignTeam: (conversationId: number, teamId: number) => 

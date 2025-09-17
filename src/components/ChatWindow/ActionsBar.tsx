@@ -20,7 +20,7 @@ import {
 
 export const ActionsBar: React.FC = () => {
   const { selectedConversation, filters } = useChatStore();
-  const { toggleStatus, togglePriority } = useConversations(filters);
+  const { toggleStatus, togglePriority, isStatusLoading, isPriorityLoading } = useConversations(filters);
   const { isMobile, isExpanded, setActivePane, setIsExpanded } = useUiStore();
 
   if (!selectedConversation) {
@@ -107,7 +107,7 @@ export const ActionsBar: React.FC = () => {
           </Button>
         )}
         {/* Status selector */}
-        <Select value={selectedConversation.status} onValueChange={handleStatusChange}>
+        <Select value={selectedConversation.status} onValueChange={handleStatusChange} disabled={isStatusLoading}>
           <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
@@ -140,7 +140,7 @@ export const ActionsBar: React.FC = () => {
         </Select>
 
         {/* Priority selector */}
-        <Select value={selectedConversation.priority || 'none'} onValueChange={handlePriorityChange}>
+        <Select value={selectedConversation.priority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
           <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
