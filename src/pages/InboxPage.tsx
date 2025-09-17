@@ -41,11 +41,15 @@ export const InboxPage: React.FC = () => {
         className={`
           ${isMobile 
             ? activePane === 'list' ? 'w-full' : 'hidden'
-            : isExpanded ? 'hidden' : 'w-[420px]'
+            : isExpanded ? 'w-auto' : 'w-[420px]'
           } 
           border-r border-border bg-card flex-shrink-0 flex flex-col
         `}
       >
+        {/* Toolbar - Always visible when not mobile */}
+        {!isMobile && <ConversationToolbar />}
+        
+        {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
             {/* Header with brand */}
@@ -66,9 +70,6 @@ export const InboxPage: React.FC = () => {
             {/* Filters */}
             <ConversationFilters />
             
-            {/* Toolbar */}
-            <ConversationToolbar />
-            
             {/* Tabs */}
             <TabsCounts />
             
@@ -78,6 +79,9 @@ export const InboxPage: React.FC = () => {
             </div>
           </>
         )}
+        
+        {/* Mobile toolbar when on list view */}
+        {isMobile && activePane === 'list' && <ConversationToolbar />}
       </div>
 
       {/* Chat Window */}
