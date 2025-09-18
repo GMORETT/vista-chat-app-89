@@ -5,20 +5,20 @@ import { Card, CardContent } from '../../components/ui/card';
 import { useTeams } from '../../hooks/admin/useTeams';
 import { Team } from '../../models/admin';
 import { TeamsTable } from '../../components/admin/teams/TeamsTable';
-import { TeamFormModal } from '../../components/admin/teams/TeamFormModal';
+import { useNavigate } from 'react-router-dom';
 import { TeamMembersModal } from '../../components/admin/teams/TeamMembersModal';
 import { ConfirmDeleteDialog } from '../../components/admin/teams/ConfirmDeleteDialog';
 
 export const TeamsPage: React.FC = () => {
-  const [showFormModal, setShowFormModal] = useState(false);
+  const navigate = useNavigate();
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | undefined>();
   const { data: teams, isLoading } = useTeams();
 
   const handleEdit = (team: Team) => {
-    setSelectedTeam(team);
-    setShowFormModal(true);
+    // TODO: Implement edit functionality
+    console.log('Edit team:', team);
   };
 
   const handleDelete = (team: Team) => {
@@ -32,8 +32,7 @@ export const TeamsPage: React.FC = () => {
   };
 
   const handleCreateNew = () => {
-    setSelectedTeam(undefined);
-    setShowFormModal(true);
+    navigate('/admin/teams/new');
   };
 
   if (isLoading) {
@@ -88,11 +87,6 @@ export const TeamsPage: React.FC = () => {
         </Card>
       )}
 
-      <TeamFormModal
-        open={showFormModal}
-        onOpenChange={setShowFormModal}
-        team={selectedTeam}
-      />
 
       <TeamMembersModal
         open={showMembersModal}

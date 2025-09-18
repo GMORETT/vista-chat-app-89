@@ -15,6 +15,7 @@ const ContactPage = React.lazy(() => import('../pages/ContactPage').then(module 
 const DashboardPage = React.lazy(() => import('../pages/admin/DashboardPage').then(module => ({ default: module.DashboardPage })));
 const InboxesPage = React.lazy(() => import('../pages/admin/InboxesPage').then(module => ({ default: module.InboxesPage })));
 const TeamsPage = React.lazy(() => import('../pages/admin/TeamsPage').then(module => ({ default: module.TeamsPage })));
+const TeamWizard = React.lazy(() => import('../components/admin/teams/TeamWizard').then(module => ({ default: module.TeamWizard })));
 const AgentsPage = React.lazy(() => import('../pages/admin/AgentsPage').then(module => ({ default: module.AgentsPage })));
 const LabelsPage = React.lazy(() => import('../pages/admin/LabelsPage').then(module => ({ default: module.LabelsPage })));
 
@@ -111,6 +112,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <TeamsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'teams/new',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <TeamWizard />
           </Suspense>
         ),
       },
