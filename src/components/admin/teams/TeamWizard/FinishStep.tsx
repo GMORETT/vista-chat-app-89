@@ -5,6 +5,7 @@ import { TeamFormData } from './CreateStep';
 
 interface FinishStepProps {
   form: UseFormReturn<TeamFormData>;
+  onNext?: () => void;
 }
 
 export const FinishStep: React.FC<FinishStepProps> = ({ form }) => {

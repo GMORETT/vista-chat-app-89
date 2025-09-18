@@ -22,6 +22,7 @@ export interface TeamFormData {
 
 interface CreateStepProps {
   form: UseFormReturn<TeamFormData>;
+  onNext?: () => void;
 }
 
 export const CreateStep: React.FC<CreateStepProps> = ({ form }) => {

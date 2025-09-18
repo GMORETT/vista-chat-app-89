@@ -8,9 +8,10 @@ import { TeamFormData } from './CreateStep';
 
 interface AddAgentsStepProps {
   form: UseFormReturn<TeamFormData>;
+  onNext?: () => void;
 }
 
-export const AddAgentsStep: React.FC<AddAgentsStepProps> = ({ form }) => {
+export const AddAgentsStep: React.FC<AddAgentsStepProps> = ({ form, onNext }) => {
   const { data: agents, isLoading } = useAgents();
   const selectedAgents = form.watch('selectedAgents');
   const teamName = form.watch('name');
@@ -58,7 +59,12 @@ export const AddAgentsStep: React.FC<AddAgentsStepProps> = ({ form }) => {
             Agents can collaborate and work on conversations
           </p>
         </div>
-        <Button>Add agents</Button>
+        <Button 
+          onClick={onNext}
+          disabled={selectedAgents.length === 0}
+        >
+          Add agents
+        </Button>
       </div>
 
       <div className="text-sm text-muted-foreground mb-4">

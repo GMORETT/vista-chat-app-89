@@ -1,22 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAdminService } from '../../services/AdminService';
+import { AdminChatService } from '../../api/AdminChatService';
 import { Agent, CreateAgentRequest } from '../../models/admin';
 
+// Use mock service for development
+const adminChatService = new AdminChatService(
+  'http://localhost:3001',
+  () => 'mock-token',
+  'mock-account-id'
+);
+
 export const useAgents = () => {
-  const adminService = useAdminService();
-  
   return useQuery<Agent[]>({
     queryKey: ['solabs-admin', 'agents'],
-    queryFn: () => adminService.listAgents(),
+    queryFn: () => adminChatService.getAgents(),
   });
 };
 
 export const useCreateAgent = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Agent, Error, CreateAgentRequest>({
-    mutationFn: (data) => adminService.createAgent(data),
+    mutationFn: (data) => adminChatService.createAgent(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },
@@ -24,11 +28,10 @@ export const useCreateAgent = () => {
 };
 
 export const useUpdateAgent = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Agent, Error, { id: number; data: Partial<CreateAgentRequest> }>({
-    mutationFn: ({ id, data }) => adminService.updateAgent(id, data),
+    mutationFn: ({ id, data }) => adminChatService.updateAgent(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },
@@ -36,11 +39,10 @@ export const useUpdateAgent = () => {
 };
 
 export const useDeleteAgent = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<void, Error, number>({
-    mutationFn: (id) => adminService.deleteAgent(id),
+    mutationFn: (id) => adminChatService.deleteAgent(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },

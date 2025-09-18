@@ -176,7 +176,10 @@ export const TeamWizard: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3">
             <div className="bg-card rounded-lg border p-8">
-              <StepComponent form={form} />
+              <StepComponent 
+                form={form} 
+                onNext={currentStep === 1 ? handleNext : undefined}
+              />
 
               {/* Actions */}
               <div className="flex justify-between mt-8 pt-6 border-t">
