@@ -87,7 +87,16 @@ export class AdminChatService {
   async removeTeamMember(teamId: number, agentId: number): Promise<void> { console.log('Removing member:', teamId, agentId); }
 
   // Agents - Mock implementations  
-  async getAgents(): Promise<Agent[]> { return []; }
+  async getAgents(): Promise<Agent[]> { 
+    // Return mock agents in admin format
+    return [
+      { id: 1, name: 'Samuel França', display_name: 'Samuel França', email: 'samuel@empresa.com', role: 'agent', confirmed: true, availability_status: 'available', auto_offline: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+      { id: 2, name: 'Marina Costa', display_name: 'Marina Costa', email: 'marina@empresa.com', role: 'agent', confirmed: true, availability_status: 'available', auto_offline: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+      { id: 3, name: 'Rafael Duarte', display_name: 'Rafael Duarte', email: 'rafael@empresa.com', role: 'agent', confirmed: true, availability_status: 'offline', auto_offline: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+      { id: 4, name: 'Camila Barros', display_name: 'Camila Barros', email: 'camila@empresa.com', role: 'agent', confirmed: true, availability_status: 'available', auto_offline: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+      { id: 5, name: 'Diego Fernandes', display_name: 'Diego Fernandes', email: 'diego@empresa.com', role: 'administrator', confirmed: true, availability_status: 'available', auto_offline: true, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+    ];
+  }
   async createAgent(data: CreateAgentRequest): Promise<Agent> {
     return { id: Date.now(), ...data, role: 'agent', confirmed: false, availability_status: 'offline', auto_offline: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
