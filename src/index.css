@@ -58,4 +58,14 @@ All colors MUST be HSL.
   body {
     @apply bg-bg text-foreground;
   }
+
+  /* MFE namespace for CSS isolation */
+  .solabs-mfe {
+    @apply bg-bg text-foreground;
+    /* Ensure all child elements inherit the design system */
+  }
+  
+  .solabs-mfe * {
+    @apply border-border;
+  }
 }
