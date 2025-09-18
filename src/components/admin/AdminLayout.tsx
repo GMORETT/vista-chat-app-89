@@ -6,14 +6,23 @@ import { MountOptions } from '../../mfe/types';
 import { Button } from '../ui/button';
 import { LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { ConfirmLogoutDialog } from '../ConfirmLogoutDialog';
+import { useLogoutConfirmation } from '@/hooks/useLogoutConfirmation';
 
 interface AdminLayoutProps {
   mountOptions: MountOptions;
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { 
+    isModalOpen, 
+    isLoading, 
+    openLogoutConfirmation, 
+    closeLogoutConfirmation, 
+    confirmLogout 
+  } = useLogoutConfirmation();
 
   const currentUser = user || mountOptions.currentUser;
 
@@ -51,7 +60,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={logout}
+                onClick={openLogoutConfirmation}
                 title="Sair"
               >
                 <LogOut className="h-4 w-4" />
@@ -65,6 +74,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
           </main>
         </div>
       </div>
+      
+      {/* Logout confirmation dialog */}
+      <ConfirmLogoutDialog
+        open={isModalOpen}
+        onOpenChange={closeLogoutConfirmation}
+        onConfirm={confirmLogout}
+        isLoading={isLoading}
+      />
     </SidebarProvider>
   );
 };

@@ -12,6 +12,8 @@ import { Input } from '../components/ui/input';
 import { ArrowLeft, Search, X, Settings, LogOut, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ConfirmLogoutDialog } from '../components/ConfirmLogoutDialog';
+import { useLogoutConfirmation } from '../hooks/useLogoutConfirmation';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -24,8 +26,15 @@ export const InboxPage: React.FC = () => {
   } = useUiStore();
   
   const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { 
+    isModalOpen, 
+    isLoading, 
+    openLogoutConfirmation, 
+    closeLogoutConfirmation, 
+    confirmLogout 
+  } = useLogoutConfirmation();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   // Debounce search
@@ -122,7 +131,7 @@ export const InboxPage: React.FC = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={logout}
+                onClick={openLogoutConfirmation}
                 title="Sair"
                 className="flex items-center"
               >
@@ -200,6 +209,14 @@ export const InboxPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Logout confirmation dialog */}
+      <ConfirmLogoutDialog
+        open={isModalOpen}
+        onOpenChange={closeLogoutConfirmation}
+        onConfirm={confirmLogout}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
