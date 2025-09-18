@@ -87,7 +87,7 @@ interface ChatState {
 // Default filters
 const defaultFilters: ConversationFilters = {
   assignee_type: 'all',
-  status: 'open',
+  status: 'all',
   inbox_id: undefined,
   team_id: undefined,
   labels: [],
