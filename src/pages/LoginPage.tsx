@@ -35,8 +35,11 @@ export const LoginPage: React.FC = () => {
     setLoginLoading(false);
   };
 
-  const fillCredentials = (type: 'admin' | 'operator') => {
-    if (type === 'admin') {
+  const fillCredentials = (type: 'super_admin' | 'admin' | 'operator') => {
+    if (type === 'super_admin') {
+      setEmail('superadmin@solabs.com');
+      setPassword('super123');
+    } else if (type === 'admin') {
       setEmail('admin@solabs.com');
       setPassword('admin123');
     } else {
@@ -146,11 +149,23 @@ export const LoginPage: React.FC = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full justify-start text-left" 
-                  onClick={() => fillCredentials('admin')}
+                  onClick={() => fillCredentials('super_admin')}
                   disabled={loginLoading}
                 >
                   <div className="text-left">
                     <div className="font-medium">Super Admin</div>
+                    <div className="text-xs text-muted-foreground">superadmin@solabs.com / super123</div>
+                  </div>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start text-left" 
+                  onClick={() => fillCredentials('admin')}
+                  disabled={loginLoading}
+                >
+                  <div className="text-left">
+                    <div className="font-medium">Admin</div>
                     <div className="text-xs text-muted-foreground">admin@solabs.com / admin123</div>
                   </div>
                 </Button>

@@ -177,7 +177,12 @@ export const AgentAssignmentModal: React.FC<AgentAssignmentModalProps> = ({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-2">
                             <p className="text-sm font-medium truncate">{agent.name}</p>
-                            {agent.role === 'administrator' && (
+                            {agent.role === 'super_admin' && (
+                              <Badge variant="secondary" className="text-xs">
+                                Super Admin
+                              </Badge>
+                            )}
+                            {agent.role === 'admin' && (
                               <Badge variant="secondary" className="text-xs">
                                 Admin
                               </Badge>

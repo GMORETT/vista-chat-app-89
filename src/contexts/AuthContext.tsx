@@ -4,8 +4,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: string;
+  role: 'super_admin' | 'admin' | 'user';
   roles: string[];
+  assigned_inboxes?: number[];
 }
 
 interface AuthContextType {
@@ -22,20 +23,31 @@ const FAKE_USERS: User[] = [
   {
     id: 1,
     name: 'Super Admin',
-    email: 'admin@solabs.com',
-    role: 'admin-interno',
-    roles: ['admin-interno', 'user']
+    email: 'superadmin@solabs.com',
+    role: 'super_admin',
+    roles: ['super_admin', 'admin', 'user'],
+    assigned_inboxes: [] // Super admin has access to all inboxes
   },
   {
     id: 2,
-    name: 'Operador',
+    name: 'Admin Cliente A',
+    email: 'admin@solabs.com',
+    role: 'admin',
+    roles: ['admin', 'user'],
+    assigned_inboxes: [1] // Admin assigned to specific inboxes
+  },
+  {
+    id: 3,
+    name: 'Operador Cliente A',
     email: 'operador@solabs.com',
     role: 'user',
-    roles: ['user']
+    roles: ['user'],
+    assigned_inboxes: [1] // User assigned to specific inboxes
   }
 ];
 
 const FAKE_CREDENTIALS = {
+  'superadmin@solabs.com': 'super123',
   'admin@solabs.com': 'admin123',
   'operador@solabs.com': 'operador123'
 };

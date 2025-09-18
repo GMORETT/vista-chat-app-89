@@ -23,10 +23,11 @@ export const mockAgent: Agent = {
   id: 1,
   name: 'Test Agent',
   email: 'agent@test.com',
-  role: 'agent',
+  role: 'user',
   confirmed: true,
   availability_status: 'available',
   auto_offline: false,
+  assigned_inboxes: [1],
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString()
 };

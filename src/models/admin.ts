@@ -63,11 +63,12 @@ export interface Agent {
   name: string;
   display_name?: string;
   email: string;
-  role: 'agent' | 'administrator';
+  role: 'super_admin' | 'admin' | 'user';
   confirmed: boolean;
   availability_status: 'available' | 'busy' | 'offline';
   auto_offline: boolean;
   custom_attributes?: Record<string, any>;
+  assigned_inboxes?: number[];
   created_at: string;
   updated_at: string;
 }
@@ -76,7 +77,7 @@ export interface CreateAgentRequest {
   name: string;
   display_name?: string;
   email: string;
-  role?: 'agent' | 'administrator';
+  role?: 'super_admin' | 'admin' | 'user';
   password?: string;
   custom_attributes?: Record<string, any>;
 }

@@ -6,6 +6,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { AdminApp } from '../apps/AdminApp';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
+import { InboxProvider } from '../contexts/InboxContext';
 
 // Code splitting for better performance
 const ConversationPage = React.lazy(() => import('../pages/ConversationPage').then(module => ({ default: module.ConversationPage })));
@@ -50,9 +51,11 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <AuthProvider>
-        <ProtectedRoute>
-          <InboxPage />
-        </ProtectedRoute>
+        <InboxProvider>
+          <ProtectedRoute>
+            <InboxPage />
+          </ProtectedRoute>
+        </InboxProvider>
       </AuthProvider>
     ),
   },
@@ -60,11 +63,13 @@ export const router = createBrowserRouter([
     path: '/conversation/:id',
     element: (
       <AuthProvider>
-        <ProtectedRoute>
-          <Suspense fallback={<PageLoader />}>
-            <ConversationPage />
-          </Suspense>
-        </ProtectedRoute>
+        <InboxProvider>
+          <ProtectedRoute>
+            <Suspense fallback={<PageLoader />}>
+              <ConversationPage />
+            </Suspense>
+          </ProtectedRoute>
+        </InboxProvider>
       </AuthProvider>
     ),
   },
@@ -72,11 +77,13 @@ export const router = createBrowserRouter([
     path: '/contact/:id',
     element: (
       <AuthProvider>
-        <ProtectedRoute>
-          <Suspense fallback={<PageLoader />}>
-            <ContactPage />
-          </Suspense>
-        </ProtectedRoute>
+        <InboxProvider>
+          <ProtectedRoute>
+            <Suspense fallback={<PageLoader />}>
+              <ContactPage />
+            </Suspense>
+          </ProtectedRoute>
+        </InboxProvider>
       </AuthProvider>
     ),
   },
@@ -85,7 +92,7 @@ export const router = createBrowserRouter([
     path: '/admin',
     element: (
       <AuthProvider>
-        <ProtectedRoute requiredRoles={['admin-interno']}>
+        <ProtectedRoute requiredRoles={['super_admin']}>
           <AdminApp mountOptions={mockMountOptions} />
         </ProtectedRoute>
       </AuthProvider>

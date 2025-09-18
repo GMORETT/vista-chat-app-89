@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useUiStore } from '../state/uiStore';
 import { useChatStore } from '../state/useChatStore';
-import { ConversationFilters } from '../components/ConversationFilters';
-import { TabsCounts } from '../components/TabsCounts';
+import { RoleBasedFilters } from '../components/RoleBasedFilters';
+import { RoleBasedTabsCounts } from '../components/RoleBasedTabsCounts';
 import { ConversationList } from '../components/ConversationList';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
@@ -131,10 +131,10 @@ export const InboxPage: React.FC = () => {
             </div>
 
             {/* Filters with integrated toolbar */}
-            <ConversationFilters />
+            <RoleBasedFilters />
             
             {/* Tabs */}
-            <TabsCounts />
+            <RoleBasedTabsCounts />
             
             {/* Conversation list */}
             <div className="flex-1 overflow-hidden">

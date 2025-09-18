@@ -16,7 +16,7 @@ const createAgentSchema = z.object({
   display_name: z.string().optional(),
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(1, 'Password is required').min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['agent', 'administrator']).default('agent'),
+  role: z.enum(['super_admin', 'admin', 'user']).default('user'),
 });
 
 type CreateAgentFormData = z.infer<typeof createAgentSchema>;
@@ -43,7 +43,7 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
       display_name: '',
       email: '',
       password: '',
-      role: 'agent',
+      role: 'user',
     },
   });
 
@@ -177,8 +177,9 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="agent">Agent</SelectItem>
-                      <SelectItem value="administrator">Administrator</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
