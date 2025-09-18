@@ -19,6 +19,7 @@ export class AdminChatService {
       name: 'Suporte Técnico',
       description: 'Team responsável pelo atendimento de questões técnicas',
       allow_auto_assign: true,
+      account_id: 1,
       created_at: '2024-01-15T10:00:00Z',
       updated_at: '2024-01-15T10:00:00Z',
     },
@@ -27,6 +28,7 @@ export class AdminChatService {
       name: 'Vendas',
       description: 'Team de vendas e relacionamento com clientes',
       allow_auto_assign: false,
+      account_id: 1,
       created_at: '2024-01-20T14:30:00Z',
       updated_at: '2024-01-20T14:30:00Z',
     },
@@ -68,6 +70,7 @@ export class AdminChatService {
       id,
       name: data.name || '',
       channel_type: data.channel_type || '',
+      account_id: data.account_id || 1,
       ...data,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -138,28 +141,28 @@ export class AdminChatService {
   async getAgents(): Promise<Agent[]> { 
     // Return mock agents in admin format
     return [
-      { id: 1, name: 'Samuel França', display_name: 'Samuel França', email: 'samuel@empresa.com', role: 'user', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-      { id: 2, name: 'Marina Costa', display_name: 'Marina Costa', email: 'marina@empresa.com', role: 'admin', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1, 2], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-      { id: 3, name: 'Rafael Duarte', display_name: 'Rafael Duarte', email: 'rafael@empresa.com', role: 'user', confirmed: true, availability_status: 'offline', auto_offline: true, assigned_inboxes: [2], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-      { id: 4, name: 'Camila Barros', display_name: 'Camila Barros', email: 'camila@empresa.com', role: 'user', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
-      { id: 5, name: 'Diego Fernandes', display_name: 'Diego Fernandes', email: 'diego@empresa.com', role: 'super_admin', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+      { id: 1, name: 'Samuel França', display_name: 'Samuel França', email: 'samuel@empresa.com', role: 'user', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z', account_id: 1 },
+      { id: 2, name: 'Marina Costa', display_name: 'Marina Costa', email: 'marina@empresa.com', role: 'admin', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1, 2], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z', account_id: 1 },
+      { id: 3, name: 'Rafael Duarte', display_name: 'Rafael Duarte', email: 'rafael@empresa.com', role: 'user', confirmed: true, availability_status: 'offline', auto_offline: true, assigned_inboxes: [2], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z', account_id: 1 },
+      { id: 4, name: 'Camila Barros', display_name: 'Camila Barros', email: 'camila@empresa.com', role: 'user', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [1], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z', account_id: 1 },
+      { id: 5, name: 'Diego Fernandes', display_name: 'Diego Fernandes', email: 'diego@empresa.com', role: 'super_admin', confirmed: true, availability_status: 'available', auto_offline: true, assigned_inboxes: [], created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z', account_id: null },
     ];
   }
   async createAgent(data: CreateAgentRequest): Promise<Agent> {
     return { id: Date.now(), ...data, role: data.role || 'user', confirmed: false, availability_status: 'offline', auto_offline: false, assigned_inboxes: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
   async updateAgent(id: number, data: Partial<CreateAgentRequest>): Promise<Agent> {
-    return { id, name: '', email: '', ...data, role: 'user', confirmed: true, availability_status: 'available', auto_offline: false, assigned_inboxes: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    return { id, name: '', email: '', account_id: data.account_id || 1, ...data, role: 'user', confirmed: true, availability_status: 'available', auto_offline: false, assigned_inboxes: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
   async deleteAgent(id: number): Promise<void> { console.log('Deleting agent:', id); }
 
   // Labels - Mock implementations
   async getLabels(): Promise<Label[]> { return []; }
   async createLabel(data: CreateLabelRequest): Promise<Label> {
-    return { id: Date.now(), ...data, show_on_sidebar: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    return { id: Date.now(), ...data, show_on_sidebar: data.show_on_sidebar ?? true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
   async updateLabel(id: number, data: Partial<CreateLabelRequest>): Promise<Label> {
-    return { id, title: '', ...data, color: '#6b7280', show_on_sidebar: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    return { id, title: '', account_id: data.account_id || 1, ...data, color: '#6b7280', show_on_sidebar: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
   async deleteLabel(id: number): Promise<void> { console.log('Deleting label:', id); }
   async applyLabelToConversation(conversationId: number, labelIds: number[]): Promise<void> { console.log('Applying labels to conversation:', conversationId, labelIds); }

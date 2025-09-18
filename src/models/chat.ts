@@ -15,6 +15,34 @@ export type SortBy =
 
 export type MessageType = 'incoming' | 'outgoing' | 'activity' | 'template';
 
+// Account types for multi-tenant support
+export interface Account {
+  id: number;
+  name: string;
+  slug: string;
+  status: 'active' | 'inactive' | 'suspended';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientQuery {
+  page?: number;
+  name?: string;
+  status?: 'active' | 'inactive' | 'suspended';
+  sort?: 'name_asc' | 'name_desc' | 'created_at_asc' | 'created_at_desc';
+}
+
+export interface CreateAccountRequest {
+  name: string;
+  slug?: string;
+}
+
+export interface UpdateAccountRequest {
+  name?: string;
+  slug?: string;
+  status?: 'active' | 'inactive' | 'suspended';
+}
+
 // Base interfaces
 export interface Contact {
   id: number;
@@ -41,6 +69,7 @@ export interface Agent {
   availability_status: 'online' | 'offline' | 'busy';
   auto_offline: boolean;
   role: 'agent' | 'administrator';
+  account_id?: number | null; // null for super_admin
 }
 
 export interface Team {
@@ -64,6 +93,7 @@ export interface Inbox {
   working_hours_enabled: boolean;
   timezone?: string;
   allow_messages_after_resolved: boolean;
+  account_id: number;
 }
 
 export interface Label {
@@ -72,6 +102,7 @@ export interface Label {
   description?: string;
   color: string;
   show_on_sidebar: boolean;
+  account_id: number;
 }
 
 export interface Attachment {
@@ -166,6 +197,7 @@ export interface ConversationQuery {
   q?: string;
   sort_by?: SortBy;
   updated_within?: string;
+  account_id?: number; // Required for admin/user, optional for super_admin
 }
 
 export interface MessageQuery {

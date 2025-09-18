@@ -76,6 +76,7 @@ export const TeamWizard: React.FC = () => {
         name: formData.name,
         description: formData.description,
         allow_auto_assign: formData.allow_auto_assign,
+        account_id: 1 // Default account_id for mock implementation
       });
 
       // Add agents to the team if any were selected

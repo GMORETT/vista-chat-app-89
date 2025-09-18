@@ -20,6 +20,7 @@ export interface Channel {
   }>;
   created_at: string;
   updated_at: string;
+  account_id: number;
 }
 
 export interface CreateChannelRequest {
@@ -41,6 +42,7 @@ export interface CreateChannelRequest {
     close_hour: number;
     close_minutes: number;
   }>;
+  account_id: number;
 }
 
 export interface Team {
@@ -48,6 +50,7 @@ export interface Team {
   name: string;
   description?: string;
   allow_auto_assign: boolean;
+  account_id: number;
   created_at: string;
   updated_at: string;
 }
@@ -56,6 +59,7 @@ export interface CreateTeamRequest {
   name: string;
   description?: string;
   allow_auto_assign?: boolean;
+  account_id: number;
 }
 
 export interface Agent {
@@ -71,6 +75,7 @@ export interface Agent {
   assigned_inboxes?: number[];
   created_at: string;
   updated_at: string;
+  account_id?: number | null; // null for super_admin
 }
 
 export interface CreateAgentRequest {
@@ -80,6 +85,7 @@ export interface CreateAgentRequest {
   role?: 'super_admin' | 'admin' | 'user';
   password?: string;
   custom_attributes?: Record<string, any>;
+  account_id?: number | null; // null for super_admin
 }
 
 export interface UpdateAgentRequest {
@@ -95,6 +101,7 @@ export interface Label {
   show_on_sidebar: boolean;
   created_at: string;
   updated_at: string;
+  account_id: number;
 }
 
 export interface CreateLabelRequest {
@@ -102,6 +109,7 @@ export interface CreateLabelRequest {
   description?: string;
   color: string;
   show_on_sidebar?: boolean;
+  account_id: number;
 }
 
 export interface TeamMember {

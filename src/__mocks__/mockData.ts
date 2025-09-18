@@ -29,7 +29,8 @@ export const mockAgent: Agent = {
   auto_offline: false,
   assigned_inboxes: [1],
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString()
+  updated_at: new Date().toISOString(),
+  account_id: 1
 };
 
 export const mockTeam: Team = {
@@ -38,7 +39,8 @@ export const mockTeam: Team = {
   description: 'Test team description',
   allow_auto_assign: true,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString()
+  updated_at: new Date().toISOString(),
+  account_id: 1
 };
 
 export const mockLabel: Label = {
@@ -48,7 +50,8 @@ export const mockLabel: Label = {
   color: '#FF5733',
   show_on_sidebar: true,
   created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString()
+  updated_at: new Date().toISOString(),
+  account_id: 1
 };
 
 export const mockContact: Contact = {
@@ -75,14 +78,15 @@ export const mockConversation: Conversation = {
   timestamp: Date.now(),
   account_id: 1,
   custom_attributes: {},
-  inbox: {
+    inbox: {
     id: 1,
     name: 'Test Inbox',
     channel_type: 'web',
     greeting_enabled: false,
     enable_auto_assignment: false,
     working_hours_enabled: false,
-    allow_messages_after_resolved: true
+    allow_messages_after_resolved: true,
+    account_id: 1
   },
   messages: [],
   meta: {
@@ -96,7 +100,8 @@ export const mockConversation: Conversation = {
       available: true,
       availability_status: 'online',
       auto_offline: false,
-      role: 'agent'
+      role: 'agent',
+      account_id: 1
     },
     channel: 'web'
   },

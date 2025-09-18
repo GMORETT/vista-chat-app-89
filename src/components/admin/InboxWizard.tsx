@@ -56,6 +56,7 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
         channel_type: formData.channel_type,
         phone_number: formData.phone_number,
         webhook_url: formData.webhook_url,
+        account_id: 1, // Default account_id for mock implementation
         provider_config: {
           access_token: formData.access_token,
           webhook_verify_token: formData.webhook_verify_token,

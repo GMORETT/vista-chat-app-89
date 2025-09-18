@@ -2,11 +2,11 @@ import { Conversation, Message, Contact, Agent, Team, Inbox, Label, StatusType, 
 
 // Mock Agents
 export const mockAgents: Agent[] = [
-  { id: 1, name: 'Samuel França', email: 'samuel@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 2, name: 'Marina Costa', email: 'marina@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 3, name: 'Rafael Duarte', email: 'rafael@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent' },
-  { id: 4, name: 'Camila Barros', email: 'camila@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 5, name: 'Diego Fernandes', email: 'diego@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator' },
+  { id: 1, name: 'Samuel França', email: 'samuel@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 1 },
+  { id: 2, name: 'Marina Costa', email: 'marina@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 1 },
+  { id: 3, name: 'Rafael Duarte', email: 'rafael@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent', account_id: 1 },
+  { id: 4, name: 'Camila Barros', email: 'camila@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 1 },
+  { id: 5, name: 'Diego Fernandes', email: 'diego@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator', account_id: null },
 ];
 
 // Mock Teams
@@ -19,23 +19,23 @@ export const mockTeams: Team[] = [
 
 // Mock Inboxes
 export const mockInboxes: Inbox[] = [
-  { id: 1, name: 'Site Principal', channel_type: 'website', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 2, name: 'WhatsApp Business', channel_type: 'whatsapp', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 3, name: 'Email Suporte', channel_type: 'email', greeting_enabled: false, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 4, name: 'Instagram', channel_type: 'instagram', greeting_enabled: true, enable_auto_assignment: false, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 5, name: 'Facebook', channel_type: 'facebook', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 1, name: 'Site Principal', channel_type: 'website', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 2, name: 'WhatsApp Business', channel_type: 'whatsapp', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 3, name: 'Email Suporte', channel_type: 'email', greeting_enabled: false, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 4, name: 'Instagram', channel_type: 'instagram', greeting_enabled: true, enable_auto_assignment: false, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 5, name: 'Facebook', channel_type: 'facebook', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
 ];
 
 // Mock Labels
 export const mockLabels: Label[] = [
-  { id: 1, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true },
-  { id: 2, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false },
-  { id: 3, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true },
-  { id: 4, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true },
-  { id: 5, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false },
-  { id: 6, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false },
-  { id: 7, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true },
-  { id: 8, title: 'Cliente VIP', description: 'Cliente importante', color: '#fbbf24', show_on_sidebar: true },
+  { id: 1, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true, account_id: 1 },
+  { id: 2, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false, account_id: 1 },
+  { id: 3, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true, account_id: 1 },
+  { id: 4, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true, account_id: 1 },
+  { id: 5, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false, account_id: 1 },
+  { id: 6, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false, account_id: 1 },
+  { id: 7, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true, account_id: 1 },
+  { id: 8, title: 'Cliente VIP', description: 'Cliente importante', color: '#fbbf24', show_on_sidebar: true, account_id: 1 },
 ];
 
 // Mock Contacts

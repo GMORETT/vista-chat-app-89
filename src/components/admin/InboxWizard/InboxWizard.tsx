@@ -96,7 +96,8 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
       const inboxData = {
         name: wizardData.name,
         channel_type: wizardData.selectedChannel.id,
-        provider_config: providerConfig
+        provider_config: providerConfig,
+        account_id: 1 // Default account_id for mock implementation
       };
 
       const result = await createInbox.mutateAsync(inboxData);

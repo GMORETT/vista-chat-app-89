@@ -10,6 +10,12 @@ import {
   CreateLabelRequest,
   ChannelType 
 } from '../models/admin';
+import { 
+  Account, 
+  CreateAccountRequest, 
+  UpdateAccountRequest, 
+  ClientQuery 
+} from '../models/chat';
 
 class AdminServiceClass {
   private config: {
@@ -233,6 +239,39 @@ class AdminServiceClass {
     await this.request(`/conversations/${conversationId}/labels`, {
       method: 'POST',
       body: JSON.stringify({ labels: allLabels }),
+    });
+  }
+
+  // Accounts (Client Management)
+  async listAccounts(query?: ClientQuery): Promise<Account[]> {
+    const queryParams = new URLSearchParams();
+    if (query?.page) queryParams.append('page', query.page.toString());
+    if (query?.name) queryParams.append('name', query.name);
+    if (query?.status) queryParams.append('status', query.status);
+    if (query?.sort) queryParams.append('sort', query.sort);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString ? `/accounts?${queryString}` : '/accounts';
+    return this.request<Account[]>(endpoint);
+  }
+
+  async createAccount(data: CreateAccountRequest): Promise<Account> {
+    return this.request<Account>('/accounts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAccount(id: number, data: UpdateAccountRequest): Promise<Account> {
+    return this.request<Account>(`/accounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAccount(id: number): Promise<void> {
+    await this.request(`/accounts/${id}`, {
+      method: 'DELETE',
     });
   }
 
