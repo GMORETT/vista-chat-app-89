@@ -53,7 +53,11 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
   onUnauthorized,
   requiredRoles = ['admin-interno']
 }) => {
-  const userRoles = currentUser?.roles || [];
+  const { user: authUser } = useAuth();
+  
+  // Use authenticated user from context, fallback to currentUser prop
+  const user = authUser || currentUser;
+  const userRoles = user?.roles || [];
   const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
 
   useEffect(() => {
