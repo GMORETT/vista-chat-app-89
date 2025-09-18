@@ -140,9 +140,6 @@ export const InboxPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Client selector for super admin */}
-            <ClientSelector />
-            
             {/* Filters with integrated toolbar */}
             <RoleBasedFilters />
             

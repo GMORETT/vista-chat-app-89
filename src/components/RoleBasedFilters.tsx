@@ -25,15 +25,16 @@ export const RoleBasedFilters: React.FC = () => {
   // For admin and super_admin, show full hierarchical filters
   return (
     <div className="border-b border-border bg-card">
-      {/* Hierarchical filters: Client → Channel */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-        <div className="flex items-center gap-6">
-          {/* Super admin client filter */}
-          {user?.role === 'super_admin' && <ClientAccountFilter />}
-          
-          {/* Channel filter for all admin roles */}
-          <InboxSelector />
+      {/* Client filter for super admin only - own line */}
+      {user?.role === 'super_admin' && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+          <ClientAccountFilter />
         </div>
+      )}
+      
+      {/* Channel filter line */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+        <InboxSelector />
       </div>
       
       {/* Main conversation toolbar */}
