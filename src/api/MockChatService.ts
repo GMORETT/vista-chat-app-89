@@ -174,7 +174,6 @@ export class MockChatService implements IChatService {
       const filtered = this.filterConversations(this.conversations, query);
       const metaBaseQuery = query ? { ...query } : undefined;
       if (metaBaseQuery && 'assignee_type' in metaBaseQuery) {
-        // @ts-expect-error - delete optional key for meta calculation
         delete metaBaseQuery.assignee_type;
       }
       const meta = this.calculateMeta(this.filterConversations(this.conversations, metaBaseQuery));
@@ -208,7 +207,6 @@ export class MockChatService implements IChatService {
     try {
       const metaBaseQuery = query ? { ...query } : undefined;
       if (metaBaseQuery && 'assignee_type' in metaBaseQuery) {
-        // @ts-expect-error - delete optional key for meta calculation
         delete metaBaseQuery.assignee_type;
       }
       const base = this.filterConversations(this.conversations, metaBaseQuery);
