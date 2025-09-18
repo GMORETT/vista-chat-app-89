@@ -111,9 +111,11 @@ export interface ChannelType {
   fields: Array<{
     name: string;
     label: string;
-    type: 'text' | 'password' | 'select' | 'boolean';
+    type: 'text' | 'password' | 'select' | 'boolean' | 'textarea';
     required: boolean;
+    sensitive?: boolean;
     options?: Array<{ value: string; label: string }>;
     placeholder?: string;
+    description?: string;
   }>;
 }

@@ -195,6 +195,11 @@ class AdminServiceClass {
       body: JSON.stringify({ label_ids: labelIds }),
     });
   }
+
+  // Credentials
+  async listCredentials(): Promise<Array<{ id: string; name: string; description?: string; created_at: string }>> {
+    return this.request('/credentials');
+  }
 }
 
 // Hook to create service instance with current config
