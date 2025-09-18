@@ -10,7 +10,7 @@ import { useChatStore } from '../state/useChatStore';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
-  const { filters, resetFilters } = useChatStore();
+  const { filters, resetFilters, selectedConversationId } = useChatStore();
   const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
@@ -72,7 +72,8 @@ export const ConversationToolbar: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleExpandToggle}
-              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              disabled={!selectedConversationId}
+              className={`h-8 w-8 p-0 ${!selectedConversationId ? 'text-muted-foreground/50' : 'text-muted-foreground hover:text-foreground'}`}
             >
               {isExpanded ? (
                 <ArrowLeft className="h-4 w-4" />
@@ -82,7 +83,7 @@ export const ConversationToolbar: React.FC = () => {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Switch the layout</p>
+            <p>{!selectedConversationId ? 'Selecione uma conversa para expandir a tela' : 'Switch the layout'}</p>
           </TooltipContent>
         </Tooltip>
       </div>

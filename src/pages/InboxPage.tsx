@@ -78,8 +78,8 @@ export const InboxPage: React.FC = () => {
           <>
             {/* Header with Logo, Search and User Controls */}
             <div className="flex items-center gap-2 p-4 border-b border-border bg-card">
-              {/* Logo */}
-              <div className="flex-shrink-0">
+              {/* Logo - 1/3 of header width */}
+              <div className="w-1/3 flex-shrink-0">
                 <img 
                   src="/brand/logo-solabs.png" 
                   alt="Solabs" 
@@ -108,35 +108,32 @@ export const InboxPage: React.FC = () => {
                 )}
               </div>
               
-              {/* User info */}
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline max-w-24 truncate">{user?.name}</span>
-              </div>
-              
-              {/* Admin button - only for admin users */}
-              {user?.roles.includes('admin-interno') && (
+              {/* Role-based controls */}
+              <div className="flex items-center gap-2">
+                {/* Super Admin: Admin button with tooltip */}
+                {user?.role === 'super_admin' && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => navigate('/admin')}
+                    title="Área Administrativa"
+                    className="flex items-center"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                )}
+                
+                {/* Logout button for all roles */}
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
-                  onClick={() => navigate('/admin')}
-                  className="flex items-center gap-1"
+                  onClick={openLogoutConfirmation}
+                  title="Sair"
+                  className="flex items-center"
                 >
-                  <Settings className="h-4 w-4" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <LogOut className="h-4 w-4" />
                 </Button>
-              )}
-              
-              {/* Logout button */}
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={openLogoutConfirmation}
-                title="Sair"
-                className="flex items-center"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              </div>
             </div>
 
             {/* Filters with integrated toolbar */}
