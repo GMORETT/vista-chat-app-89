@@ -13,6 +13,7 @@ export interface MountOptions {
     name: string;
     email: string;
     role: string;
+    roles?: string[];
   };
 }
 

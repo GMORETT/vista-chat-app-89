@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "dev:mfe": "MFE_DEV=true vite",
+    "build:mfe": "vite build --config vite.config.mfe.ts",
+    "preview:mfe": "vite preview --config vite.config.mfe.ts"
+  }
+}
