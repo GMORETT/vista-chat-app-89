@@ -148,6 +148,13 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
 
   const clearAllRules = () => {
     setRules([]);
+    // Also reset filters in the store to clear all applied filters
+    const { resetFilters } = useChatStore.getState();
+    resetFilters();
+    toast({
+      title: "Filtros limpos",
+      description: "Todos os filtros foram removidos.",
+    });
   };
 
   return (

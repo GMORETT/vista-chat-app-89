@@ -7,7 +7,20 @@ import { mockConversationMeta } from '../data/mockData';
 
 export const TabsCounts: React.FC = () => {
   const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
-  const { data: metaData, isLoading } = useConversationsMeta(filters);
+  
+  // For tab counts, only use assignee_type filter to get accurate counts independent of advanced filters
+  const tabCountsFilters = { 
+    assignee_type: filters.assignee_type,
+    status: 'all' as const,
+    inbox_id: undefined,
+    team_id: undefined,
+    labels: undefined,
+    sort_by: filters.sort_by,
+    q: undefined,
+    updated_within: undefined
+  };
+  
+  const { data: metaData, isLoading } = useConversationsMeta(tabCountsFilters);
 
   // Use real data or fallback to mock
   const counts = metaData || mockConversationMeta;

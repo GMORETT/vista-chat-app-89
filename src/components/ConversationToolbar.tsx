@@ -1,19 +1,36 @@
 import React, { useState } from 'react';
-import { Filter, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Filter, ArrowRight, ArrowLeft, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useUiStore } from '../state/uiStore';
 import { useToast } from '../hooks/use-toast';
 import { AdvancedFiltersModal } from './AdvancedFiltersModal';
 import { SortByPopover } from './SortByPopover';
+import { useChatStore } from '../state/useChatStore';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
+  const { filters, resetFilters } = useChatStore();
   const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
+  // Check if any advanced filters are active (excluding assignee_type which is controlled by tabs)
+  const hasActiveFilters = filters.status !== 'all' || 
+    filters.inbox_id !== undefined || 
+    filters.team_id !== undefined || 
+    (filters.labels && filters.labels.length > 0) ||
+    filters.updated_within !== undefined;
+
   const handleExpandToggle = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleClearFilters = () => {
+    resetFilters();
+    toast({
+      title: "Filtros limpos",
+      description: "Todos os filtros foram removidos.",
+    });
   };
 
   return (
@@ -23,11 +40,29 @@ export const ConversationToolbar: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={() => setShowFiltersModal(true)}
-          className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          className={`h-8 px-2 ${hasActiveFilters ? 'text-primary hover:text-primary/80' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          <Filter className="h-4 w-4 mr-2" />
+          <Filter className={`h-4 w-4 mr-2 ${hasActiveFilters ? 'fill-current' : ''}`} />
           Filter conversations
         </Button>
+
+        {hasActiveFilters && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilters}
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Clear all filters</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
         <SortByPopover />
 
