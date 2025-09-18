@@ -9,7 +9,8 @@ import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { ArrowLeft, Search, X } from 'lucide-react';
+import { ArrowLeft, Search, X, Settings } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -63,10 +64,10 @@ export const InboxPage: React.FC = () => {
         {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
-            {/* Header with Logo and Search */}
+            {/* Header with Logo, Search and Admin Button */}
             <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
-              {/* Logo - 1/3 */}
-              <div className="flex-shrink-0 w-1/3">
+              {/* Logo */}
+              <div className="flex-shrink-0">
                 <img 
                   src="/brand/logo-solabs.png" 
                   alt="Solabs" 
@@ -74,11 +75,11 @@ export const InboxPage: React.FC = () => {
                 />
               </div>
               
-              {/* Search Bar - 2/3 */}
+              {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Buscar conversas por nome, email ou conteúdo..."
+                  placeholder="Buscar conversas..."
                   value={localSearchQuery}
                   onChange={(e) => setLocalSearchQuery(e.target.value)}
                   className="pl-10 pr-10"
@@ -94,6 +95,14 @@ export const InboxPage: React.FC = () => {
                   </Button>
                 )}
               </div>
+              
+              {/* Admin Button */}
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Admin
+                </Button>
+              </Link>
             </div>
 
             {/* Filters with integrated toolbar */}
