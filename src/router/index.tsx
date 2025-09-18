@@ -7,6 +7,7 @@ import { AdminApp } from '../apps/AdminApp';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
 import { InboxProvider } from '../contexts/InboxContext';
+import { AdminClientProvider } from '../contexts/AdminClientProvider';
 
 // Code splitting for better performance
 const ConversationPage = React.lazy(() => import('../pages/ConversationPage').then(module => ({ default: module.ConversationPage })));
@@ -39,6 +40,13 @@ const mockMountOptions = {
   chatwootAccountId: 'mock-account-id',
 };
 
+// Admin client config for operator routes
+const adminClientConfig = {
+  apiBaseUrl: 'http://localhost:3001',
+  getAuthToken: () => 'mock-token',
+  chatwootAccountId: 'mock-account-id',
+};
+
 export const router = createBrowserRouter([
   {
     path: '/login',
@@ -52,11 +60,13 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <AuthProvider>
-        <InboxProvider>
-          <ProtectedRoute>
-            <InboxPage />
-          </ProtectedRoute>
-        </InboxProvider>
+        <AdminClientProvider config={adminClientConfig}>
+          <InboxProvider>
+            <ProtectedRoute>
+              <InboxPage />
+            </ProtectedRoute>
+          </InboxProvider>
+        </AdminClientProvider>
       </AuthProvider>
     ),
   },
@@ -64,13 +74,15 @@ export const router = createBrowserRouter([
     path: '/conversation/:id',
     element: (
       <AuthProvider>
-        <InboxProvider>
-          <ProtectedRoute>
-            <Suspense fallback={<PageLoader />}>
-              <ConversationPage />
-            </Suspense>
-          </ProtectedRoute>
-        </InboxProvider>
+        <AdminClientProvider config={adminClientConfig}>
+          <InboxProvider>
+            <ProtectedRoute>
+              <Suspense fallback={<PageLoader />}>
+                <ConversationPage />
+              </Suspense>
+            </ProtectedRoute>
+          </InboxProvider>
+        </AdminClientProvider>
       </AuthProvider>
     ),
   },
@@ -78,13 +90,15 @@ export const router = createBrowserRouter([
     path: '/contact/:id',
     element: (
       <AuthProvider>
-        <InboxProvider>
-          <ProtectedRoute>
-            <Suspense fallback={<PageLoader />}>
-              <ContactPage />
-            </Suspense>
-          </ProtectedRoute>
-        </InboxProvider>
+        <AdminClientProvider config={adminClientConfig}>
+          <InboxProvider>
+            <ProtectedRoute>
+              <Suspense fallback={<PageLoader />}>
+                <ContactPage />
+              </Suspense>
+            </ProtectedRoute>
+          </InboxProvider>
+        </AdminClientProvider>
       </AuthProvider>
     ),
   },
