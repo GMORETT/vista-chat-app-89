@@ -11,6 +11,26 @@ import {
 export class AdminChatService {
   private getAuthToken: () => string | Promise<string>;
   private chatwootAccountId: string;
+  
+  // In-memory storage for mock data
+  private static mockTeams: Team[] = [
+    {
+      id: 1,
+      name: 'Suporte Técnico',
+      description: 'Team responsável pelo atendimento de questões técnicas',
+      allow_auto_assign: true,
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z',
+    },
+    {
+      id: 2,
+      name: 'Vendas',
+      description: 'Team de vendas e relacionamento com clientes',
+      allow_auto_assign: false,
+      created_at: '2024-01-20T14:30:00Z',
+      updated_at: '2024-01-20T14:30:00Z',
+    },
+  ];
 
   constructor(
     apiBaseUrl: string,
@@ -74,14 +94,42 @@ export class AdminChatService {
   }
 
   // Teams - Mock implementations
-  async getTeams(): Promise<Team[]> { return []; }
+  async getTeams(): Promise<Team[]> { 
+    return [...AdminChatService.mockTeams]; 
+  }
+  
   async createTeam(data: CreateTeamRequest): Promise<Team> {
-    return { id: Date.now(), ...data, allow_auto_assign: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const newTeam: Team = { 
+      id: Date.now(), 
+      ...data, 
+      allow_auto_assign: data.allow_auto_assign ?? false, 
+      created_at: new Date().toISOString(), 
+      updated_at: new Date().toISOString() 
+    };
+    AdminChatService.mockTeams.push(newTeam);
+    return newTeam;
   }
+  
   async updateTeam(id: number, data: Partial<CreateTeamRequest>): Promise<Team> {
-    return { id, name: '', ...data, allow_auto_assign: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const teamIndex = AdminChatService.mockTeams.findIndex(team => team.id === id);
+    if (teamIndex !== -1) {
+      const updatedTeam = { 
+        ...AdminChatService.mockTeams[teamIndex], 
+        ...data, 
+        updated_at: new Date().toISOString() 
+      };
+      AdminChatService.mockTeams[teamIndex] = updatedTeam;
+      return updatedTeam;
+    }
+    throw new Error('Team not found');
   }
-  async deleteTeam(id: number): Promise<void> { console.log('Deleting team:', id); }
+  
+  async deleteTeam(id: number): Promise<void> { 
+    const teamIndex = AdminChatService.mockTeams.findIndex(team => team.id === id);
+    if (teamIndex !== -1) {
+      AdminChatService.mockTeams.splice(teamIndex, 1);
+    }
+  }
   async getTeamMembers(teamId: number): Promise<TeamMember[]> { return []; }
   async addTeamMember(teamId: number, agentIds: number[]): Promise<void> { console.log('Adding members:', teamId, agentIds); }
   async removeTeamMember(teamId: number, agentId: number): Promise<void> { console.log('Removing member:', teamId, agentId); }
