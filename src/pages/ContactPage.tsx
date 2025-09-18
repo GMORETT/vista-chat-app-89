@@ -6,6 +6,9 @@ import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Mail, Phone, User, MessageCircle, Tag } from 'lucide-react';
+import { ApplyLabelsModal } from '../components/ApplyLabelsModal';
+import { useApplyLabelsToContact, useContactLabels } from '../hooks/useLabels';
+import { LabelBadge } from '../components/LabelBadge';
 
 export const ContactPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,18 +40,8 @@ export const ContactPage: React.FC = () => {
     enabled: !!contactId,
   });
 
-  const { data: labels } = useQuery({
-    queryKey: ['contact-labels', contactId],
-    queryFn: async () => {
-      if (!contactId) return [];
-      const response = await contactsApi.getContactLabels(contactId);
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      return response.data!;
-    },
-    enabled: !!contactId,
-  });
+  const { data: labels } = useContactLabels(contactId || 0);
+  const applyLabelsMutation = useApplyLabelsToContact();
 
   if (contactLoading) {
     return (
@@ -116,21 +109,35 @@ export const ContactPage: React.FC = () => {
               )}
 
               {/* Labels */}
-              {labels && labels.length > 0 && (
-                <div>
-                  <div className="text-sm text-muted mb-2 flex items-center gap-2">
+              <div>
+                <div className="text-sm text-muted mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <Tag className="h-4 w-4" />
                     Labels
                   </div>
+                  <ApplyLabelsModal
+                    title="Gerenciar Labels do Contato"
+                    description={`Aplicar labels ao contato ${contact.name || contact.email}`}
+                    onApply={async (selectedLabels) => {
+                      if (contactId) {
+                        await applyLabelsMutation.mutateAsync({
+                          contactId,
+                          labels: selectedLabels,
+                        });
+                      }
+                    }}
+                  />
+                </div>
+                {labels && labels.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                     {labels.map((label) => (
-                      <Badge key={label} variant="outline" className="text-xs">
-                        {label}
-                      </Badge>
+                      <LabelBadge key={label} label={label} />
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-xs text-muted">Nenhuma label aplicada</div>
+                )}
+              </div>
 
               {/* Custom Attributes */}
               {contact.custom_attributes && Object.keys(contact.custom_attributes).length > 0 && (

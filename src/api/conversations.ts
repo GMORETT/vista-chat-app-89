@@ -107,4 +107,14 @@ export const conversationsApi = {
   markAsUnread: async (id: number): Promise<ApiResponse<any>> => {
     return apiClient.post(`/api/v1/conversations/${id}/unread`);
   },
+
+  // Get conversation labels
+  getConversationLabels: async (id: number): Promise<ApiResponse<string[]>> => {
+    return apiClient.get(`/api/v1/conversations/${id}/labels`);
+  },
+
+  // Add labels to conversation
+  addConversationLabels: async (id: number, labels: string[]): Promise<ApiResponse<any>> => {
+    return apiClient.post(`/api/v1/conversations/${id}/labels`, { labels });
+  },
 };

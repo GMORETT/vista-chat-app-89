@@ -5,6 +5,11 @@ import { useChatStore } from '../state/useChatStore';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
+import { ApplyLabelsModal } from '../components/ApplyLabelsModal';
+import { useApplyLabelsToConversation, useConversationLabels } from '../hooks/useLabels';
+import { LabelBadge } from '../components/LabelBadge';
+import { Card } from '../components/ui/card';
+import { Tag } from 'lucide-react';
 
 export const ConversationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +17,8 @@ export const ConversationPage: React.FC = () => {
   
   const { setSelectedConversationId } = useChatStore();
   const { data: conversation, isLoading, error } = useConversation(conversationId);
+  const { data: labels } = useConversationLabels(conversationId || 0);
+  const applyLabelsMutation = useApplyLabelsToConversation();
 
   React.useEffect(() => {
     if (conversationId) {
@@ -51,20 +58,43 @@ export const ConversationPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Actions bar */}
-      <div className="shrink-0">
-        <ActionsBar />
-      </div>
+      <ActionsBar />
       
-      {/* Messages - flex-1 to take remaining space */}
-      <div className="flex-1 min-h-0">
+      {/* Labels Section */}
+      <Card className="mx-4 mb-2 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Tag className="h-4 w-4 text-muted" />
+            <span className="text-sm font-medium">Labels</span>
+          </div>
+          <ApplyLabelsModal
+            title="Gerenciar Labels da Conversa"
+            description={`Aplicar labels à conversa #${conversationId}`}
+            onApply={async (selectedLabels) => {
+              if (conversationId) {
+                await applyLabelsMutation.mutateAsync({
+                  conversationId,
+                  labels: selectedLabels,
+                });
+              }
+            }}
+          />
+        </div>
+        {labels && labels.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {labels.map((label) => (
+              <LabelBadge key={label} label={label} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-xs text-muted">Nenhuma label aplicada</div>
+        )}
+      </Card>
+      
+      <div className="flex-1 overflow-hidden">
         <MessageList />
       </div>
-      
-      {/* Composer - shrink-0 to maintain its size */}
-      <div className="shrink-0">
-        <Composer />
-      </div>
+      <Composer />
     </div>
   );
 };
