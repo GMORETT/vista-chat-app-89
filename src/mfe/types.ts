@@ -6,6 +6,14 @@ export interface MountOptions {
   locale?: string;
   onResize?: (height: number) => void;
   onUnauthorized?: () => void;
+  chatwootAccountId?: string;
+  getAuthToken?: () => string | Promise<string>;
+  currentUser?: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  };
 }
 
 export interface SolabsMessagesAPI {
