@@ -9,8 +9,9 @@ import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { ArrowLeft, Search, X, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, Search, X, Settings, LogOut, User } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -23,6 +24,8 @@ export const InboxPage: React.FC = () => {
   } = useUiStore();
   
   const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   // Debounce search
@@ -64,8 +67,8 @@ export const InboxPage: React.FC = () => {
         {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
-            {/* Header with Logo, Search and Admin Button */}
-            <div className="flex items-center gap-4 p-4 border-b border-border bg-card">
+            {/* Header with Logo, Search and User Controls */}
+            <div className="flex items-center gap-2 p-4 border-b border-border bg-card">
               {/* Logo */}
               <div className="flex-shrink-0">
                 <img 
@@ -96,13 +99,35 @@ export const InboxPage: React.FC = () => {
                 )}
               </div>
               
-              {/* Admin Button */}
-              <Link to="/admin">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+              {/* User info */}
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline max-w-24 truncate">{user?.name}</span>
+              </div>
+              
+              {/* Admin button - only for admin users */}
+              {user?.roles.includes('admin-interno') && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate('/admin')}
+                  className="flex items-center gap-1"
+                >
                   <Settings className="h-4 w-4" />
-                  Admin
+                  <span className="hidden sm:inline">Admin</span>
                 </Button>
-              </Link>
+              )}
+              
+              {/* Logout button */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={logout}
+                title="Sair"
+                className="flex items-center"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
 
             {/* Filters with integrated toolbar */}

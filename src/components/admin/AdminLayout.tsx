@@ -1,14 +1,22 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '../ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { MountOptions } from '../../mfe/types';
+import { Button } from '../ui/button';
+import { LogOut, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AdminLayoutProps {
   mountOptions: MountOptions;
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const currentUser = user || mountOptions.currentUser;
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -26,8 +34,28 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
             
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
-                {mountOptions.currentUser?.name || 'Admin User'}
+                {currentUser?.name || 'Admin User'}
               </span>
+              
+              {/* Back to operator mode */}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Operador
+              </Button>
+              
+              {/* Logout button */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={logout}
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
           </header>
 

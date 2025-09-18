@@ -6,6 +6,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { MfeRouter } from "./mfe/router";
 import { MountOptions } from "./mfe/types";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +31,9 @@ const App: React.FC<AppProps> = ({ mountOptions, appType }) => {
         <Toaster />
         <Sonner />
         {isMFE ? (
-          <MfeRouter mountOptions={mountOptions} appType={appType || 'operator'} />
+          <AuthProvider>
+            <MfeRouter mountOptions={mountOptions} appType={appType || 'operator'} />
+          </AuthProvider>
         ) : (
           <RouterProvider router={router} />
         )}

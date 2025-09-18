@@ -1,8 +1,11 @@
 import React, { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { InboxPage } from '../pages/InboxPage';
+import { LoginPage } from '../pages/LoginPage';
 import { Skeleton } from '../components/ui/skeleton';
 import { AdminApp } from '../apps/AdminApp';
+import { ProtectedRoute } from '../components/ProtectedRoute';
+import { AuthProvider } from '../contexts/AuthContext';
 
 // Code splitting for better performance
 const ConversationPage = React.lazy(() => import('../pages/ConversationPage').then(module => ({ default: module.ConversationPage })));
@@ -31,40 +34,61 @@ const mockMountOptions = {
   apiBaseUrl: 'http://localhost:3001',
   getAuthToken: () => 'mock-token',
   chatwootAccountId: 'mock-account-id',
-  currentUser: {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@solabs.com',
-    role: 'admin',
-    roles: ['admin']
-  }
 };
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: (
+      <AuthProvider>
+        <LoginPage />
+      </AuthProvider>
+    ),
+  },
+  {
     path: '/',
-    element: <InboxPage />,
+    element: (
+      <AuthProvider>
+        <ProtectedRoute>
+          <InboxPage />
+        </ProtectedRoute>
+      </AuthProvider>
+    ),
   },
   {
     path: '/conversation/:id',
     element: (
-      <Suspense fallback={<PageLoader />}>
-        <ConversationPage />
-      </Suspense>
+      <AuthProvider>
+        <ProtectedRoute>
+          <Suspense fallback={<PageLoader />}>
+            <ConversationPage />
+          </Suspense>
+        </ProtectedRoute>
+      </AuthProvider>
     ),
   },
   {
     path: '/contact/:id',
     element: (
-      <Suspense fallback={<PageLoader />}>
-        <ContactPage />
-      </Suspense>
+      <AuthProvider>
+        <ProtectedRoute>
+          <Suspense fallback={<PageLoader />}>
+            <ContactPage />
+          </Suspense>
+        </ProtectedRoute>
+      </AuthProvider>
     ),
   },
   // Admin routes
   {
     path: '/admin',
-    element: <AdminApp mountOptions={mockMountOptions} />,
+    element: (
+      <AuthProvider>
+        <ProtectedRoute requiredRoles={['admin-interno']}>
+          <AdminApp mountOptions={mockMountOptions} />
+        </ProtectedRoute>
+      </AuthProvider>
+    ),
     children: [
       {
         index: true,
@@ -111,15 +135,17 @@ export const router = createBrowserRouter([
   {
     path: '*',
     element: (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-4">404</h1>
-          <p className="text-muted mb-4">Página não encontrada</p>
-          <a href="/" className="text-link hover:underline">
-            Voltar para o início
-          </a>
+      <AuthProvider>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-foreground mb-4">404</h1>
+            <p className="text-muted mb-4">Página não encontrada</p>
+            <a href="/" className="text-link hover:underline">
+              Voltar para o início
+            </a>
+          </div>
         </div>
-      </div>
+      </AuthProvider>
     ),
   },
 ]);

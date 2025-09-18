@@ -1,8 +1,10 @@
 import React, { Suspense } from 'react';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { InboxPage } from '../pages/InboxPage';
+import { LoginPage } from '../pages/LoginPage';
 import { AdminApp } from '../apps/AdminApp';
 import { Skeleton } from '../components/ui/skeleton';
+import { ProtectedRoute } from '../components/ProtectedRoute';
 import { MountOptions } from './types';
 
 // Code splitting for better performance
@@ -39,8 +41,16 @@ export const MfeRouter: React.FC<MfeRouterProps> = ({ mountOptions, appType }) =
 
   const routes = appType === 'admin' ? [
     {
+      path: getRoutePath('/login'),
+      element: <LoginPage />,
+    },
+    {
       path: getRoutePath('/'),
-      element: <AdminApp mountOptions={mountOptions} />,
+      element: (
+        <ProtectedRoute requiredRoles={['admin-interno']}>
+          <AdminApp mountOptions={mountOptions} />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: getRoutePath('/'),
@@ -108,23 +118,35 @@ export const MfeRouter: React.FC<MfeRouterProps> = ({ mountOptions, appType }) =
     },
   ] : [
     {
+      path: getRoutePath('/login'),
+      element: <LoginPage />,
+    },
+    {
       path: getRoutePath('/'),
-      element: <InboxPage />,
+      element: (
+        <ProtectedRoute>
+          <InboxPage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: getRoutePath('/conversation/:id'),
       element: (
-        <Suspense fallback={<PageLoader />}>
-          <ConversationPage />
-        </Suspense>
+        <ProtectedRoute>
+          <Suspense fallback={<PageLoader />}>
+            <ConversationPage />
+          </Suspense>
+        </ProtectedRoute>
       ),
     },
     {
       path: getRoutePath('/contact/:id'),
       element: (
-        <Suspense fallback={<PageLoader />}>
-          <ContactPage />
-        </Suspense>
+        <ProtectedRoute>
+          <Suspense fallback={<PageLoader />}>
+            <ContactPage />
+          </Suspense>
+        </ProtectedRoute>
       ),
     },
     {
