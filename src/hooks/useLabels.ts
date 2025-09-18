@@ -44,8 +44,14 @@ export const useApplyLabelsToContact = () => {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: ({ contactId, labels }: { contactId: number; labels: string[] }) => 
-      contactsApi.addContactLabels(contactId, labels),
+    mutationFn: async ({ contactId, labels }: { contactId: number; labels: string[] }) => {
+      // Get existing labels first to merge
+      const existingResponse = await contactsApi.getContactLabels(contactId);
+      const existingLabels = existingResponse.data || [];
+      const allLabels = [...new Set([...existingLabels, ...labels])];
+      
+      return contactsApi.addContactLabels(contactId, allLabels);
+    },
     onSuccess: (_, { labels }) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
       queryClient.invalidateQueries({ queryKey: ['labels'] });
@@ -69,8 +75,14 @@ export const useApplyLabelsToConversation = () => {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: ({ conversationId, labels }: { conversationId: number; labels: string[] }) => 
-      conversationsApi.addConversationLabels(conversationId, labels),
+    mutationFn: async ({ conversationId, labels }: { conversationId: number; labels: string[] }) => {
+      // Get existing labels first to merge
+      const existingResponse = await conversationsApi.getConversationLabels(conversationId);
+      const existingLabels = existingResponse.data || [];
+      const allLabels = [...new Set([...existingLabels, ...labels])];
+      
+      return conversationsApi.addConversationLabels(conversationId, allLabels);
+    },
     onSuccess: (_, { labels }) => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['labels'] });

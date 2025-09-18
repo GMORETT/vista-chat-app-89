@@ -30,14 +30,13 @@ class AdminServiceClass {
     const token = await this.config.getAuthToken();
     return {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'X-Chatwoot-Account-Id': this.config.chatwootAccountId,
+      'api_access_token': token,
     };
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers = await this.getHeaders();
-    const url = `${this.config.apiBaseUrl}/api/admin${endpoint}`;
+    const url = `${this.config.apiBaseUrl}/api/v1/accounts/${this.config.chatwootAccountId}${endpoint}`;
     
     const response = await fetch(url, {
       ...options,
@@ -56,33 +55,49 @@ class AdminServiceClass {
 
   // Inboxes/Channels
   async listInboxes(): Promise<Channel[]> {
-    return this.request<Channel[]>('/channels');
+    return this.request<Channel[]>('/inboxes');
   }
 
   async createInbox(data: CreateChannelRequest): Promise<Channel> {
-    return this.request<Channel>('/channels', {
+    // Transform to official Chatwoot payload structure
+    const payload = {
+      name: data.name,
+      channel: {
+        type: data.channel_type,
+        phone_number: data.phone_number,
+        provider_config: data.provider_config || {}
+      },
+      greeting_enabled: data.greeting_enabled,
+      greeting_message: data.greeting_message,
+      working_hours_enabled: data.working_hours_enabled,
+      out_of_office_message: data.out_of_office_message,
+      timezone: data.timezone,
+      working_hours: data.working_hours
+    };
+    
+    return this.request<Channel>('/inboxes', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   }
 
   async updateInbox(id: number, data: Partial<CreateChannelRequest>): Promise<Channel> {
-    return this.request<Channel>(`/channels/${id}`, {
+    return this.request<Channel>(`/inboxes/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteInbox(id: number): Promise<void> {
-    await this.request(`/channels/${id}`, {
+    await this.request(`/inboxes/${id}`, {
       method: 'DELETE',
     });
   }
 
   async assignInboxAgents(inboxId: number, agentIds: number[]): Promise<void> {
-    await this.request(`/channels/${inboxId}/agents`, {
+    await this.request(`/inboxes/${inboxId}/agents`, {
       method: 'POST',
-      body: JSON.stringify({ agent_ids: agentIds }),
+      body: JSON.stringify({ user_ids: agentIds }),
     });
   }
 
@@ -118,7 +133,7 @@ class AdminServiceClass {
   async addTeamMembers(teamId: number, agentIds: number[]): Promise<void> {
     await this.request(`/teams/${teamId}/members`, {
       method: 'POST',
-      body: JSON.stringify({ agent_ids: agentIds }),
+      body: JSON.stringify({ user_ids: agentIds }),
     });
   }
 
@@ -132,27 +147,36 @@ class AdminServiceClass {
     return this.request<Agent[]>(`/teams/${teamId}/members`);
   }
 
-  // Agents
+  // Account Users (Agents)
   async listAgents(): Promise<Agent[]> {
-    return this.request<Agent[]>('/agents');
+    return this.request<Agent[]>('/account_users');
   }
 
   async createAgent(data: CreateAgentRequest): Promise<Agent> {
-    return this.request<Agent>('/agents', {
+    // Transform to official payload structure
+    const payload = {
+      name: data.name,
+      email: data.email,
+      role: data.role || 'agent',
+      availability_status: 'available',
+      auto_offline: false
+    };
+    
+    return this.request<Agent>('/account_users', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   }
 
   async updateAgent(id: number, data: Partial<CreateAgentRequest>): Promise<Agent> {
-    return this.request<Agent>(`/agents/${id}`, {
+    return this.request<Agent>(`/account_users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteAgent(id: number): Promise<void> {
-    await this.request(`/agents/${id}`, {
+    await this.request(`/account_users/${id}`, {
       method: 'DELETE',
     });
   }
@@ -182,17 +206,33 @@ class AdminServiceClass {
     });
   }
 
-  async addLabelsToContact(contactId: number, labelIds: number[]): Promise<void> {
+  async getContactLabels(contactId: number): Promise<string[]> {
+    return this.request<string[]>(`/contacts/${contactId}/labels`);
+  }
+
+  async addLabelsToContact(contactId: number, labelTitles: string[]): Promise<void> {
+    // Get existing labels to merge, not replace
+    const existingLabels = await this.getContactLabels(contactId);
+    const allLabels = [...new Set([...existingLabels, ...labelTitles])];
+    
     await this.request(`/contacts/${contactId}/labels`, {
       method: 'POST',
-      body: JSON.stringify({ label_ids: labelIds }),
+      body: JSON.stringify({ labels: allLabels }),
     });
   }
 
-  async addLabelsToConversation(conversationId: number, labelIds: number[]): Promise<void> {
+  async getConversationLabels(conversationId: number): Promise<string[]> {
+    return this.request<string[]>(`/conversations/${conversationId}/labels`);
+  }
+
+  async addLabelsToConversation(conversationId: number, labelTitles: string[]): Promise<void> {
+    // Get existing labels to merge, not replace
+    const existingLabels = await this.getConversationLabels(conversationId);
+    const allLabels = [...new Set([...existingLabels, ...labelTitles])];
+    
     await this.request(`/conversations/${conversationId}/labels`, {
       method: 'POST',
-      body: JSON.stringify({ label_ids: labelIds }),
+      body: JSON.stringify({ labels: allLabels }),
     });
   }
 

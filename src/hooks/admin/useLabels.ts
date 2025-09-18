@@ -51,8 +51,8 @@ export const useAddLabelsToContact = () => {
   const adminService = useAdminService();
   const queryClient = useQueryClient();
   
-  return useMutation<void, Error, { contactId: number; labelIds: number[] }>({
-    mutationFn: ({ contactId, labelIds }) => adminService.addLabelsToContact(contactId, labelIds),
+  return useMutation<void, Error, { contactId: number; labelTitles: string[] }>({
+    mutationFn: ({ contactId, labelTitles }) => adminService.addLabelsToContact(contactId, labelTitles),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
     },
@@ -63,8 +63,8 @@ export const useAddLabelsToConversation = () => {
   const adminService = useAdminService();
   const queryClient = useQueryClient();
   
-  return useMutation<void, Error, { conversationId: number; labelIds: number[] }>({
-    mutationFn: ({ conversationId, labelIds }) => adminService.addLabelsToConversation(conversationId, labelIds),
+  return useMutation<void, Error, { conversationId: number; labelTitles: string[] }>({
+    mutationFn: ({ conversationId, labelTitles }) => adminService.addLabelsToConversation(conversationId, labelTitles),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
     },

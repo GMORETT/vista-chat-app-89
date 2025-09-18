@@ -748,6 +748,309 @@ app.get('/api/messaging/contacts/:id/conversations', async (req, res) => {
   }
 });
 
+// ADMIN ROUTES - Official Chatwoot API Structure
+// Authentication middleware for admin routes
+const adminAuth = (req, res, next) => {
+  const token = req.headers['api_access_token'];
+  if (!token) {
+    return res.status(401).json({ error: 'Missing api_access_token header' });
+  }
+  req.accountId = req.params.accountId;
+  next();
+};
+
+// Inboxes
+app.get('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    res.json(mockData.inboxes || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const { name, channel, greeting_enabled, greeting_message } = req.body;
+    const { type: channel_type, phone_number, provider_config } = channel || {};
+    
+    const newInbox = {
+      id: Date.now(),
+      name,
+      channel_type,
+      phone_number,
+      provider_config: provider_config || {},
+      greeting_enabled: greeting_enabled || false,
+      greeting_message: greeting_message || '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    if (!mockData.inboxes) mockData.inboxes = [];
+    mockData.inboxes.push(newInbox);
+    
+    res.json(newInbox);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const inboxId = parseInt(req.params.id);
+    const inbox = mockData.inboxes?.find(i => i.id === inboxId);
+    
+    if (!inbox) {
+      return res.status(404).json({ error: 'Inbox not found' });
+    }
+    
+    Object.assign(inbox, req.body, { updated_at: new Date().toISOString() });
+    res.json(inbox);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const inboxId = parseInt(req.params.id);
+    if (!mockData.inboxes) return res.status(404).json({ error: 'Inbox not found' });
+    
+    const index = mockData.inboxes.findIndex(i => i.id === inboxId);
+    if (index === -1) {
+      return res.status(404).json({ error: 'Inbox not found' });
+    }
+    
+    mockData.inboxes.splice(index, 1);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Teams
+app.get('/api/v1/accounts/:accountId/teams', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    res.json(mockData.teams || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/teams', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const { name, description, allow_auto_assign = false } = req.body;
+    
+    const newTeam = {
+      id: Date.now(),
+      name,
+      description: description || '',
+      allow_auto_assign,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    if (!mockData.teams) mockData.teams = [];
+    mockData.teams.push(newTeam);
+    
+    res.json(newTeam);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Account Users (Agents)
+app.get('/api/v1/accounts/:accountId/account_users', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    res.json(mockData.agents || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/account_users', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const { name, email, role = 'agent', availability_status = 'available' } = req.body;
+    
+    const newAgent = {
+      id: Date.now(),
+      name,
+      email,
+      role,
+      availability_status,
+      auto_offline: false,
+      confirmed: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    if (!mockData.agents) mockData.agents = [];
+    mockData.agents.push(newAgent);
+    
+    res.json(newAgent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Labels
+app.get('/api/v1/accounts/:accountId/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    res.json(mockData.labels || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const { title, description, color, show_on_sidebar = true } = req.body;
+    
+    const newLabel = {
+      id: Date.now(),
+      title,
+      description: description || '',
+      color: color || '#007bff',
+      show_on_sidebar,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    if (!mockData.labels) mockData.labels = [];
+    mockData.labels.push(newLabel);
+    
+    res.json(newLabel);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Label assignment endpoints with proper merge logic
+app.get('/api/v1/accounts/:accountId/contacts/:id/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const contactId = parseInt(req.params.id);
+    const contact = mockData.contacts.find(c => c.id === contactId);
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+    
+    res.json(contact.additional_attributes?.labels || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/contacts/:id/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const contactId = parseInt(req.params.id);
+    const { labels } = req.body;
+    
+    const contact = mockData.contacts.find(c => c.id === contactId);
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+    
+    if (!contact.additional_attributes) contact.additional_attributes = {};
+    contact.additional_attributes.labels = labels;
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/v1/accounts/:accountId/conversations/:id/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const conversationId = parseInt(req.params.id);
+    const conversation = mockData.conversations.find(c => c.id === conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    
+    res.json(conversation.labels?.map(l => l.title) || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/v1/accounts/:accountId/conversations/:id/labels', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const conversationId = parseInt(req.params.id);
+    const { labels } = req.body;
+    
+    const conversation = mockData.conversations.find(c => c.id === conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation not found' });
+    }
+    
+    // Convert label titles to label objects
+    conversation.labels = labels.map(title => {
+      const existingLabel = mockData.labels.find(l => l.title === title);
+      return existingLabel || { id: Date.now(), title, color: '#007bff' };
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Channel types endpoint
+app.get('/api/v1/accounts/:accountId/channel-types', adminAuth, async (req, res) => {
+  await delay();
+  try {
+    const channelTypes = [
+      {
+        id: 'web_widget',
+        name: 'Website',
+        description: 'Add a chat widget to your website',
+        icon: 'globe',
+        fields: [
+          { name: 'website_name', label: 'Website Name', type: 'text', required: true },
+          { name: 'website_url', label: 'Website URL', type: 'text', required: true }
+        ]
+      },
+      {
+        id: 'whatsapp',
+        name: 'WhatsApp Business',
+        description: 'Official WhatsApp Business API (Meta Cloud)',
+        icon: 'message-circle',
+        fields: [
+          { name: 'phone_number', label: 'Phone Number', type: 'text', required: true },
+          { name: 'business_account_id', label: 'Business Account ID', type: 'text', required: true },
+          { name: 'api_key', label: 'API Key', type: 'password', required: true, sensitive: true }
+        ]
+      },
+      {
+        id: 'api',
+        name: 'API',
+        description: 'Connect using our API',
+        icon: 'code',
+        fields: [
+          { name: 'webhook_url', label: 'Webhook URL', type: 'text', required: false }
+        ]
+      }
+    ];
+    
+    res.json(channelTypes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
