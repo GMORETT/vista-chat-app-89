@@ -23,15 +23,21 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
   // Filter and sort conversations based on current filters
   const filteredConversations = useMemo(() => {
     let filtered = [...conversations];
+    
+    // Always include selected conversation to prevent it from disappearing
+    const selectedConv = conversations.find(conv => conv.id === selectedConversationId);
+    const otherConversations = conversations.filter(conv => conv.id !== selectedConversationId);
 
-    // Filter by search query
+    // Filter by search query (excluding selected conversation which we'll add back later)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(conv => 
+      filtered = otherConversations.filter(conv => 
         conv.meta.sender.name?.toLowerCase().includes(query) ||
         conv.meta.sender.email?.toLowerCase().includes(query) ||
         conv.id.toString().includes(query)
       );
+    } else {
+      filtered = otherConversations;
     }
 
     // Filter by assignee type
@@ -117,6 +123,18 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
           return b.last_activity_at - a.last_activity_at;
       }
     });
+
+    // Always pin selected conversation at the top if it exists and matches search
+    if (selectedConv) {
+      const selectedMatchesSearch = !searchQuery || 
+        selectedConv.meta.sender.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        selectedConv.meta.sender.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        selectedConv.id.toString().includes(searchQuery.toLowerCase());
+      
+      if (selectedMatchesSearch) {
+        filtered = [selectedConv, ...filtered];
+      }
+    }
 
     return filtered;
   }, [conversations, filters, searchQuery]);

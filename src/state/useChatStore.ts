@@ -107,6 +107,17 @@ const defaultMeta: ConversationMeta = {
 // Persistent fields
 const persistedFields = ['themeMode', 'sidebarCollapsed', 'filters', 'drafts'];
 
+// Migration function to fix status filter issue
+const migrateStore = (persistedState: any, version: number) => {
+  if (version === 0) {
+    // Force status filter to 'all' for existing users
+    if (persistedState.filters?.status === 'open') {
+      persistedState.filters.status = 'all';
+    }
+  }
+  return persistedState;
+};
+
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
@@ -282,6 +293,8 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: 'chat-store',
+      version: 1,
+      migrate: migrateStore,
       partialize: (state) =>
         Object.fromEntries(
           persistedFields.map(field => [field, state[field as keyof ChatState]])
