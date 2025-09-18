@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { useAgents, useCreateAgent, useUpdateAgent, useDeleteAgent } from '../../hooks/admin/useAgents';
 import { AgentsTable } from '../../components/admin/agents/AgentsTable';
@@ -13,6 +14,9 @@ export const AgentsPage: React.FC = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [searchParams] = useSearchParams();
+  const accountId = searchParams.get('account_id');
+  const accountName = searchParams.get('account_name');
 
   const { data: agents, isLoading } = useAgents();
   const createAgentMutation = useCreateAgent();
@@ -41,11 +45,28 @@ export const AgentsPage: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
+  // Filter agents by account_id if provided
+  const filteredAgents = accountId 
+    ? agents?.filter(agent => agent.account_id === parseInt(accountId))
+    : agents;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Agents</h1>
+          {accountId && accountName && (
+            <div className="mb-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/admin/clients">
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Voltar para Clientes
+                </Link>
+              </Button>
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-foreground">
+            {accountId && accountName ? `Agents - ${decodeURIComponent(accountName)}` : 'Agents'}
+          </h1>
           <p className="text-muted-foreground">
             Manage agents and their permissions
           </p>
@@ -57,7 +78,7 @@ export const AgentsPage: React.FC = () => {
       </div>
 
       <AgentsTable
-        agents={agents || []}
+        agents={filteredAgents || []}
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}

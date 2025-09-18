@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -9,6 +10,10 @@ import { format } from 'date-fns';
 
 export const InboxesPage: React.FC = () => {
   const [showWizard, setShowWizard] = useState(false);
+  const [searchParams] = useSearchParams();
+  const accountId = searchParams.get('account_id');
+  const accountName = searchParams.get('account_name');
+  
   const { data: inboxes, isLoading, refetch } = useInboxes();
 
   const handleInboxCreated = () => {
@@ -49,11 +54,28 @@ export const InboxesPage: React.FC = () => {
     );
   }
 
+  // Filter inboxes by account_id if provided
+  const filteredInboxes = accountId 
+    ? inboxes?.filter(inbox => inbox.account_id === parseInt(accountId))
+    : inboxes;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Inboxes</h1>
+          {accountId && accountName && (
+            <div className="mb-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/admin/clients">
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Voltar para Clientes
+                </Link>
+              </Button>
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-foreground">
+            {accountId && accountName ? `Inboxes - ${decodeURIComponent(accountName)}` : 'Inboxes'}
+          </h1>
           <p className="text-muted-foreground">
             Manage communication channels and inboxes
           </p>
@@ -64,9 +86,9 @@ export const InboxesPage: React.FC = () => {
         </Button>
       </div>
 
-      {inboxes && inboxes.length > 0 ? (
+      {filteredInboxes && filteredInboxes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {inboxes.map((inbox) => (
+          {filteredInboxes.map((inbox) => (
             <Card key={inbox.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -110,9 +132,11 @@ export const InboxesPage: React.FC = () => {
         <Card className="text-center py-12">
           <CardContent>
             <div className="text-muted-foreground mb-4">
-              <div className="text-lg font-medium mb-2">No inboxes yet</div>
+              <div className="text-lg font-medium mb-2">
+                {accountId ? `No inboxes for ${decodeURIComponent(accountName || 'this client')}` : 'No inboxes yet'}
+              </div>
               <div className="text-sm">
-                Create your first inbox to start receiving messages
+                {accountId ? 'Create an inbox for this client' : 'Create your first inbox to start receiving messages'}
               </div>
             </div>
             <Button onClick={() => setShowWizard(true)} className="flex items-center gap-2 mx-auto">

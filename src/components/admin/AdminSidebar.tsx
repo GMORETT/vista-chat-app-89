@@ -5,7 +5,8 @@ import {
   Users, 
   UserCheck, 
   Tags,
-  LayoutDashboard
+  LayoutDashboard,
+  Building2
 } from 'lucide-react';
 import {
   Sidebar,
@@ -25,6 +26,11 @@ const menuItems = [
     url: '/admin', 
     icon: LayoutDashboard,
     exact: true
+  },
+  { 
+    title: 'Clientes', 
+    url: '/admin/clients', 
+    icon: Building2 
   },
   { 
     title: 'Inboxes', 
