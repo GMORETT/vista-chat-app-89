@@ -1,111 +1,72 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminChatService } from '../../api/AdminChatService';
+import { useAdminService } from '../../services/AdminService';
 import { Label, CreateLabelRequest } from '../../models/admin';
 
-// Mock service for development
-const mockAdminService = new AdminChatService(
-  'http://localhost:3001',
-  () => 'mock-token',
-  'mock-account-id'
-);
-
 export const useLabels = () => {
+  const adminService = useAdminService();
+  
   return useQuery<Label[]>({
-    queryKey: ['admin', 'labels'],
-    queryFn: async () => {
-      // Mock data for development
-      return [
-        {
-          id: 1,
-          title: 'Bug',
-          description: 'Bug reports and issues',
-          color: '#ef4444',
-          show_on_sidebar: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          title: 'Feature Request',
-          description: 'New feature requests',
-          color: '#3b82f6',
-          show_on_sidebar: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: 3,
-          title: 'VIP Customer',
-          description: 'VIP customer conversations',
-          color: '#f59e0b',
-          show_on_sidebar: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: 4,
-          title: 'Urgent',
-          description: 'Urgent issues requiring immediate attention',
-          color: '#dc2626',
-          show_on_sidebar: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-      ];
-    },
+    queryKey: ['solabs-admin', 'labels'],
+    queryFn: () => adminService.listLabels(),
   });
 };
 
 export const useCreateLabel = () => {
+  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Label, Error, CreateLabelRequest>({
-    mutationFn: async (data) => {
-      // Mock implementation
-      return {
-        id: Date.now(),
-        ...data,
-        show_on_sidebar: data.show_on_sidebar ?? true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-    },
+    mutationFn: (data) => adminService.createLabel(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'labels'] });
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
     },
   });
 };
 
 export const useUpdateLabel = () => {
+  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Label, Error, { id: number; data: Partial<CreateLabelRequest> }>({
-    mutationFn: async ({ id, data }) => {
-      return {
-        id,
-        title: data.title || '',
-        description: data.description,
-        color: data.color || '#6b7280',
-        show_on_sidebar: data.show_on_sidebar ?? true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-    },
+    mutationFn: ({ id, data }) => adminService.updateLabel(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'labels'] });
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
     },
   });
 };
 
 export const useDeleteLabel = () => {
+  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<void, Error, number>({
-    mutationFn: async (id) => {
-      console.log('Deleting label:', id);
-    },
+    mutationFn: (id) => adminService.deleteLabel(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'labels'] });
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
+    },
+  });
+};
+
+export const useAddLabelsToContact = () => {
+  const adminService = useAdminService();
+  const queryClient = useQueryClient();
+  
+  return useMutation<void, Error, { contactId: number; labelIds: number[] }>({
+    mutationFn: ({ contactId, labelIds }) => adminService.addLabelsToContact(contactId, labelIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
+    },
+  });
+};
+
+export const useAddLabelsToConversation = () => {
+  const adminService = useAdminService();
+  const queryClient = useQueryClient();
+  
+  return useMutation<void, Error, { conversationId: number; labelIds: number[] }>({
+    mutationFn: ({ conversationId, labelIds }) => adminService.addLabelsToConversation(conversationId, labelIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'labels'] });
     },
   });
 };
