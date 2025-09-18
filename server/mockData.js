@@ -1,12 +1,24 @@
 // Mock data for the fake BFF server
 // This uses the same data structure as the frontend MockChatService
 
+// Mock Accounts for multi-tenant support
+const mockAccounts = [
+  { id: 1, name: 'Cliente Alpha', slug: 'cliente-alpha', status: 'active', created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 2, name: 'Cliente Beta', slug: 'cliente-beta', status: 'active', created_at: '2024-01-02T00:00:00Z', updated_at: '2024-01-02T00:00:00Z' },
+  { id: 3, name: 'Cliente Gamma', slug: 'cliente-gamma', status: 'inactive', created_at: '2024-01-03T00:00:00Z', updated_at: '2024-01-03T00:00:00Z' },
+];
+
 const mockAgents = [
-  { id: 1, name: 'Samuel França', email: 'samuel@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 2, name: 'Marina Costa', email: 'marina@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 3, name: 'Rafael Duarte', email: 'rafael@empresa.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'agent' },
-  { id: 4, name: 'Camila Barros', email: 'camila@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent' },
-  { id: 5, name: 'Diego Fernandes', email: 'diego@empresa.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator' },
+  // Super admin (account_id: null)
+  { id: 1, name: 'Super Admin', email: 'superadmin@solabs.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'super_admin', account_id: null },
+  // Agents for Account 1
+  { id: 2, name: 'Samuel França', email: 'samuel@clientealpha.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'administrator', account_id: 1 },
+  { id: 3, name: 'Marina Costa', email: 'marina@clientealpha.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 1 },
+  // Agents for Account 2
+  { id: 4, name: 'Rafael Duarte', email: 'rafael@clientebeta.com', available: false, confirmed: true, availability_status: 'offline', auto_offline: true, role: 'administrator', account_id: 2 },
+  { id: 5, name: 'Camila Barros', email: 'camila@clientebeta.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 2 },
+  // Agents for Account 3
+  { id: 6, name: 'Diego Fernandes', email: 'diego@clientegamma.com', available: true, confirmed: true, availability_status: 'online', auto_offline: true, role: 'agent', account_id: 3 },
 ];
 
 const mockTeams = [
@@ -17,22 +29,22 @@ const mockTeams = [
 ];
 
 const mockInboxes = [
-  { id: 1, name: 'Site Principal', channel_type: 'website', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 2, name: 'WhatsApp Business', channel_type: 'whatsapp', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 3, name: 'Email Suporte', channel_type: 'email', greeting_enabled: false, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 4, name: 'Instagram', channel_type: 'instagram', greeting_enabled: true, enable_auto_assignment: false, working_hours_enabled: false, allow_messages_after_resolved: true },
-  { id: 5, name: 'Facebook', channel_type: 'facebook', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true },
+  { id: 1, name: 'Site Principal Alpha', channel_type: 'website', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 2, name: 'WhatsApp Alpha', channel_type: 'whatsapp', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 1 },
+  { id: 3, name: 'Site Principal Beta', channel_type: 'website', greeting_enabled: false, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 2 },
+  { id: 4, name: 'Email Beta', channel_type: 'email', greeting_enabled: true, enable_auto_assignment: false, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 2 },
+  { id: 5, name: 'Instagram Gamma', channel_type: 'instagram', greeting_enabled: true, enable_auto_assignment: true, working_hours_enabled: false, allow_messages_after_resolved: true, account_id: 3 },
 ];
 
 const mockLabels = [
-  { id: 1, title: 'Urgente', description: 'Requer atenção imediata', color: '#ef4444', show_on_sidebar: true },
-  { id: 2, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true },
-  { id: 3, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false },
-  { id: 4, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true },
-  { id: 5, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true },
-  { id: 6, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false },
-  { id: 7, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false },
-  { id: 8, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true },
+  { id: 1, title: 'Urgente', description: 'Requer atenção imediata', color: '#ef4444', show_on_sidebar: true, account_id: 1 },
+  { id: 2, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true, account_id: 1 },
+  { id: 3, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false, account_id: 1 },
+  { id: 4, title: 'Vendas Beta', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true, account_id: 2 },
+  { id: 5, title: 'Suporte Beta', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true, account_id: 2 },
+  { id: 6, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false, account_id: 2 },
+  { id: 7, title: 'Feedback Gamma', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false, account_id: 3 },
+  { id: 8, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true, account_id: 3 },
 ];
 
 const generateContacts = () => {
@@ -236,6 +248,7 @@ const mockConversationMeta = calculateMeta();
 
 module.exports = {
   mockData: {
+    accounts: mockAccounts,
     agents: mockAgents,
     teams: mockTeams,
     inboxes: mockInboxes,

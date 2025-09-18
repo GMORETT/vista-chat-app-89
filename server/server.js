@@ -17,6 +17,28 @@ app.use(cors({
 
 app.use(express.json());
 
+// RBAC Middleware for multi-tenant support
+const rbacAuth = (req, res, next) => {
+  // Mock authentication - in real app, extract from JWT or session
+  const authHeader = req.headers['api_access_token'] || req.headers['authorization'];
+  
+  // Mock user based on token or default for development
+  let currentUser;
+  if (authHeader === 'super_admin_token') {
+    currentUser = mockData.agents.find(a => a.role === 'super_admin');
+  } else if (authHeader === 'admin_account1_token') {
+    currentUser = mockData.agents.find(a => a.role === 'administrator' && a.account_id === 1);
+  } else if (authHeader === 'admin_account2_token') {
+    currentUser = mockData.agents.find(a => a.role === 'administrator' && a.account_id === 2);
+  } else {
+    // Default to super admin for development
+    currentUser = mockData.agents.find(a => a.role === 'super_admin');
+  }
+  
+  req.currentUser = currentUser;
+  next();
+};
+
 // Multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -748,14 +770,155 @@ app.get('/api/messaging/contacts/:id/conversations', async (req, res) => {
   }
 });
 
-// ADMIN ROUTES - Official Chatwoot API Structure
+// ACCOUNT MANAGEMENT ROUTES - Platform API Structure
+// Only super_admin can access these routes
+app.get('/api/admin/accounts', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    if (req.currentUser.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: super_admin role required' });
+    }
+    
+    const { page = 1, name, status, sort = 'name_asc' } = req.query;
+    let accounts = [...mockData.accounts];
+    
+    // Filter by name
+    if (name) {
+      accounts = accounts.filter(account => 
+        account.name.toLowerCase().includes(name.toLowerCase())
+      );
+    }
+    
+    // Filter by status
+    if (status) {
+      accounts = accounts.filter(account => account.status === status);
+    }
+    
+    // Sort accounts
+    switch (sort) {
+      case 'name_desc':
+        accounts.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'created_at_asc':
+        accounts.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        break;
+      case 'created_at_desc':
+        accounts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      default:
+        accounts.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    
+    const result = paginate(accounts, parseInt(page));
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/accounts', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    if (req.currentUser.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: super_admin role required' });
+    }
+    
+    const { name, slug } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+    
+    const newAccount = {
+      id: Date.now(),
+      name,
+      slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    mockData.accounts.push(newAccount);
+    res.status(201).json(newAccount);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.patch('/api/admin/accounts/:id', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    if (req.currentUser.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: super_admin role required' });
+    }
+    
+    const accountId = parseInt(req.params.id);
+    const account = mockData.accounts.find(a => a.id === accountId);
+    
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+    
+    const { name, slug, status } = req.body;
+    if (name) account.name = name;
+    if (slug) account.slug = slug;
+    if (status) account.status = status;
+    account.updated_at = new Date().toISOString();
+    
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/accounts/:id', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    if (req.currentUser.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: super_admin role required' });
+    }
+    
+    const accountId = parseInt(req.params.id);
+    const index = mockData.accounts.findIndex(a => a.id === accountId);
+    
+    if (index === -1) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+    
+    mockData.accounts.splice(index, 1);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ADMIN ROUTES - Official Chatwoot API Structure with Multi-tenant RBAC
 // Authentication middleware for admin routes
 const adminAuth = (req, res, next) => {
   const token = req.headers['api_access_token'];
   if (!token) {
     return res.status(401).json({ error: 'Missing api_access_token header' });
   }
-  req.accountId = req.params.accountId;
+  
+  // Mock authentication
+  let currentUser;
+  if (token === 'super_admin_token') {
+    currentUser = mockData.agents.find(a => a.role === 'super_admin');
+  } else if (token === 'admin_account1_token') {
+    currentUser = mockData.agents.find(a => a.role === 'administrator' && a.account_id === 1);
+  } else if (token === 'admin_account2_token') {
+    currentUser = mockData.agents.find(a => a.role === 'administrator' && a.account_id === 2);
+  } else {
+    currentUser = mockData.agents.find(a => a.role === 'super_admin');
+  }
+  
+  req.currentUser = currentUser;
+  req.accountId = parseInt(req.params.accountId);
+  
+  // RBAC: Check if user can access this account
+  if (currentUser.role !== 'super_admin' && currentUser.account_id !== req.accountId) {
+    return res.status(403).json({ error: 'Forbidden: Access denied to this account' });
+  }
+  
   next();
 };
 
@@ -763,7 +926,12 @@ const adminAuth = (req, res, next) => {
 app.get('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
   await delay();
   try {
-    res.json(mockData.inboxes || []);
+    // Filter inboxes by account_id for non-super_admin users
+    let inboxes = mockData.inboxes || [];
+    if (req.currentUser.role !== 'super_admin') {
+      inboxes = inboxes.filter(inbox => inbox.account_id === req.accountId);
+    }
+    res.json(inboxes);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -783,6 +951,7 @@ app.post('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
       provider_config: provider_config || {},
       greeting_enabled: greeting_enabled || false,
       greeting_message: greeting_message || '',
+      account_id: req.accountId, // Associate with account
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -835,7 +1004,12 @@ app.delete('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res
 app.get('/api/v1/accounts/:accountId/teams', adminAuth, async (req, res) => {
   await delay();
   try {
-    res.json(mockData.teams || []);
+    // Filter teams by account_id for non-super_admin users
+    let teams = mockData.teams || [];
+    if (req.currentUser.role !== 'super_admin') {
+      teams = teams.filter(team => team.account_id === req.accountId);
+    }
+    res.json(teams);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -851,6 +1025,7 @@ app.post('/api/v1/accounts/:accountId/teams', adminAuth, async (req, res) => {
       name,
       description: description || '',
       allow_auto_assign,
+      account_id: req.accountId, // Associate with account
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -868,7 +1043,12 @@ app.post('/api/v1/accounts/:accountId/teams', adminAuth, async (req, res) => {
 app.get('/api/v1/accounts/:accountId/account_users', adminAuth, async (req, res) => {
   await delay();
   try {
-    res.json(mockData.agents || []);
+    // Filter agents by account_id for non-super_admin users
+    let agents = mockData.agents || [];
+    if (req.currentUser.role !== 'super_admin') {
+      agents = agents.filter(agent => agent.account_id === req.accountId);
+    }
+    res.json(agents);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -887,6 +1067,7 @@ app.post('/api/v1/accounts/:accountId/account_users', adminAuth, async (req, res
       availability_status,
       auto_offline: false,
       confirmed: true,
+      account_id: role === 'super_admin' ? null : req.accountId, // Super admin has null account_id
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -904,7 +1085,12 @@ app.post('/api/v1/accounts/:accountId/account_users', adminAuth, async (req, res
 app.get('/api/v1/accounts/:accountId/labels', adminAuth, async (req, res) => {
   await delay();
   try {
-    res.json(mockData.labels || []);
+    // Filter labels by account_id for non-super_admin users
+    let labels = mockData.labels || [];
+    if (req.currentUser.role !== 'super_admin') {
+      labels = labels.filter(label => label.account_id === req.accountId);
+    }
+    res.json(labels);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -921,6 +1107,7 @@ app.post('/api/v1/accounts/:accountId/labels', adminAuth, async (req, res) => {
       description: description || '',
       color: color || '#007bff',
       show_on_sidebar,
+      account_id: req.accountId, // Associate with account
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
