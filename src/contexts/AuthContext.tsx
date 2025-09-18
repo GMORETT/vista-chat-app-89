@@ -7,6 +7,7 @@ export interface User {
   role: 'super_admin' | 'admin' | 'user';
   roles: string[];
   assigned_inboxes?: number[];
+  account_id?: number | null; // null for super_admin, number for admin/user
 }
 
 interface AuthContextType {
@@ -26,7 +27,8 @@ const FAKE_USERS: User[] = [
     email: 'superadmin@solabs.com',
     role: 'super_admin',
     roles: ['super_admin', 'admin', 'user'],
-    assigned_inboxes: [] // Super admin has access to all inboxes
+    assigned_inboxes: [], // Super admin has access to all inboxes
+    account_id: null // Super admin is not tied to any account
   },
   {
     id: 2,
@@ -34,7 +36,8 @@ const FAKE_USERS: User[] = [
     email: 'admin@solabs.com',
     role: 'admin',
     roles: ['admin', 'user'],
-    assigned_inboxes: [1] // Admin assigned to specific inboxes
+    assigned_inboxes: [1], // Admin assigned to specific inboxes
+    account_id: 1 // Tied to Account ID 1 (SoLabs)
   },
   {
     id: 3,
@@ -42,14 +45,35 @@ const FAKE_USERS: User[] = [
     email: 'operador@solabs.com',
     role: 'user',
     roles: ['user'],
-    assigned_inboxes: [1] // User assigned to specific inboxes
+    assigned_inboxes: [1], // User assigned to specific inboxes
+    account_id: 1 // Tied to Account ID 1 (SoLabs)
+  },
+  {
+    id: 4,
+    name: 'Admin Cliente B',
+    email: 'admin.beta@company.com',
+    role: 'admin',
+    roles: ['admin', 'user'],
+    assigned_inboxes: [2],
+    account_id: 2 // Tied to Account ID 2 (Beta Corp)
+  },
+  {
+    id: 5,
+    name: 'Operador Cliente B',
+    email: 'user.beta@company.com',
+    role: 'user',
+    roles: ['user'],
+    assigned_inboxes: [2],
+    account_id: 2 // Tied to Account ID 2 (Beta Corp)
   }
 ];
 
 const FAKE_CREDENTIALS = {
   'superadmin@solabs.com': 'super123',
   'admin@solabs.com': 'admin123',
-  'operador@solabs.com': 'operador123'
+  'operador@solabs.com': 'operador123',
+  'admin.beta@company.com': 'beta123',
+  'user.beta@company.com': 'beta123'
 };
 
 interface AuthProviderProps {

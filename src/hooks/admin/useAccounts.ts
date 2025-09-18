@@ -2,6 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAdminService } from '../../services/AdminService';
 import { Account, CreateAccountRequest, UpdateAccountRequest } from '../../models/chat';
 
+export const useAccounts = () => {
+  const adminService = useAdminService();
+  
+  return useQuery<Account[]>({
+    queryKey: ['solabs-admin', 'accounts'],
+    queryFn: () => adminService.listAccounts(),
+  });
+};
+
 export const useListAccounts = () => {
   const adminService = useAdminService();
   

@@ -3,6 +3,7 @@ import { useUiStore } from '../state/uiStore';
 import { useChatStore } from '../state/useChatStore';
 import { RoleBasedFilters } from '../components/RoleBasedFilters';
 import { RoleBasedTabsCounts } from '../components/RoleBasedTabsCounts';
+import { ClientSelector } from '../components/ClientSelector';
 import { ConversationList } from '../components/ConversationList';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
@@ -14,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ConfirmLogoutDialog } from '../components/ConfirmLogoutDialog';
 import { useLogoutConfirmation } from '../hooks/useLogoutConfirmation';
+import { useCurrentClient } from '../hooks/useCurrentClient';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -27,6 +29,8 @@ export const InboxPage: React.FC = () => {
   
   const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
   const { user } = useAuth();
+  // Initialize current client context for proper RBAC
+  useCurrentClient();
   const navigate = useNavigate();
   const { 
     isModalOpen, 
@@ -136,6 +140,9 @@ export const InboxPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Client selector for super admin */}
+            <ClientSelector />
+            
             {/* Filters with integrated toolbar */}
             <RoleBasedFilters />
             

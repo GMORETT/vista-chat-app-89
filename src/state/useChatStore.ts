@@ -47,6 +47,9 @@ interface ChatState {
   isMobile: boolean;
   activePane: 'sidebar' | 'list' | 'conversation';
   
+  // Account selection for super admin
+  selectedAccountId: number | null;
+  
   // Actions
   setConversations: (conversations: Conversation[]) => void;
   addConversation: (conversation: Conversation) => void;
@@ -80,6 +83,8 @@ interface ChatState {
   toggleSidebar: () => void;
   setIsMobile: (mobile: boolean) => void;
   setActivePane: (pane: 'sidebar' | 'list' | 'conversation') => void;
+  
+  setSelectedAccountId: (accountId: number | null) => void;
   
   reset: () => void;
 }
@@ -145,6 +150,7 @@ export const useChatStore = create<ChatState>()(
       sidebarCollapsed: false,
       isMobile: false,
       activePane: 'list',
+      selectedAccountId: null,
       
       // Actions
       setConversations: (conversations) => set({ conversations }),
@@ -271,6 +277,10 @@ export const useChatStore = create<ChatState>()(
       
       setActivePane: (pane) => {
         set({ activePane: pane });
+      },
+      
+      setSelectedAccountId: (accountId) => {
+        set({ selectedAccountId: accountId });
       },
       
       reset: () => {

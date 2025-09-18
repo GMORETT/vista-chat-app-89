@@ -4,11 +4,13 @@ import { MockChatService } from '../api/MockChatService';
 import { BffChatService } from '../api/BffChatService';
 import { useChatStore } from '../state/useChatStore';
 import { useToast } from '../hooks/use-toast';
+import { useCurrentClient } from '../hooks/useCurrentClient';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
   const { updateConversation, selectedConversation } = useChatStore();
   const { toast } = useToast();
+  const { currentAccountId } = useCurrentClient();
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
@@ -22,6 +24,7 @@ export const useConversations = (filters: ConversationFilters) => {
     sort_by: filters.sort_by,
     q: filters.q,
     updated_within: filters.updated_within,
+    account_id: currentAccountId, // Include account_id for filtering
   };
 
   const conversationsQuery = useQuery({
@@ -282,6 +285,7 @@ export const useConversations = (filters: ConversationFilters) => {
 export const useConversationsMeta = (filters?: ConversationFilters) => {
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
+  const { currentAccountId } = useCurrentClient();
   
   // Convert filters to query format
   const query: ConversationQuery | undefined = filters ? {
@@ -292,7 +296,8 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
     labels: filters.labels,
     q: filters.q,
     updated_within: filters.updated_within,
-  } : undefined;
+    account_id: currentAccountId, // Include account_id for filtering
+  } : { account_id: currentAccountId };
   
   return useQuery({
     queryKey: ['conversationsMeta', query],

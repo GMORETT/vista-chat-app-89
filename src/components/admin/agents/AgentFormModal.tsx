@@ -10,6 +10,10 @@ import { Input } from '../../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { CreateAgentRequest } from '../../../models/admin';
 import { useToast } from '../../../hooks/use-toast';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useAccounts } from '../../../hooks/admin/useAccounts';
+import { Account } from '../../../models/chat';
+import { AccountSelector } from '../InboxWizard/AccountSelector';
 
 const createAgentSchema = z.object({
   name: z.string().min(1, 'Name is required').min(2, 'Name must be at least 2 characters'),
@@ -17,6 +21,22 @@ const createAgentSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
   password: z.string().min(1, 'Password is required').min(6, 'Password must be at least 6 characters'),
   role: z.enum(['super_admin', 'admin', 'user']).default('user'),
+  selectedAccount: z.object({
+    id: z.number(),
+    name: z.string(),
+    slug: z.string(),
+    status: z.enum(['active', 'inactive', 'suspended']),
+    created_at: z.string(),
+    updated_at: z.string(),
+  }).optional(),
+}).refine((data) => {
+  // Super admin doesn't need account selection
+  if (data.role === 'super_admin') return true;
+  // Admin and user must have account selected
+  return data.selectedAccount !== undefined;
+}, {
+  message: 'Cliente é obrigatório para roles admin e user',
+  path: ['selectedAccount'],
 });
 
 type CreateAgentFormData = z.infer<typeof createAgentSchema>;
@@ -35,6 +55,8 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
   isLoading,
 }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { data: accounts, isLoading: isLoadingAccounts } = useAccounts();
   
   const form = useForm<CreateAgentFormData>({
     resolver: zodResolver(createAgentSchema),
@@ -44,6 +66,9 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
       email: '',
       password: '',
       role: 'user',
+      selectedAccount: user?.role !== 'super_admin' && user?.account_id 
+        ? accounts?.find(acc => acc.id === user.account_id) 
+        : undefined,
     },
   });
 
@@ -55,6 +80,7 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
         email: data.email,
         password: data.password,
         role: data.role,
+        account_id: data.role === 'super_admin' ? null : data.selectedAccount?.id,
       });
       
       form.reset();
@@ -166,11 +192,49 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
             
             <FormField
               control={form.control}
+              name="selectedAccount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cliente</FormLabel>
+                  <div className="space-y-2">
+                    {user?.role === 'super_admin' ? (
+                      <AccountSelector
+                        accounts={accounts || []}
+                        selectedAccount={field.value}
+                        onSelectAccount={field.onChange}
+                        isLoading={isLoadingAccounts}
+                        disabled={form.watch('role') === 'super_admin'}
+                        currentUserRole={user.role}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                        <span className="text-sm text-muted-foreground">
+                          Cliente: {accounts?.find(acc => acc.id === user?.account_id)?.name || 'Seu cliente'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      // Clear account selection for super_admin
+                      if (value === 'super_admin') {
+                        form.setValue('selectedAccount', undefined);
+                      }
+                    }} 
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a role" />
@@ -179,7 +243,9 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
                     <SelectContent>
                       <SelectItem value="user">User</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="super_admin">Super Admin</SelectItem>
+                      {user?.role === 'super_admin' && (
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

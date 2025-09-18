@@ -5,15 +5,18 @@ import { AssignType } from '../models';
 import { Badge } from './ui/badge';
 import { mockConversationMeta } from '../data/mockData';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrentClient } from '../hooks/useCurrentClient';
 
 export const RoleBasedTabsCounts: React.FC = () => {
   const { user } = useAuth();
   const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
+  const { currentAccountId } = useCurrentClient();
   
   // Use current active filters for tab counts to reflect filtered results
   const tabCountsFilters = { 
     ...filters,
-    assignee_type: 'all' as const // Don't filter by assignee_type for counts
+    assignee_type: 'all' as const, // Don't filter by assignee_type for counts
+    account_id: currentAccountId, // Include current account filter
   };
   
   const { data: metaData, isLoading } = useConversationsMeta(tabCountsFilters);
