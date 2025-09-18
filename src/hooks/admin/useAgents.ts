@@ -9,10 +9,17 @@ const adminChatService = new AdminChatService(
   'mock-account-id'
 );
 
-export const useAgents = () => {
+export const useAgents = (accountId?: number) => {
   return useQuery<Agent[]>({
-    queryKey: ['solabs-admin', 'agents'],
+    queryKey: ['solabs-admin', 'agents', accountId],
     queryFn: () => adminChatService.getAgents(),
+    select: (data) => {
+      // Filter agents by account_id if provided
+      if (accountId) {
+        return data.filter(agent => agent.account_id === accountId);
+      }
+      return data;
+    }
   });
 };
 

@@ -3,6 +3,10 @@ import { WizardData } from './InboxWizard';
 
 const step1Schema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
+  selectedAccount: z.object({
+    id: z.number(),
+    name: z.string()
+  }).nullable().refine(val => val !== null, 'Selecione um cliente'),
   selectedChannel: z.object({
     id: z.string(),
     name: z.string(),
@@ -11,6 +15,10 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
+  selectedAccount: z.object({
+    id: z.number(),
+    name: z.string()
+  }),
   selectedChannel: z.object({
     fields: z.array(z.object({
       name: z.string(),
@@ -30,6 +38,9 @@ export const validateWizardStep = (step: number, data: WizardData) => {
       return step1Schema.parse(data);
     case 2:
       // Validate required fields are filled
+      if (!data.selectedAccount) {
+        throw new Error('Cliente não selecionado');
+      }
       if (!data.selectedChannel) {
         throw new Error('Canal não selecionado');
       }

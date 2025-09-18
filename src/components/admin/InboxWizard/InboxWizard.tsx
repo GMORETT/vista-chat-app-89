@@ -6,15 +6,18 @@ import { CheckCircle } from 'lucide-react';
 import { useChannelTypes, useCreateInbox } from '@/hooks/admin/useInboxes';
 import { useAgents } from '@/hooks/admin/useAgents';
 import { ChannelType } from '@/models/admin';
+import { Account } from '@/models/chat';
 import { ChannelSelector } from './ChannelSelector';
 import { CredentialsForm } from './CredentialsForm';
 import { SummaryStep } from './SummaryStep';
 import { AgentAssignmentModal } from './AgentAssignmentModal';
 import { useToast } from '@/hooks/use-toast';
 import { validateWizardStep } from './validation';
+import { useListAccounts } from '@/hooks/admin/useAccounts';
 
 export interface WizardData {
   name: string;
+  selectedAccount: Account | null;
   selectedChannel: ChannelType | null;
   credentials: Record<string, string | number>;
   credentialIds: Record<string, string>;
@@ -29,6 +32,7 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
   const [currentStep, setCurrentStep] = useState(1);
   const [wizardData, setWizardData] = useState<WizardData>({
     name: '',
+    selectedAccount: null,
     selectedChannel: null,
     credentials: {},
     credentialIds: {}
@@ -37,9 +41,23 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
   const [createdInboxId, setCreatedInboxId] = useState<number | null>(null);
 
   const { data: channelTypes, isLoading: loadingChannels } = useChannelTypes();
+  const { data: accounts, isLoading: loadingAccounts } = useListAccounts();
   const { data: agents } = useAgents();
   const createInbox = useCreateInbox();
   const { toast } = useToast();
+
+  // Detect current user role and auto-select account for non-super admins
+  const currentUserRole = 'super_admin'; // TODO: Get from auth context
+  const isSuperAdmin = currentUserRole === 'super_admin';
+
+  // Auto-select account for non-super admins
+  React.useEffect(() => {
+    if (!isSuperAdmin && accounts && accounts.length > 0 && !wizardData.selectedAccount) {
+      // For non-super admins, auto-select their account
+      const userAccount = accounts[0]; // In real app, get user's specific account
+      setWizardData(prev => ({ ...prev, selectedAccount: userAccount }));
+    }
+  }, [accounts, isSuperAdmin, wizardData.selectedAccount]);
 
   const steps = [
     { id: 1, title: 'Canal', description: 'Selecione o tipo de canal' },
@@ -93,11 +111,20 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
         }
       });
 
+      if (!wizardData.selectedAccount) {
+        toast({
+          title: "Erro",
+          description: "Cliente não selecionado",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const inboxData = {
         name: wizardData.name,
         channel_type: wizardData.selectedChannel.id,
         provider_config: providerConfig,
-        account_id: 1 // Default account_id for mock implementation
+        account_id: wizardData.selectedAccount.id
       };
 
       const result = await createInbox.mutateAsync(inboxData);
@@ -109,7 +136,8 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
         variant: "default"
       });
 
-      if (agents && agents.length > 0) {
+      // Check if there are agents for this account
+      if (agents && agents.length > 0 && wizardData.selectedAccount) {
         setShowAgentAssignment(true);
       } else {
         onSuccess();
@@ -135,6 +163,11 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
       case 1:
         return (
           <ChannelSelector
+            accounts={accounts || []}
+            selectedAccount={wizardData.selectedAccount}
+            onSelectAccount={(account) => 
+              setWizardData(prev => ({ ...prev, selectedAccount: account }))
+            }
             channels={channelTypes || []}
             selectedChannel={wizardData.selectedChannel}
             onSelectChannel={(channel) => 
@@ -144,6 +177,8 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
             onNameChange={(name) => 
               setWizardData(prev => ({ ...prev, name }))
             }
+            isLoadingAccounts={loadingAccounts}
+            currentUserRole={currentUserRole}
           />
         );
       case 2:
@@ -219,7 +254,7 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
 
             {/* Step content */}
             <div className="min-h-[300px]">
-              {loadingChannels ? (
+              {(loadingChannels || loadingAccounts) ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -260,9 +295,10 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
         </DialogContent>
       </Dialog>
 
-      {showAgentAssignment && createdInboxId && (
+      {showAgentAssignment && createdInboxId && wizardData.selectedAccount && (
         <AgentAssignmentModal
           inboxId={createdInboxId}
+          accountId={wizardData.selectedAccount.id}
           onClose={handleAgentAssignmentComplete}
           onSkip={handleAgentAssignmentComplete}
         />

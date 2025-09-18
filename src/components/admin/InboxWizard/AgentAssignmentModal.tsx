@@ -12,17 +12,19 @@ import { Users, UserCheck } from 'lucide-react';
 
 interface AgentAssignmentModalProps {
   inboxId: number;
+  accountId: number;
   onClose: () => void;
   onSkip: () => void;
 }
 
 export const AgentAssignmentModal: React.FC<AgentAssignmentModalProps> = ({
   inboxId,
+  accountId,
   onClose,
   onSkip
 }) => {
   const [selectedAgents, setSelectedAgents] = useState<number[]>([]);
-  const { data: agents, isLoading } = useAgents();
+  const { data: agents, isLoading } = useAgents(accountId);
   const assignAgents = useAssignInboxAgents();
   const { toast } = useToast();
 

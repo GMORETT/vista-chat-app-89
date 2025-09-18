@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ChannelType } from '@/models/admin';
+import { Account } from '@/models/chat';
+import { AccountSelector } from './AccountSelector';
 import { 
   MessageCircle, 
   Globe, 
@@ -16,11 +18,16 @@ import {
 } from 'lucide-react';
 
 interface ChannelSelectorProps {
+  accounts: Account[];
+  selectedAccount: Account | null;
+  onSelectAccount: (account: Account) => void;
   channels: ChannelType[];
   selectedChannel: ChannelType | null;
   onSelectChannel: (channel: ChannelType) => void;
   name: string;
   onNameChange: (name: string) => void;
+  isLoadingAccounts?: boolean;
+  currentUserRole?: string;
 }
 
 const getChannelIcon = (channelType: string) => {
@@ -51,14 +58,28 @@ const getChannelIcon = (channelType: string) => {
 };
 
 export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
+  accounts,
+  selectedAccount,
+  onSelectAccount,
   channels,
   selectedChannel,
   onSelectChannel,
   name,
-  onNameChange
+  onNameChange,
+  isLoadingAccounts = false,
+  currentUserRole
 }) => {
   return (
     <div className="space-y-6">
+      {/* Account Selection */}
+      <AccountSelector
+        accounts={accounts}
+        selectedAccount={selectedAccount}
+        onSelectAccount={onSelectAccount}
+        isLoading={isLoadingAccounts}
+        currentUserRole={currentUserRole}
+      />
+
       <div className="space-y-2">
         <Label htmlFor="inbox-name">Nome da Inbox</Label>
         <Input
@@ -66,7 +87,13 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
           placeholder="Ex: Atendimento WhatsApp"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
+          disabled={!selectedAccount}
         />
+        {!selectedAccount && (
+          <p className="text-xs text-muted-foreground">
+            Selecione um cliente primeiro
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -85,12 +112,16 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
             return (
               <Card
                 key={channel.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  isSelected 
-                    ? 'ring-2 ring-primary border-primary bg-primary/5' 
-                    : 'hover:border-primary/50'
+                className={`transition-all ${
+                  !selectedAccount 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : `cursor-pointer hover:shadow-md ${
+                        isSelected 
+                          ? 'ring-2 ring-primary border-primary bg-primary/5' 
+                          : 'hover:border-primary/50'
+                      }`
                 }`}
-                onClick={() => onSelectChannel(channel)}
+                onClick={() => selectedAccount && onSelectChannel(channel)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
