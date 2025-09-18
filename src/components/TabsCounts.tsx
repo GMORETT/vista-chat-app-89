@@ -12,10 +12,10 @@ export const TabsCounts: React.FC = () => {
   // Use real data or fallback to mock
   const counts = metaData || mockConversationMeta;
 
-  const tabs: { value: AssignType; label: string; countKey: keyof typeof counts }[] = [
-    { value: 'me', label: 'Minhas', countKey: 'mine_count' },
-    { value: 'unassigned', label: 'Não Atribuídas', countKey: 'unassigned_count' },
-    { value: 'all', label: 'Todas', countKey: 'all_count' },
+  const tabs: { value: AssignType; label: string; shortLabel: string; countKey: keyof typeof counts }[] = [
+    { value: 'me', label: 'Minhas', shortLabel: 'Minhas', countKey: 'mine_count' },
+    { value: 'unassigned', label: 'Não Atribuídas', shortLabel: 'Não atrib.', countKey: 'unassigned_count' },
+    { value: 'all', label: 'Todas', shortLabel: 'Todas', countKey: 'all_count' },
   ];
 
   const handleTabChange = (value: string) => {
@@ -24,26 +24,26 @@ export const TabsCounts: React.FC = () => {
   };
 
   return (
-    <div className="flex border-b border-border bg-card">
+    <div className="flex overflow-x-auto border-b border-border bg-card">
       {tabs.map((tab) => (
         <button
           key={tab.value}
           onClick={() => handleTabChange(tab.value)}
           className={`
-            relative flex-1 flex flex-col items-center justify-center gap-1 py-3 px-1 text-xs sm:text-sm font-heading 
+            relative shrink-0 inline-flex items-center justify-center gap-2 py-3 px-3 text-xs sm:text-sm font-heading 
             transition-all duration-200 hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-primary/20
-            sm:flex-row sm:gap-2 sm:py-4 sm:px-3
+            sm:py-4
             ${activeTab === tab.value
               ? 'text-primary bg-primary/5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
               : 'text-muted-foreground hover:text-foreground'
             }
           `}
         >
-          <span className="truncate text-center sm:text-left">{tab.label}</span>
+          <><span className="sm:hidden truncate text-center">{tab.shortLabel}</span><span className="hidden sm:inline truncate text-left">{tab.label}</span></>
           <Badge 
             variant="secondary" 
             className={`
-              min-w-[20px] h-4 text-[10px] font-semibold transition-colors px-1
+              min-w-[20px] h-4 text-[10px] font-semibold transition-colors px-1 shrink-0
               sm:min-w-[24px] sm:h-5 sm:text-xs sm:px-2
               ${activeTab === tab.value 
                 ? 'bg-primary text-primary-foreground shadow-sm' 

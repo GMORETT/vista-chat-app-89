@@ -48,7 +48,7 @@ export interface IChatService {
   /**
    * Get conversations metadata (counts for different states)
    */
-  getConversationsMeta(): Promise<ApiResponse<ConversationMeta>>;
+  getConversationsMeta(query?: ConversationQuery): Promise<ApiResponse<ConversationMeta>>;
   
   /**
    * Get single conversation by ID

@@ -92,7 +92,7 @@ export const ActionsBar: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border-b border-border bg-card">
       {/* Navigation controls and avatar */}
       <div className="flex items-center gap-3">
         {/* Back button for mobile or expanded desktop view */}
@@ -137,7 +137,7 @@ export const ActionsBar: React.FC = () => {
         )}
         {/* Status selector */}
         <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isStatusLoading}>
-          <SelectTrigger className={`${isMobile ? 'w-24' : 'w-36'} text-xs sm:text-sm`}>
+          <SelectTrigger className={`${isMobile ? 'w-32' : 'w-40'} text-xs sm:text-sm`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -174,7 +174,7 @@ export const ActionsBar: React.FC = () => {
 
         {/* Priority selector */}
         <Select value={currentPriority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
-          <SelectTrigger className={`${isMobile ? 'w-24' : 'w-36'} text-xs sm:text-sm`}>
+          <SelectTrigger className={`${isMobile ? 'w-32' : 'w-40'} text-xs sm:text-sm`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

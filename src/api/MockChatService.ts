@@ -172,7 +172,12 @@ export class MockChatService implements IChatService {
     
     try {
       const filtered = this.filterConversations(this.conversations, query);
-      const meta = this.calculateMeta(this.conversations);
+      const metaBaseQuery = query ? { ...query } : undefined;
+      if (metaBaseQuery && 'assignee_type' in metaBaseQuery) {
+        // @ts-expect-error - delete optional key for meta calculation
+        delete metaBaseQuery.assignee_type;
+      }
+      const meta = this.calculateMeta(this.filterConversations(this.conversations, metaBaseQuery));
       
       // Pagination
       const page = query?.page || 1;
@@ -197,11 +202,17 @@ export class MockChatService implements IChatService {
     }
   }
   
-  async getConversationsMeta(): Promise<ApiResponse<ConversationMeta>> {
+  async getConversationsMeta(query?: ConversationQuery): Promise<ApiResponse<ConversationMeta>> {
     await this.delay(100);
     
     try {
-      const meta = this.calculateMeta(this.conversations);
+      const metaBaseQuery = query ? { ...query } : undefined;
+      if (metaBaseQuery && 'assignee_type' in metaBaseQuery) {
+        // @ts-expect-error - delete optional key for meta calculation
+        delete metaBaseQuery.assignee_type;
+      }
+      const base = this.filterConversations(this.conversations, metaBaseQuery);
+      const meta = this.calculateMeta(base);
       
       return {
         data: meta,
