@@ -213,6 +213,7 @@ export interface ContactQuery {
   email?: string;
   phone_number?: string;
   identifier?: string;
+  account_id?: number; // Required for admin/user, optional for super_admin
 }
 
 // Request interfaces

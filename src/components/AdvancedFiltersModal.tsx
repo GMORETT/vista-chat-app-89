@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from './ui/badge';
 import { useChatStore } from '../state/useChatStore';
 import { useToast } from '../hooks/use-toast';
+import { useAuth } from '../contexts/AuthContext';
+import { useListAccounts } from '../hooks/admin/useAccounts';
 
 interface FilterRule {
   id: string;
@@ -20,16 +22,27 @@ interface AdvancedFiltersModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const filterFields = [
-  { value: 'status', label: 'Status' },
-  { value: 'assignee_type', label: 'Activity' },
-  { value: 'team_id', label: 'Team' },
-  { value: 'assignee_id', label: 'Agent Name' },
-  { value: 'labels', label: 'Label' },
-  { value: 'inbox_id', label: 'Inbox' },
-  { value: 'priority', label: 'Priority' },
-  { value: 'updated_within', label: 'Updated Within' },
-];
+const getFilterFields = (isSuperAdmin: boolean) => {
+  const baseFields = [
+    { value: 'status', label: 'Status' },
+    { value: 'assignee_type', label: 'Activity' },
+    { value: 'team_id', label: 'Team' },
+    { value: 'assignee_id', label: 'Agent Name' },
+    { value: 'labels', label: 'Label' },
+    { value: 'inbox_id', label: 'Inbox' },
+    { value: 'priority', label: 'Priority' },
+    { value: 'updated_within', label: 'Updated Within' },
+  ];
+
+  if (isSuperAdmin) {
+    return [
+      { value: 'account_id', label: 'Cliente' },
+      ...baseFields,
+    ];
+  }
+
+  return baseFields;
+};
 
 const statusOptions = [
   { value: 'open', label: 'Open' },
@@ -62,13 +75,29 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { filters, setFilters } = useChatStore();
+  const { filters, setFilters, selectedAccountId } = useChatStore();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<FilterRule[]>([]);
+  const { data: accounts = [] } = useListAccounts();
+  
+  const isSuperAdmin = user?.role === 'super_admin';
+  const filterFields = getFilterFields(isSuperAdmin);
 
   // Sync local rules with global filters when modal opens or filters change
   React.useEffect(() => {
     const newRules: FilterRule[] = [];
+    
+    // Add account filter for super admin
+    if (isSuperAdmin && selectedAccountId) {
+      newRules.push({
+        id: Date.now().toString() + '_account',
+        field: 'account_id',
+        operator: 'equal_to',
+        value: selectedAccountId.toString(),
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
     
     if (filters.status !== 'all') {
       newRules.push({
@@ -143,7 +172,7 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     }
     
     setRules(newRules);
-  }, [filters, open]);
+  }, [filters, open, selectedAccountId, isSuperAdmin]);
 
   const addNewRule = () => {
     const newRule: FilterRule = {
@@ -168,6 +197,11 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
 
   const getValueOptions = (field: string) => {
     switch (field) {
+      case 'account_id': 
+        return accounts.map(account => ({ 
+          value: account.id.toString(), 
+          label: account.name 
+        }));
       case 'status': return statusOptions;
       case 'assignee_type': return activityOptions;
       case 'priority': return priorityOptions;
@@ -179,9 +213,13 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   const applyFilters = () => {
     try {
       const newFilters = { ...filters };
+      const { setSelectedAccountId } = useChatStore.getState();
       
       rules.forEach(rule => {
         switch (rule.field) {
+          case 'account_id':
+            setSelectedAccountId(parseInt(rule.value));
+            break;
           case 'status':
             newFilters.status = rule.value as any;
             break;

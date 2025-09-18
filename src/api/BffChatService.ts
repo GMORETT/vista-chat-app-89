@@ -53,6 +53,7 @@ export class BffChatService implements IChatService {
     if (query?.sort_by) params.sort_by = query.sort_by;
     if (query?.updated_within) params.updated_within = query.updated_within;
     if (query?.page) params.page = query.page;
+    if (query?.account_id) params.account_id = query.account_id;
 
     return apiClient.get('/api/messaging/conversations', params);
   }
@@ -67,6 +68,7 @@ export class BffChatService implements IChatService {
     if (query?.labels?.length) params.labels = query.labels;
     if (query?.q) params.q = query.q;
     if (query?.updated_within) params.updated_within = query.updated_within;
+    if (query?.account_id) params.account_id = query.account_id;
 
     return apiClient.get('/api/messaging/conversations/meta', params);
   }
@@ -171,6 +173,11 @@ export class BffChatService implements IChatService {
     
     if (query?.page) params.page = query.page;
     if (query?.sort) params.sort = query.sort;
+    if (query?.name) params.name = query.name;
+    if (query?.email) params.email = query.email;
+    if (query?.phone_number) params.phone_number = query.phone_number;
+    if (query?.identifier) params.identifier = query.identifier;
+    if (query?.account_id) params.account_id = query.account_id;
 
     return apiClient.get('/api/messaging/contacts', params);
   }

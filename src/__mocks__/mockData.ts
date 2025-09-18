@@ -8,7 +8,8 @@ export const mockAdminUser: MountOptions['currentUser'] = {
   name: 'Admin User',
   email: 'admin@test.com',
   role: 'admin-interno',
-  roles: ['admin-interno', 'user']
+  roles: ['admin-interno', 'user'],
+  account_id: 1
 };
 
 export const mockRegularUser: MountOptions['currentUser'] = {
@@ -16,7 +17,38 @@ export const mockRegularUser: MountOptions['currentUser'] = {
   name: 'Regular User',
   email: 'user@test.com',
   role: 'user',
-  roles: ['user']
+  roles: ['user'],
+  account_id: 1
+};
+
+export const mockSuperAdminUser = {
+  id: 3,
+  name: 'Super Admin User',
+  email: 'superadmin@test.com',
+  role: 'super_admin' as const,
+  roles: ['super_admin', 'admin-interno', 'user'],
+  assigned_inboxes: [],
+  account_id: null
+};
+
+export const mockUpdatedAdminUser = {
+  id: 1,
+  name: 'Admin User',
+  email: 'admin@test.com',
+  role: 'admin' as const,
+  roles: ['admin', 'user'],
+  assigned_inboxes: [1],
+  account_id: 1
+};
+
+export const mockUpdatedRegularUser = {
+  id: 2,
+  name: 'Regular User',
+  email: 'user@test.com',
+  role: 'user' as const,
+  roles: ['user'],
+  assigned_inboxes: [1],
+  account_id: 1
 };
 
 export const mockAgent: Agent = {

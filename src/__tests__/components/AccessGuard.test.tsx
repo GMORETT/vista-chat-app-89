@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AccessGuard } from '@/components/AccessGuard';
-import { mockAdminUser, mockRegularUser } from '@/__mocks__/mockData';
+import { mockUpdatedAdminUser, mockUpdatedRegularUser } from '@/__mocks__/mockData';
 
 describe('AccessGuard', () => {
   const mockOnUnauthorized = vi.fn();
@@ -11,9 +11,9 @@ describe('AccessGuard', () => {
     mockOnUnauthorized.mockClear();
   });
 
-  it('should render children when user has admin-interno role', () => {
+  it('should render children when user has admin role', () => {
     const { getByText } = render(
-      <AccessGuard currentUser={mockAdminUser} onUnauthorized={mockOnUnauthorized}>
+      <AccessGuard currentUser={mockUpdatedAdminUser} onUnauthorized={mockOnUnauthorized}>
         <div>Protected Content</div>
       </AccessGuard>
     );
@@ -24,7 +24,7 @@ describe('AccessGuard', () => {
 
   it('should show access denied when user lacks admin-interno role', () => {
     const { getByText } = render(
-      <AccessGuard currentUser={mockRegularUser} onUnauthorized={mockOnUnauthorized}>
+      <AccessGuard currentUser={mockUpdatedRegularUser} onUnauthorized={mockOnUnauthorized}>
         <div>Protected Content</div>
       </AccessGuard>
     );

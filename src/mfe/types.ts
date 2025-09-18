@@ -14,6 +14,7 @@ export interface MountOptions {
     email: string;
     role: string;
     roles?: string[];
+    account_id?: number | null;
   };
 }
 
