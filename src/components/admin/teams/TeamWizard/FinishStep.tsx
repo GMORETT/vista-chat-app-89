@@ -5,10 +5,11 @@ import { TeamFormData } from './CreateStep';
 
 interface FinishStepProps {
   form: UseFormReturn<TeamFormData>;
-  onNext?: () => void;
+  onCreateTeam?: () => void;
+  isCreating?: boolean;
 }
 
-export const FinishStep: React.FC<FinishStepProps> = ({ form }) => {
+export const FinishStep: React.FC<FinishStepProps> = ({ form, onCreateTeam, isCreating }) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -20,11 +21,12 @@ export const FinishStep: React.FC<FinishStepProps> = ({ form }) => {
 
       <div className="flex justify-center pt-8">
         <Button 
-          type="submit" 
+          onClick={onCreateTeam}
           size="lg"
-          className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white"
+          disabled={isCreating}
+          className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
         >
-          Finish
+          {isCreating ? 'Creating...' : 'Finish'}
         </Button>
       </div>
     </div>

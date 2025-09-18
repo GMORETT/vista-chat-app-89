@@ -1,22 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAdminService } from '../../services/AdminService';
+import { AdminChatService } from '../../api/AdminChatService';
 import { Team, CreateTeamRequest, Agent } from '../../models/admin';
 
+// Use mock service for development
+const adminChatService = new AdminChatService(
+  'http://localhost:3001',
+  () => 'mock-token',
+  'mock-account-id'
+);
+
 export const useTeams = () => {
-  const adminService = useAdminService();
-  
   return useQuery<Team[]>({
     queryKey: ['solabs-admin', 'teams'],
-    queryFn: () => adminService.listTeams(),
+    queryFn: () => adminChatService.getTeams(),
   });
 };
 
 export const useCreateTeam = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Team, Error, CreateTeamRequest>({
-    mutationFn: (data) => adminService.createTeam(data),
+    mutationFn: (data) => adminChatService.createTeam(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'teams'] });
     },
@@ -24,11 +28,10 @@ export const useCreateTeam = () => {
 };
 
 export const useUpdateTeam = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<Team, Error, { id: number; data: Partial<CreateTeamRequest> }>({
-    mutationFn: ({ id, data }) => adminService.updateTeam(id, data),
+    mutationFn: ({ id, data }) => adminChatService.updateTeam(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'teams'] });
     },
@@ -36,11 +39,10 @@ export const useUpdateTeam = () => {
 };
 
 export const useDeleteTeam = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<void, Error, number>({
-    mutationFn: (id) => adminService.deleteTeam(id),
+    mutationFn: (id) => adminChatService.deleteTeam(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'teams'] });
     },
@@ -48,11 +50,10 @@ export const useDeleteTeam = () => {
 };
 
 export const useAddTeamMembers = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<void, Error, { teamId: number; agentIds: number[] }>({
-    mutationFn: ({ teamId, agentIds }) => adminService.addTeamMembers(teamId, agentIds),
+    mutationFn: ({ teamId, agentIds }) => adminChatService.addTeamMember(teamId, agentIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'teams'] });
     },
@@ -60,11 +61,10 @@ export const useAddTeamMembers = () => {
 };
 
 export const useRemoveTeamMember = () => {
-  const adminService = useAdminService();
   const queryClient = useQueryClient();
   
   return useMutation<void, Error, { teamId: number; agentId: number }>({
-    mutationFn: ({ teamId, agentId }) => adminService.removeTeamMember(teamId, agentId),
+    mutationFn: ({ teamId, agentId }) => adminChatService.removeTeamMember(teamId, agentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'teams'] });
     },
@@ -72,11 +72,9 @@ export const useRemoveTeamMember = () => {
 };
 
 export const useTeamMembers = (teamId: number) => {
-  const adminService = useAdminService();
-  
-  return useQuery<Agent[]>({
+  return useQuery({
     queryKey: ['solabs-admin', 'teams', teamId, 'members'],
-    queryFn: () => adminService.getTeamMembers(teamId),
+    queryFn: () => adminChatService.getTeamMembers(teamId),
     enabled: !!teamId,
   });
 };

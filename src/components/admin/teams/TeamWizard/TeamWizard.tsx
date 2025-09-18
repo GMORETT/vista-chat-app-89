@@ -179,10 +179,13 @@ export const TeamWizard: React.FC = () => {
               <StepComponent 
                 form={form} 
                 onNext={currentStep === 1 ? handleNext : undefined}
+                onCreateTeam={currentStep === 2 ? handleCreateTeam : undefined}
+                isCreating={isCreating}
               />
 
-              {/* Actions */}
-              <div className="flex justify-between mt-8 pt-6 border-t">
+              {/* Actions - Hide on finish step */}
+              {currentStep < 2 && (
+                <div className="flex justify-between mt-8 pt-6 border-t">
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
@@ -207,8 +210,9 @@ export const TeamWizard: React.FC = () => {
                       {isCreating ? 'Creating...' : 'Create team'}
                     </Button>
                   )}
+                 </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
