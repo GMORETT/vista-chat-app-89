@@ -30,7 +30,7 @@ const AccessDeniedPage: React.FC<{ onUnauthorized?: () => void }> = ({ onUnautho
         <CardContent className="text-center space-y-4">
           <div className="flex items-center justify-center text-sm text-muted-foreground">
             <Shield className="mr-2 h-4 w-4" />
-            Permissão necessária: admin-interno
+            Permissão necessária: super_admin
           </div>
           <Button onClick={logout} variant="outline" className="w-full">
             <LogOut className="mr-2 h-4 w-4" />
@@ -51,7 +51,7 @@ export const AccessGuard: React.FC<AccessGuardProps> = ({
   children, 
   currentUser, 
   onUnauthorized,
-  requiredRoles = ['admin-interno']
+  requiredRoles = ['super_admin']
 }) => {
   const { user: authUser } = useAuth();
   
