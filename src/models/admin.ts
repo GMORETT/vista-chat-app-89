@@ -61,6 +61,7 @@ export interface CreateTeamRequest {
 export interface Agent {
   id: number;
   name: string;
+  display_name?: string;
   email: string;
   role: 'agent' | 'administrator';
   confirmed: boolean;
@@ -73,10 +74,16 @@ export interface Agent {
 
 export interface CreateAgentRequest {
   name: string;
+  display_name?: string;
   email: string;
   role?: 'agent' | 'administrator';
   password?: string;
   custom_attributes?: Record<string, any>;
+}
+
+export interface UpdateAgentRequest {
+  display_name?: string;
+  availability_status?: 'available' | 'busy' | 'offline';
 }
 
 export interface Label {
