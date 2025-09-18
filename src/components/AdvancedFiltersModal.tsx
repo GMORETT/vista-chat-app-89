@@ -66,6 +66,85 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   const { toast } = useToast();
   const [rules, setRules] = useState<FilterRule[]>([]);
 
+  // Sync local rules with global filters when modal opens or filters change
+  React.useEffect(() => {
+    const newRules: FilterRule[] = [];
+    
+    if (filters.status !== 'all') {
+      newRules.push({
+        id: Date.now().toString() + '_status',
+        field: 'status',
+        operator: 'equal_to',
+        value: filters.status,
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.assignee_type !== 'all') {
+      newRules.push({
+        id: Date.now().toString() + '_assignee_type',
+        field: 'assignee_type',
+        operator: 'equal_to',
+        value: filters.assignee_type,
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.inbox_id) {
+      newRules.push({
+        id: Date.now().toString() + '_inbox',
+        field: 'inbox_id',
+        operator: 'equal_to',
+        value: filters.inbox_id.toString(),
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.team_id) {
+      newRules.push({
+        id: Date.now().toString() + '_team',
+        field: 'team_id',
+        operator: 'equal_to',
+        value: filters.team_id.toString(),
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.priority) {
+      newRules.push({
+        id: Date.now().toString() + '_priority',
+        field: 'priority',
+        operator: 'equal_to',
+        value: filters.priority,
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.updated_within) {
+      newRules.push({
+        id: Date.now().toString() + '_updated',
+        field: 'updated_within',
+        operator: 'equal_to',
+        value: filters.updated_within,
+        connector: newRules.length > 0 ? 'AND' : undefined,
+      });
+    }
+    
+    if (filters.labels && filters.labels.length > 0) {
+      filters.labels.forEach((label, index) => {
+        newRules.push({
+          id: Date.now().toString() + '_label_' + index,
+          field: 'labels',
+          operator: 'equal_to',
+          value: label,
+          connector: newRules.length > 0 ? 'AND' : undefined,
+        });
+      });
+    }
+    
+    setRules(newRules);
+  }, [filters, open]);
+
   const addNewRule = () => {
     const newRule: FilterRule = {
       id: Date.now().toString(),

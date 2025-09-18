@@ -24,20 +24,22 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
   const filteredConversations = useMemo(() => {
     let filtered = [...conversations];
     
-    // Always include selected conversation to prevent it from disappearing
-    const selectedConv = conversations.find(conv => conv.id === selectedConversationId);
-    const otherConversations = conversations.filter(conv => conv.id !== selectedConversationId);
+    // Check if any advanced filters are active
+    const hasActiveFilters = filters.status !== 'all' || 
+      filters.inbox_id !== undefined || 
+      filters.team_id !== undefined || 
+      (filters.labels && filters.labels.length > 0) ||
+      filters.priority !== undefined ||
+      filters.updated_within !== undefined;
 
-    // Filter by search query (excluding selected conversation which we'll add back later)
+    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = otherConversations.filter(conv => 
+      filtered = filtered.filter(conv => 
         conv.meta.sender.name?.toLowerCase().includes(query) ||
         conv.meta.sender.email?.toLowerCase().includes(query) ||
         conv.id.toString().includes(query)
       );
-    } else {
-      filtered = otherConversations;
     }
 
     // Filter by assignee type
@@ -124,15 +126,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({ height }) =>
       }
     });
 
-    // Always pin selected conversation at the top if it exists and matches search
-    if (selectedConv) {
-      const selectedMatchesSearch = !searchQuery || 
-        selectedConv.meta.sender.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        selectedConv.meta.sender.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        selectedConv.id.toString().includes(searchQuery.toLowerCase());
-      
-      if (selectedMatchesSearch) {
-        filtered = [selectedConv, ...filtered];
+    // Only pin selected conversation at the top if no advanced filters are active
+    if (!hasActiveFilters && selectedConversationId) {
+      const selectedConv = filtered.find(conv => conv.id === selectedConversationId);
+      if (selectedConv) {
+        filtered = [selectedConv, ...filtered.filter(conv => conv.id !== selectedConversationId)];
       }
     }
 

@@ -8,16 +8,10 @@ import { mockConversationMeta } from '../data/mockData';
 export const TabsCounts: React.FC = () => {
   const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
   
-  // For tab counts, only use assignee_type filter to get accurate counts independent of advanced filters
+  // Use current active filters for tab counts to reflect filtered results
   const tabCountsFilters = { 
-    assignee_type: filters.assignee_type,
-    status: 'all' as const,
-    inbox_id: undefined,
-    team_id: undefined,
-    labels: undefined,
-    sort_by: filters.sort_by,
-    q: undefined,
-    updated_within: undefined
+    ...filters,
+    assignee_type: 'all' as const // Don't filter by assignee_type for counts
   };
   
   const { data: metaData, isLoading } = useConversationsMeta(tabCountsFilters);
