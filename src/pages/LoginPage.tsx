@@ -7,9 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
-
 export const LoginPage: React.FC = () => {
-  const { user, login, isLoading } = useAuth();
+  const {
+    user,
+    login,
+    isLoading
+  } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,21 +23,16 @@ export const LoginPage: React.FC = () => {
   if (user && !isLoading) {
     return <Navigate to="/" replace />;
   }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoginLoading(true);
-
     const success = await login(email, password);
-    
     if (!success) {
       setError('Email ou senha incorretos');
     }
-    
     setLoginLoading(false);
   };
-
   const fillCredentials = (type: 'super_admin' | 'admin' | 'operator') => {
     if (type === 'super_admin') {
       setEmail('superadmin@solabs.com');
@@ -48,27 +46,18 @@ export const LoginPage: React.FC = () => {
     }
     setError('');
   };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+    return <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+  return <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
         <div className="text-center">
-          <img 
-            src="/brand/logo-solabs.png" 
-            alt="Solabs" 
-            className="h-12 mx-auto mb-6"
-          />
-          <h1 className="text-2xl font-bold text-foreground">Solabs Messages</h1>
-          <p className="text-muted-foreground mt-2">Entre com suas credenciais</p>
+          <img src="/brand/logo-solabs.png" alt="Solabs" className="h-12 mx-auto mb-6" />
+          
+          
         </div>
 
         <Card>
@@ -82,58 +71,24 @@ export const LoginPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  required
-                  disabled={loginLoading}
-                />
+                <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" required disabled={loginLoading} />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
                 <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Sua senha"
-                    required
-                    disabled={loginLoading}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={loginLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
+                  <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Sua senha" required disabled={loginLoading} className="pr-10" />
+                  <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)} disabled={loginLoading}>
+                    {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                   </Button>
                 </div>
               </div>
 
-              {error && (
-                <Alert variant="destructive">
+              {error && <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+                </Alert>}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loginLoading}
-              >
+              <Button type="submit" className="w-full" disabled={loginLoading}>
                 {loginLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Entrar
               </Button>
@@ -145,37 +100,19 @@ export const LoginPage: React.FC = () => {
                 Credenciais de demonstração:
               </p>
               <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start text-left" 
-                  onClick={() => fillCredentials('super_admin')}
-                  disabled={loginLoading}
-                >
+                <Button variant="outline" size="sm" className="w-full justify-start text-left" onClick={() => fillCredentials('super_admin')} disabled={loginLoading}>
                   <div className="text-left">
                     <div className="font-medium">Super Admin</div>
                     <div className="text-xs text-muted-foreground">superadmin@solabs.com / super123</div>
                   </div>
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start text-left" 
-                  onClick={() => fillCredentials('admin')}
-                  disabled={loginLoading}
-                >
+                <Button variant="outline" size="sm" className="w-full justify-start text-left" onClick={() => fillCredentials('admin')} disabled={loginLoading}>
                   <div className="text-left">
                     <div className="font-medium">Admin</div>
                     <div className="text-xs text-muted-foreground">admin@solabs.com / admin123</div>
                   </div>
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start text-left" 
-                  onClick={() => fillCredentials('operator')}
-                  disabled={loginLoading}
-                >
+                <Button variant="outline" size="sm" className="w-full justify-start text-left" onClick={() => fillCredentials('operator')} disabled={loginLoading}>
                   <div className="text-left">
                     <div className="font-medium">Operador</div>
                     <div className="text-xs text-muted-foreground">operador@solabs.com / operador123</div>
@@ -186,6 +123,5 @@ export const LoginPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
