@@ -85,6 +85,7 @@ interface ChatState {
   setActivePane: (pane: 'sidebar' | 'list' | 'conversation') => void;
   
   setSelectedAccountId: (accountId: number | null) => void;
+  clearDependentFilters: () => void;
   
   reset: () => void;
 }
@@ -281,6 +282,17 @@ export const useChatStore = create<ChatState>()(
       
       setSelectedAccountId: (accountId) => {
         set({ selectedAccountId: accountId });
+      },
+      
+      clearDependentFilters: () => {
+        set((state) => ({
+          filters: {
+            ...state.filters,
+            inbox_id: undefined,
+            assignee_type: 'all',
+            team_id: undefined,
+          }
+        }));
       },
       
       reset: () => {
