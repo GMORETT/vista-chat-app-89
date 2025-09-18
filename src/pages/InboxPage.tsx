@@ -117,7 +117,7 @@ export const InboxPage: React.FC = () => {
             ? activePane === 'conversation' ? 'w-full' : 'hidden'
             : isExpanded ? 'w-full' : 'flex-1'
           } 
-          flex flex-col bg-background
+          flex flex-col bg-background ${isMobile ? 'pb-16' : ''}
         `}
       >
         {/* Render if there's a selected conversation or mobile with chat view */}

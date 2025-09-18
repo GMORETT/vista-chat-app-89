@@ -92,9 +92,9 @@ export const ActionsBar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 border-b border-border bg-card">
-      {/* Navigation controls and avatar */}
-      <div className="flex items-center gap-3">
+    <div className="p-4 border-b border-border bg-card">
+      {/* Top row: Navigation controls and avatar */}
+      <div className="flex items-center gap-3 mb-3">
         {/* Back button for mobile or expanded desktop view */}
         {(isMobile || isExpanded) && (
           <Button
@@ -116,13 +116,10 @@ export const ActionsBar: React.FC = () => {
         </Avatar>
         
         {/* Contact name */}
-        <div className="font-heading text-foreground">
+        <div className="font-heading text-foreground flex-1">
           {selectedConversation.meta.sender.name || selectedConversation.meta.sender.email || 'Sem nome'}
         </div>
-      </div>
 
-      {/* Status, Priority, and Expand controls */}
-      <div className="flex items-center gap-1 sm:gap-3 flex-wrap">
         {/* Expand/collapse button (desktop only) */}
         {!isMobile && (
           <Button
@@ -135,9 +132,13 @@ export const ActionsBar: React.FC = () => {
             {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </Button>
         )}
+      </div>
+
+      {/* Bottom row: Status, Priority, and Labels controls in line */}
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Status selector */}
         <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isStatusLoading}>
-          <SelectTrigger className={`${isMobile ? 'w-32' : 'w-40'} text-xs sm:text-sm`}>
+          <SelectTrigger className={`${isMobile ? 'w-24 text-xs' : 'w-32 text-sm'} h-8`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -174,7 +175,7 @@ export const ActionsBar: React.FC = () => {
 
         {/* Priority selector */}
         <Select value={currentPriority || 'none'} onValueChange={handlePriorityChange} disabled={isPriorityLoading}>
-          <SelectTrigger className={`${isMobile ? 'w-32' : 'w-40'} text-xs sm:text-sm`}>
+          <SelectTrigger className={`${isMobile ? 'w-24 text-xs' : 'w-32 text-sm'} h-8`}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -223,7 +224,7 @@ export const ActionsBar: React.FC = () => {
               variant="outline"
               size="sm"
               disabled={isLabelsLoading}
-              className={`flex items-center gap-1 sm:gap-2 h-8 ${isMobile ? 'px-2' : 'px-3'}`}
+              className={`flex items-center gap-1 sm:gap-2 h-8 ${isMobile ? 'px-2 text-xs' : 'px-3 text-sm'}`}
             >
               <Tags className="h-4 w-4" />
               <span className="hidden sm:inline">Labels</span>

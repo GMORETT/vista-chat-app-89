@@ -46,21 +46,51 @@ export const useConversations = (filters: ConversationFilters) => {
       }
       return response.data!;
     },
-    onSuccess: (updatedConversation, { conversationId, status }) => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+    onMutate: async ({ conversationId, status }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['conversations'] });
       
-      // Update the conversation in the store if it's currently selected
+      // Optimistically update conversation in store
       if (selectedConversation?.id === conversationId) {
         updateConversation({ ...selectedConversation, status });
       }
+      
+      // Optimistically update conversations list
+      queryClient.setQueryData(['conversations', query], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            payload: oldData.data.payload.map((conv: any) => 
+              conv.id === conversationId ? { ...conv, status } : conv
+            )
+          }
+        };
+      });
+      
+      return { conversationId, previousStatus: selectedConversation?.status };
+    },
+    onSuccess: (updatedConversation, { conversationId, status }) => {
+      // Invalidate and refetch
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      }, 100);
       
       toast({
         title: "Status atualizado",
         description: `Conversa marcada como ${status === 'open' ? 'aberta' : status === 'pending' ? 'pendente' : status === 'snoozed' ? 'adiada' : 'resolvida'}`,
       });
     },
-    onError: (error) => {
+    onError: (error, { conversationId }, context) => {
+      // Rollback optimistic update
+      if (context?.previousStatus && selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, status: context.previousStatus });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      
       toast({
         title: "Erro ao atualizar status",
         description: error.message,
@@ -78,21 +108,51 @@ export const useConversations = (filters: ConversationFilters) => {
       }
       return response.data!;
     },
-    onSuccess: (updatedConversation, { conversationId, priority }) => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+    onMutate: async ({ conversationId, priority }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['conversations'] });
       
-      // Update the conversation in the store if it's currently selected
+      // Optimistically update conversation in store
       if (selectedConversation?.id === conversationId) {
         updateConversation({ ...selectedConversation, priority });
       }
+      
+      // Optimistically update conversations list
+      queryClient.setQueryData(['conversations', query], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            payload: oldData.data.payload.map((conv: any) => 
+              conv.id === conversationId ? { ...conv, priority } : conv
+            )
+          }
+        };
+      });
+      
+      return { conversationId, previousPriority: selectedConversation?.priority };
+    },
+    onSuccess: (updatedConversation, { conversationId, priority }) => {
+      // Invalidate and refetch with delay
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      }, 100);
       
       toast({
         title: "Prioridade atualizada",
         description: `Prioridade definida como ${priority === 'urgent' ? 'urgente' : priority === 'high' ? 'alta' : priority === 'medium' ? 'média' : priority === 'low' ? 'baixa' : 'nenhuma'}`,
       });
     },
-    onError: (error) => {
+    onError: (error, { conversationId }, context) => {
+      // Rollback optimistic update
+      if (context?.previousPriority !== undefined && selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, priority: context.previousPriority });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      
       toast({
         title: "Erro ao atualizar prioridade",
         description: error.message,
@@ -140,21 +200,50 @@ export const useConversations = (filters: ConversationFilters) => {
       const updatedConversation = { ...conversation, labels };
       return updatedConversation;
     },
-    onSuccess: (updatedConversation, { conversationId, labels }) => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+    onMutate: async ({ conversationId, labels }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['conversations'] });
       
-      // Update the conversation in the store if it's currently selected
+      // Optimistically update conversation in store
       if (selectedConversation?.id === conversationId) {
         updateConversation({ ...selectedConversation, labels });
       }
+      
+      // Optimistically update conversations list
+      queryClient.setQueryData(['conversations', query], (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            payload: oldData.data.payload.map((conv: any) => 
+              conv.id === conversationId ? { ...conv, labels } : conv
+            )
+          }
+        };
+      });
+      
+      return { conversationId, previousLabels: selectedConversation?.labels };
+    },
+    onSuccess: (updatedConversation, { conversationId, labels }) => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        queryClient.invalidateQueries({ queryKey: ['conversationsMeta'] });
+      }, 100);
       
       toast({
         title: "Labels atualizadas",
         description: `Labels da conversa foram atualizadas`,
       });
     },
-    onError: (error) => {
+    onError: (error, { conversationId }, context) => {
+      // Rollback optimistic update
+      if (context?.previousLabels && selectedConversation?.id === conversationId) {
+        updateConversation({ ...selectedConversation, labels: context.previousLabels });
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      
       toast({
         title: "Erro ao atualizar labels",
         description: error.message,
