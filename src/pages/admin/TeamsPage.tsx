@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { useTeams } from '../../hooks/admin/useTeams';
 import { useAccounts } from '../../hooks/admin/useAccounts';
 import { Team } from '../../models/admin';
@@ -105,6 +105,24 @@ export const TeamsPage: React.FC = () => {
           accounts={accounts}
         />
       </div>
+
+      {/* Teams Cloud */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Teams Cloud
+          </CardTitle>
+          <CardDescription>
+            Visual overview of all teams
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm">
+            {filteredTeams.length === 0 ? 'No teams created yet' : `${filteredTeams.length} teams available`}
+          </p>
+        </CardContent>
+      </Card>
 
       {filteredTeams && filteredTeams.length > 0 ? (
         <TeamsTable

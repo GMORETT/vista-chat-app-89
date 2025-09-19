@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, Building2, Search } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { useToast } from '../../hooks/use-toast';
 import { Account, UpdateAccountRequest } from '../../models/chat';
@@ -209,6 +210,24 @@ export const ClientsPage: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Clients Cloud */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Clients Cloud
+          </CardTitle>
+          <CardDescription>
+            Visual overview of all clients
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm">
+            {filteredAccounts.length === 0 ? 'No clients created yet' : `${filteredAccounts.length} clients available`}
+          </p>
+        </CardContent>
+      </Card>
 
       <AccountsTable
         accounts={filteredAccounts}

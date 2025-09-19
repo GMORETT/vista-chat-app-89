@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, UserCheck } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { useAgents, useCreateAgent, useUpdateAgent, useDeleteAgent } from '../../hooks/admin/useAgents';
 import { useAccounts } from '../../hooks/admin/useAccounts';
 import { AgentsTable } from '../../components/admin/agents/AgentsTable';
@@ -118,6 +119,24 @@ export const AgentsPage: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Agents Cloud */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserCheck className="h-5 w-5" />
+            Agents Cloud
+          </CardTitle>
+          <CardDescription>
+            Visual overview of all agents
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm">
+            {filteredAgents.length === 0 ? 'No agents created yet' : `${filteredAgents.length} agents available`}
+          </p>
+        </CardContent>
+      </Card>
 
       <AgentsTable
         agents={filteredAgents || []}

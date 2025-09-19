@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, Inbox } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
@@ -128,6 +128,24 @@ export const InboxesPage: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Inboxes Cloud */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Inbox className="h-5 w-5" />
+            Inboxes Cloud
+          </CardTitle>
+          <CardDescription>
+            Visual overview of all inboxes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-sm">
+            {filteredInboxes.length === 0 ? 'No inboxes created yet' : `${filteredInboxes.length} inboxes available`}
+          </p>
+        </CardContent>
+      </Card>
 
       {filteredInboxes && filteredInboxes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

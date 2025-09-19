@@ -159,23 +159,9 @@ export const LabelsPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredLabels && filteredLabels.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {filteredLabels.map((label) => (
-                <Badge 
-                  key={label.id}
-                  style={{ backgroundColor: label.color }}
-                  className="text-white hover:opacity-80 cursor-pointer"
-                >
-                  {label.title}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-sm">
-              {searchQuery || selectedAccountId ? 'Nenhuma label encontrada com os filtros aplicados' : 'No labels created yet'}
-            </p>
-          )}
+          <p className="text-muted-foreground text-sm">
+            {searchQuery || selectedAccountId ? 'Nenhuma label encontrada com os filtros aplicados' : 'No labels created yet'}
+          </p>
         </CardContent>
       </Card>
 
