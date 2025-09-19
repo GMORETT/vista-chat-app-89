@@ -3,12 +3,77 @@ import { Plus, Edit, Trash2, Tag } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { useLabels } from '../../hooks/admin/useLabels';
+import { useLabels, useCreateLabel, useUpdateLabel, useDeleteLabel } from '../../hooks/admin/useLabels';
+import { useToast } from '../../hooks/use-toast';
 import { format } from 'date-fns';
+import { LabelFormModal } from '../../components/admin/labels/LabelFormModal';
+import { LabelEditModal } from '../../components/admin/labels/LabelEditModal';
+import { ConfirmDeleteLabelDialog } from '../../components/admin/labels/ConfirmDeleteLabelDialog';
+import { Label } from '../../models/admin';
 
 export const LabelsPage: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingLabel, setEditingLabel] = useState<Label | null>(null);
+  const [deletingLabel, setDeletingLabel] = useState<Label | null>(null);
+  
   const { data: labels, isLoading } = useLabels();
+  const createLabelMutation = useCreateLabel();
+  const updateLabelMutation = useUpdateLabel();
+  const deleteLabelMutation = useDeleteLabel();
+  const { toast } = useToast();
+
+  const handleCreateLabel = async (data: any) => {
+    try {
+      await createLabelMutation.mutateAsync(data);
+      setShowCreateForm(false);
+      toast({
+        title: "Label criada",
+        description: "Label criada com sucesso!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao criar label. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateLabel = async (id: number, data: any) => {
+    try {
+      await updateLabelMutation.mutateAsync({ id, data });
+      setEditingLabel(null);
+      toast({
+        title: "Label atualizada",
+        description: "Label atualizada com sucesso!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar label. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteLabel = async () => {
+    if (!deletingLabel) return;
+    
+    try {
+      await deleteLabelMutation.mutateAsync(deletingLabel.id);
+      setDeletingLabel(null);
+      toast({
+        title: "Label excluída",
+        description: "Label excluída com sucesso!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir label. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -87,10 +152,18 @@ export const LabelsPage: React.FC = () => {
                       )}
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setEditingLabel(label)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setDeletingLabel(label)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -129,6 +202,30 @@ export const LabelsPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Modals */}
+      <LabelFormModal
+        open={showCreateForm}
+        onOpenChange={setShowCreateForm}
+        onSubmit={handleCreateLabel}
+        isLoading={createLabelMutation.isPending}
+      />
+
+      <LabelEditModal
+        open={!!editingLabel}
+        onOpenChange={(open) => !open && setEditingLabel(null)}
+        onSubmit={handleUpdateLabel}
+        isLoading={updateLabelMutation.isPending}
+        label={editingLabel}
+      />
+
+      <ConfirmDeleteLabelDialog
+        open={!!deletingLabel}
+        onOpenChange={(open) => !open && setDeletingLabel(null)}
+        onConfirm={handleDeleteLabel}
+        isLoading={deleteLabelMutation.isPending}
+        label={deletingLabel}
+      />
     </div>
   );
 };
