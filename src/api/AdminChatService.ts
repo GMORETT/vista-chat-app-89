@@ -166,7 +166,7 @@ export class AdminChatService {
       slug: slug,
       cw_name: `acc${data.account_id}_${slug}`,
       status: data.status || 'active',
-      show_on_sidebar: data.show_on_sidebar ?? true, 
+      show_on_sidebar: true,
       created_at: new Date().toISOString(), 
       updated_at: new Date().toISOString() 
     };
@@ -182,7 +182,7 @@ export class AdminChatService {
       ...data, 
       color: data.color || '#6b7280', 
       status: data.status || 'active',
-      show_on_sidebar: data.show_on_sidebar ?? true, 
+      show_on_sidebar: true, 
       created_at: new Date().toISOString(), 
       updated_at: new Date().toISOString() 
     };

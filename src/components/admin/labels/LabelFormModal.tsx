@@ -32,7 +32,6 @@ const formSchema = z.object({
   description: z.string().optional(),
   color: z.string().min(1, 'Cor é obrigatória'),
   status: z.enum(['active', 'inactive']).default('active'),
-  show_on_sidebar: z.boolean().default(true),
   account_id: z.number().min(1, 'Cliente é obrigatório'),
 });
 
@@ -61,7 +60,6 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
       description: '',
       color: '#3b82f6',
       status: 'active',
-      show_on_sidebar: true,
       account_id: undefined,
     },
   });
@@ -77,7 +75,6 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
       description: data.description,
       color: data.color,
       status: data.status,
-      show_on_sidebar: data.show_on_sidebar,
       account_id: data.account_id,
     };
     
@@ -183,13 +180,6 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="show_on_sidebar"
-              {...form.register('show_on_sidebar')}
-            />
-            <Label htmlFor="show_on_sidebar">Mostrar na barra lateral</Label>
-          </div>
 
           <DialogFooter>
             <Button

@@ -37,7 +37,6 @@ const formSchema = z.object({
   title: z.string().min(1, 'Nome é obrigatório').min(2, 'Nome deve ter pelo menos 2 caracteres'),
   description: z.string().optional(),
   color: z.string().min(1, 'Cor é obrigatória'),
-  show_on_sidebar: z.boolean().default(true),
   account_id: z.number().min(1, 'Cliente é obrigatório'),
 });
 
@@ -66,7 +65,6 @@ export const LabelEditModal: React.FC<LabelEditModalProps> = ({
       title: '',
       description: '',
       color: '#f97316',
-      show_on_sidebar: true,
       account_id: undefined,
     },
   });
@@ -78,7 +76,6 @@ export const LabelEditModal: React.FC<LabelEditModalProps> = ({
         title: label.title,
         description: label.description || '',
         color: label.color,
-        show_on_sidebar: label.show_on_sidebar,
         account_id: label.account_id,
       });
     }
@@ -91,7 +88,6 @@ export const LabelEditModal: React.FC<LabelEditModalProps> = ({
       title: data.title,
       description: data.description || undefined,
       color: data.color,
-      show_on_sidebar: data.show_on_sidebar,
       account_id: data.account_id,
     });
   };
@@ -196,27 +192,6 @@ export const LabelEditModal: React.FC<LabelEditModalProps> = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="show_on_sidebar"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Mostrar na sidebar</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Label aparecerá na barra lateral para acesso rápido
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
 
             <DialogFooter>
               <Button

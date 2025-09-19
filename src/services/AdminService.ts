@@ -321,7 +321,7 @@ class AdminServiceClass {
         description: data.description,
         color: data.color,
         status: data.status || 'active',
-        show_on_sidebar: data.show_on_sidebar || true,
+        show_on_sidebar: true,
         account_id: data.account_id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

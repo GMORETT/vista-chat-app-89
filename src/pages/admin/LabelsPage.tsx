@@ -171,8 +171,8 @@ export const LabelsPage: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Badge variant={label.show_on_sidebar ? "default" : "secondary"}>
-                      {label.show_on_sidebar ? "Sidebar" : "Hidden"}
+                    <Badge variant={label.status === 'active' ? "default" : "secondary"}>
+                      {label.status === 'active' ? "Ativo" : "Inativo"}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
                       {label.color}

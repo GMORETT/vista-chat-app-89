@@ -113,7 +113,6 @@ export interface CreateLabelRequest {
   description?: string;
   color: string;
   status?: 'active' | 'inactive';
-  show_on_sidebar?: boolean;
   account_id: number;
 }
 
