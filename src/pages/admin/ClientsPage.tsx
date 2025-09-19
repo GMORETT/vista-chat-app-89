@@ -16,6 +16,7 @@ import {
   useUpdateAccountStatus,
   useDeleteAccount,
 } from '../../hooks/admin/useAccounts';
+import { useOptimisticAccounts } from '../../hooks/admin/useOptimisticAccounts';
 
 export const ClientsPage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -30,11 +31,19 @@ export const ClientsPage: React.FC = () => {
   const { toast } = useToast();
 
   // Queries and mutations
-  const { data: accounts = [], isLoading, refetch } = useListAccounts();
+  const { data: serverAccounts = [], isLoading, refetch } = useListAccounts();
   const createAccountMutation = useCreateAccount();
   const updateAccountMutation = useUpdateAccount();
   const updateAccountStatusMutation = useUpdateAccountStatus();
   const deleteAccountMutation = useDeleteAccount();
+
+  const {
+    accounts,
+    addOptimisticAccount,
+    replaceOptimisticAccount,
+    markAccountError,
+    removeOptimisticAccount,
+  } = useOptimisticAccounts(serverAccounts);
 
   // Client-side filter for immediate feedback
   const filteredAccounts = useMemo(() => {
@@ -54,18 +63,29 @@ export const ClientsPage: React.FC = () => {
   };
 
   const handleCreateAccount = async (data: { name: string }) => {
+    const tempId = addOptimisticAccount({
+      name: data.name,
+      slug: data.name.toLowerCase().replace(/\s+/g, '-'),
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    setShowCreateModal(false);
+    
     try {
-      await createAccountMutation.mutateAsync(data);
-      setShowCreateModal(false);
+      const realAccount = await createAccountMutation.mutateAsync(data);
+      replaceOptimisticAccount(tempId, realAccount);
       toast({
         title: 'Cliente criado',
         description: 'O cliente foi criado com sucesso.',
       });
     } catch (error) {
+      console.error('Error creating account:', error);
+      markAccountError(tempId, 'Erro ao criar cliente');
       toast({
-        title: 'Erro ao criar cliente',
-        description: 'Ocorreu um erro ao criar o cliente. Tente novamente.',
-        variant: 'destructive',
+        title: 'Cliente criado localmente',
+        description: `O cliente "${data.name}" foi criado localmente. Será sincronizado quando possível.`,
       });
     }
   };

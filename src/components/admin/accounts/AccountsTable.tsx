@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Edit, Trash2, Settings, Power, PowerOff } from 'lucide-react';
+import { Building2, Edit, Trash2, Settings, Power, PowerOff, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { Account } from '../../../models/chat';
+import { OptimisticAccount } from '../../../types/syncState';
 import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
 import {
@@ -15,11 +16,11 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 
 interface AccountsTableProps {
-  accounts: Account[];
+  accounts: (Account | OptimisticAccount)[];
   isLoading: boolean;
-  onEdit: (account: Account) => void;
-  onDelete: (account: Account) => void;
-  onToggleStatus: (account: Account, newStatus: 'active' | 'inactive') => void;
+  onEdit: (account: Account | OptimisticAccount) => void;
+  onDelete: (account: Account | OptimisticAccount) => void;
+  onToggleStatus: (account: Account | OptimisticAccount, newStatus: 'active' | 'inactive') => void;
 }
 
 export const AccountsTable: React.FC<AccountsTableProps> = ({
@@ -72,7 +73,25 @@ export const AccountsTable: React.FC<AccountsTableProps> = ({
     );
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, syncState?: string) => {
+    if (syncState === 'pending') {
+      return (
+        <Badge variant="outline" className="border-yellow-300 text-yellow-700">
+          <Clock className="w-3 h-3 mr-1" />
+          Sincronizando
+        </Badge>
+      );
+    }
+    
+    if (syncState === 'error') {
+      return (
+        <Badge variant="destructive" className="bg-red-100 text-red-800">
+          <AlertCircle className="w-3 h-3 mr-1" />
+          Erro
+        </Badge>
+      );
+    }
+
     switch (status) {
       case 'active':
         return <Badge variant="default">Ativo</Badge>;
@@ -102,9 +121,16 @@ export const AccountsTable: React.FC<AccountsTableProps> = ({
           {accounts.map((account) => (
             <TableRow key={account.id}>
               <TableCell className="font-mono">{account.id}</TableCell>
-              <TableCell className="font-medium">{account.name}</TableCell>
-              <TableCell className="text-muted-foreground">{account.slug}</TableCell>
-              <TableCell>{getStatusBadge(account.status)}</TableCell>
+                  <TableCell className="font-medium">
+                    {account.name}
+                    {('syncState' in account && account.syncState === 'pending') && (
+                      <Loader2 className="w-4 h-4 ml-2 inline animate-spin" />
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{account.slug}</TableCell>
+              <TableCell>
+                {getStatusBadge(account.status, 'syncState' in account ? account.syncState : undefined)}
+              </TableCell>
               <TableCell className="text-muted-foreground">
                 {formatDistanceToNow(new Date(account.created_at), { addSuffix: true })}
               </TableCell>
