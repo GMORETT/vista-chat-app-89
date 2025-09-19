@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { Plus, Building2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Plus, Building2, Search } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import { useToast } from '../../hooks/use-toast';
 import { Account, UpdateAccountRequest } from '../../models/chat';
 import { AccountsTable } from '../../components/admin/accounts/AccountsTable';
 import { AccountFormModal } from '../../components/admin/accounts/AccountFormModal';
 import { AccountEditModal } from '../../components/admin/accounts/AccountEditModal';
 import { ConfirmDeleteAccountDialog } from '../../components/admin/accounts/ConfirmDeleteAccountDialog';
+import { ConfirmStatusChangeDialog } from '../../components/admin/accounts/ConfirmStatusChangeDialog';
 import {
   useListAccounts,
   useCreateAccount,
@@ -18,7 +20,10 @@ export const ClientsPage: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<'active' | 'inactive'>('active');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { toast } = useToast();
 
@@ -27,6 +32,15 @@ export const ClientsPage: React.FC = () => {
   const createAccountMutation = useCreateAccount();
   const updateAccountMutation = useUpdateAccount();
   const deleteAccountMutation = useDeleteAccount();
+
+  // Filter accounts based on search term
+  const filteredAccounts = useMemo(() => {
+    if (!searchTerm) return accounts;
+    return accounts.filter(account => 
+      account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.slug.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [accounts, searchTerm]);
 
   const handleCreateAccount = async (data: { name: string }) => {
     try {
@@ -73,6 +87,44 @@ export const ClientsPage: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
+  const handleToggleStatus = (account: Account, newStatus: 'active' | 'inactive') => {
+    setSelectedAccount(account);
+    setPendingStatus(newStatus);
+    setShowStatusDialog(true);
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!selectedAccount) return;
+
+    try {
+      await updateAccountMutation.mutateAsync({ 
+        id: selectedAccount.id, 
+        data: { status: pendingStatus }
+      });
+      setShowStatusDialog(false);
+      setSelectedAccount(null);
+      
+      // Simulate agent access disabling for inactive clients
+      if (pendingStatus === 'inactive') {
+        toast({
+          title: 'Cliente desativado',
+          description: 'O cliente foi desativado e todos os agentes associados perderam acesso.',
+        });
+      } else {
+        toast({
+          title: 'Cliente ativado',
+          description: 'O cliente foi ativado com sucesso.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erro ao alterar status',
+        description: 'Ocorreu um erro ao alterar o status do cliente. Tente novamente.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!selectedAccount) return;
 
@@ -111,11 +163,25 @@ export const ClientsPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar clientes por nome ou slug..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
       <AccountsTable
-        accounts={accounts}
+        accounts={filteredAccounts}
         isLoading={isLoading}
         onEdit={handleEditAccount}
         onDelete={handleDeleteAccount}
+        onToggleStatus={handleToggleStatus}
       />
 
       <AccountFormModal
@@ -139,6 +205,15 @@ export const ClientsPage: React.FC = () => {
         account={selectedAccount}
         onConfirm={handleConfirmDelete}
         isLoading={deleteAccountMutation.isPending}
+      />
+
+      <ConfirmStatusChangeDialog
+        open={showStatusDialog}
+        onOpenChange={setShowStatusDialog}
+        account={selectedAccount}
+        newStatus={pendingStatus}
+        onConfirm={handleConfirmStatusChange}
+        isLoading={updateAccountMutation.isPending}
       />
     </div>
   );

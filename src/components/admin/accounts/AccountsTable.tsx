@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Edit, Trash2, Settings } from 'lucide-react';
+import { Building2, Edit, Trash2, Settings, Power, PowerOff } from 'lucide-react';
 import { Account } from '../../../models/chat';
 import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
@@ -19,6 +19,7 @@ interface AccountsTableProps {
   isLoading: boolean;
   onEdit: (account: Account) => void;
   onDelete: (account: Account) => void;
+  onToggleStatus: (account: Account, newStatus: 'active' | 'inactive') => void;
 }
 
 export const AccountsTable: React.FC<AccountsTableProps> = ({
@@ -26,6 +27,7 @@ export const AccountsTable: React.FC<AccountsTableProps> = ({
   isLoading,
   onEdit,
   onDelete,
+  onToggleStatus,
 }) => {
   if (isLoading) {
     return (
@@ -108,6 +110,18 @@ export const AccountsTable: React.FC<AccountsTableProps> = ({
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onToggleStatus(account, account.status === 'active' ? 'inactive' : 'active')}
+                    className={account.status === 'active' ? 'text-green-600 border-green-600 hover:bg-green-50' : 'text-red-600 border-red-600 hover:bg-red-50'}
+                  >
+                    {account.status === 'active' ? (
+                      <Power className="h-4 w-4" />
+                    ) : (
+                      <PowerOff className="h-4 w-4" />
+                    )}
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

@@ -242,37 +242,67 @@ class AdminServiceClass {
     });
   }
 
-  // Accounts (Client Management)
+  // Mock data storage
+  private static mockAccounts: Account[] = [];
+  private static mockAccountIdCounter = 1;
+
+  // Accounts (Client Management) - Mock Implementation
   async listAccounts(query?: ClientQuery): Promise<Account[]> {
-    const queryParams = new URLSearchParams();
-    if (query?.page) queryParams.append('page', query.page.toString());
-    if (query?.name) queryParams.append('name', query.name);
-    if (query?.status) queryParams.append('status', query.status);
-    if (query?.sort) queryParams.append('sort', query.sort);
+    let accounts = [...AdminServiceClass.mockAccounts];
     
-    const queryString = queryParams.toString();
-    const endpoint = queryString ? `/accounts?${queryString}` : '/accounts';
-    return this.request<Account[]>(endpoint);
+    // Filter by name if provided
+    if (query?.name) {
+      accounts = accounts.filter(account => 
+        account.name.toLowerCase().includes(query.name!.toLowerCase()) ||
+        account.slug.toLowerCase().includes(query.name!.toLowerCase())
+      );
+    }
+    
+    // Filter by status if provided
+    if (query?.status) {
+      accounts = accounts.filter(account => account.status === query.status);
+    }
+    
+    return accounts;
   }
 
   async createAccount(data: CreateAccountRequest): Promise<Account> {
-    return this.request<Account>('/accounts', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const newAccount: Account = {
+      id: AdminServiceClass.mockAccountIdCounter++,
+      name: data.name,
+      slug: data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      status: 'active', // Default status is active
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    
+    AdminServiceClass.mockAccounts.push(newAccount);
+    return newAccount;
   }
 
   async updateAccount(id: number, data: UpdateAccountRequest): Promise<Account> {
-    return this.request<Account>(`/accounts/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    const accountIndex = AdminServiceClass.mockAccounts.findIndex(account => account.id === id);
+    if (accountIndex === -1) {
+      throw new Error('Account not found');
+    }
+    
+    const updatedAccount = {
+      ...AdminServiceClass.mockAccounts[accountIndex],
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+    
+    AdminServiceClass.mockAccounts[accountIndex] = updatedAccount;
+    return updatedAccount;
   }
 
   async deleteAccount(id: number): Promise<void> {
-    await this.request(`/accounts/${id}`, {
-      method: 'DELETE',
-    });
+    const accountIndex = AdminServiceClass.mockAccounts.findIndex(account => account.id === id);
+    if (accountIndex === -1) {
+      throw new Error('Account not found');
+    }
+    
+    AdminServiceClass.mockAccounts.splice(accountIndex, 1);
   }
 
   // Credentials
