@@ -72,11 +72,11 @@ class AdminServiceClass {
   ];
 
   private static inMemoryLabels: Label[] = [
-    { id: 1, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 2, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 3, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 4, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true, account_id: 2, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    { id: 5, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false, account_id: 2, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 1, title: 'Bug', slug: 'bug', cw_name: 'acc1_bug', description: 'Problema técnico', color: '#f97316', status: 'active', show_on_sidebar: true, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 2, title: 'Feature Request', slug: 'feature-request', cw_name: 'acc1_feature_request', description: 'Solicitação de funcionalidade', color: '#10b981', status: 'active', show_on_sidebar: false, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 3, title: 'Vendas', slug: 'vendas', cw_name: 'acc1_vendas', description: 'Oportunidade de venda', color: '#3b82f6', status: 'active', show_on_sidebar: true, account_id: 1, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 4, title: 'Suporte', slug: 'suporte', cw_name: 'acc2_suporte', description: 'Questão de suporte', color: '#8b5cf6', status: 'active', show_on_sidebar: true, account_id: 2, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { id: 5, title: 'Billing', slug: 'billing', cw_name: 'acc2_billing', description: 'Questão financeira', color: '#f59e0b', status: 'inactive', show_on_sidebar: false, account_id: 2, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
   ];
 
   private async bffRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -312,12 +312,16 @@ class AdminServiceClass {
       });
     } catch (error) {
       // Fallback: Add to in-memory labels
+      const slug = data.slug || this.generateSlug(data.title);
       const newLabel: Label = {
         id: Math.max(...AdminServiceClass.inMemoryLabels.map(l => l.id), 0) + 1,
         title: data.title,
+        slug: slug,
+        cw_name: this.generateCwName(data.account_id, slug),
         description: data.description,
         color: data.color,
-        show_on_sidebar: data.show_on_sidebar,
+        status: data.status || 'active',
+        show_on_sidebar: data.show_on_sidebar || true,
         account_id: data.account_id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -433,6 +437,15 @@ class AdminServiceClass {
   // Credentials
   async listCredentials(): Promise<Array<{ id: string; name: string; description?: string; created_at: string }>> {
     return this.request('/credentials');
+  }
+
+  // Helper methods
+  private generateSlug(title: string): string {
+    return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+  }
+
+  private generateCwName(accountId: number, slug: string): string {
+    return `acc${accountId}_${slug}`;
   }
 }
 

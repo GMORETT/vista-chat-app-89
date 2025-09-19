@@ -78,8 +78,11 @@ export const mockTeam: Team = {
 export const mockLabel: Label = {
   id: 1,
   title: 'Test Label',
+  slug: 'test-label',
+  cw_name: 'acc1_test_label',
   description: 'Test label description',
   color: '#FF5733',
+  status: 'active',
   show_on_sidebar: true,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),

@@ -28,14 +28,17 @@ export const mockInboxes: Inbox[] = [
 
 // Mock Labels
 export const mockLabels: Label[] = [
-  { id: 1, title: 'Bug', description: 'Problema técnico', color: '#f97316', show_on_sidebar: true, account_id: 1 },
-  { id: 2, title: 'Feature Request', description: 'Solicitação de funcionalidade', color: '#10b981', show_on_sidebar: false, account_id: 1 },
-  { id: 3, title: 'Vendas', description: 'Oportunidade de venda', color: '#3b82f6', show_on_sidebar: true, account_id: 1 },
-  { id: 4, title: 'Suporte', description: 'Questão de suporte', color: '#8b5cf6', show_on_sidebar: true, account_id: 1 },
-  { id: 5, title: 'Billing', description: 'Questão financeira', color: '#f59e0b', show_on_sidebar: false, account_id: 1 },
-  { id: 6, title: 'Feedback', description: 'Feedback do cliente', color: '#06b6d4', show_on_sidebar: false, account_id: 1 },
-  { id: 7, title: 'Cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', show_on_sidebar: true, account_id: 1 },
-  { id: 8, title: 'Cliente VIP', description: 'Cliente importante', color: '#fbbf24', show_on_sidebar: true, account_id: 1 },
+  { id: 1, title: 'Bug', slug: 'bug', cw_name: 'acc1_bug', description: 'Problema técnico', color: '#f97316', status: 'active', show_on_sidebar: true, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 2, title: 'Feature Request', slug: 'feature-request', cw_name: 'acc1_feature_request', description: 'Solicitação de funcionalidade', color: '#10b981', status: 'active', show_on_sidebar: false, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 3, title: 'Vendas', slug: 'vendas', cw_name: 'acc1_vendas', description: 'Oportunidade de venda', color: '#3b82f6', status: 'active', show_on_sidebar: true, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 4, title: 'Suporte', slug: 'suporte', cw_name: 'acc1_suporte', description: 'Questão de suporte', color: '#8b5cf6', status: 'active', show_on_sidebar: true, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 5, title: 'Billing', slug: 'billing', cw_name: 'acc1_billing', description: 'Questão financeira', color: '#f59e0b', status: 'inactive', show_on_sidebar: false, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 6, title: 'Feedback', slug: 'feedback', cw_name: 'acc1_feedback', description: 'Feedback do cliente', color: '#06b6d4', status: 'active', show_on_sidebar: false, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 7, title: 'Cancelamento', slug: 'cancelamento', cw_name: 'acc1_cancelamento', description: 'Solicitação de cancelamento', color: '#ef4444', status: 'active', show_on_sidebar: true, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 8, title: 'Cliente VIP', slug: 'cliente-vip', cw_name: 'acc1_cliente_vip', description: 'Cliente importante', color: '#fbbf24', status: 'active', show_on_sidebar: true, account_id: 1, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  // Account 2 labels
+  { id: 9, title: 'Prioridade', slug: 'prioridade', cw_name: 'acc2_prioridade', description: 'Alta prioridade', color: '#ef4444', status: 'active', show_on_sidebar: true, account_id: 2, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
+  { id: 10, title: 'Aguardando', slug: 'aguardando', cw_name: 'acc2_aguardando', description: 'Aguardando resposta', color: '#f59e0b', status: 'active', show_on_sidebar: true, account_id: 2, created_at: '2024-01-01T00:00:00Z', updated_at: '2024-01-01T00:00:00Z' },
 ];
 
 // Mock Contacts

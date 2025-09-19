@@ -10,14 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../ui/dialog';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '../../ui/form';
+import { Input } from '../../ui/input';
+import { Textarea } from '../../ui/textarea';
+import { Button } from '../../ui/button';
+import { Checkbox } from '../../ui/checkbox';
+import { Label } from '../../ui/label';
 import {
   Select,
   SelectContent,
@@ -25,18 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../ui/select';
-import { Input } from '../../ui/input';
-import { Textarea } from '../../ui/textarea';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
 import { ColorPicker } from './ColorPicker';
 import { CreateLabelRequest } from '../../../models/admin';
 import { useAccounts } from '../../../hooks/admin/useAccounts';
 
 const formSchema = z.object({
-  title: z.string().min(1, 'Nome é obrigatório').min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  title: z.string().min(1, 'Nome da label é obrigatório'),
+  slug: z.string().optional(),
   description: z.string().optional(),
   color: z.string().min(1, 'Cor é obrigatória'),
+  status: z.enum(['active', 'inactive']).default('active'),
   show_on_sidebar: z.boolean().default(true),
   account_id: z.number().min(1, 'Cliente é obrigatório'),
 });
@@ -56,28 +51,37 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
   onSubmit,
   isLoading,
 }) => {
-  const { data: accounts } = useAccounts();
+  const { data: accounts = [] } = useAccounts();
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
+      slug: '',
       description: '',
-      color: '#f97316',
+      color: '#3b82f6',
+      status: 'active',
       show_on_sidebar: true,
       account_id: undefined,
     },
   });
 
+  const generateSlug = (title: string): string => {
+    return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+  };
+
   const handleSubmit = (data: FormData) => {
-    onSubmit({
+    const labelData: CreateLabelRequest = {
       title: data.title,
-      description: data.description || undefined,
+      slug: data.slug || generateSlug(data.title),
+      description: data.description,
       color: data.color,
+      status: data.status,
       show_on_sidebar: data.show_on_sidebar,
       account_id: data.account_id,
-    });
-    form.reset();
+    };
+    
+    onSubmit(labelData);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -96,126 +100,111 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
             Crie uma nova label para organizar conversas e contatos por cliente.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome da Label</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: Suporte, Vendas, Bug..."
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Nome da Label *</Label>
+            <Input
+              id="title"
+              {...form.register('title')}
+              placeholder="Ex: Bug, Feature Request"
+              onChange={(e) => {
+                form.setValue('title', e.target.value);
+                form.setValue('slug', generateSlug(e.target.value));
+              }}
             />
+            {form.formState.errors.title && (
+              <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+            )}
+          </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição (opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descreva o propósito desta label..."
-                      className="min-h-[80px]"
-                      {...field}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug *</Label>
+            <Input
+              id="slug"
+              {...form.register('slug')}
+              placeholder="slug-da-label"
             />
+            <p className="text-xs text-muted-foreground">
+              Identificador único usado internamente
+            </p>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="account_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cliente Associado</FormLabel>
-                  <Select 
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    disabled={isLoading}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um cliente" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts?.map((account) => (
-                        <SelectItem key={account.id} value={account.id.toString()}>
-                          {account.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição</Label>
+            <Textarea
+              id="description"
+              {...form.register('description')}
+              placeholder="Descrição opcional da label"
+              rows={3}
             />
+          </div>
 
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <ColorPicker
-                      selectedColor={field.value}
-                      onColorChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <div className="space-y-2">
+            <Label>Cliente Associado *</Label>
+            <Select
+              value={form.watch('account_id')?.toString()}
+              onValueChange={(value) => form.setValue('account_id', parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id.toString()}>
+                    {account.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.account_id && (
+              <p className="text-sm text-destructive">{form.formState.errors.account_id.message}</p>
+            )}
+          </div>
+
+          <ColorPicker
+            selectedColor={form.watch('color')}
+            onColorChange={(color) => form.setValue('color', color)}
+          />
+
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Select
+              value={form.watch('status')}
+              onValueChange={(value: 'active' | 'inactive') => form.setValue('status', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="inactive">Inativo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="show_on_sidebar"
+              {...form.register('show_on_sidebar')}
             />
+            <Label htmlFor="show_on_sidebar">Mostrar na barra lateral</Label>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="show_on_sidebar"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      disabled={isLoading}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Mostrar na sidebar</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Label aparecerá na barra lateral para acesso rápido
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={isLoading}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Criando...' : 'Criar Label'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Criando...' : 'Criar Label'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

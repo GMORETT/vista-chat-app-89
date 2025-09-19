@@ -99,10 +99,15 @@ export interface Inbox {
 export interface Label {
   id: number;
   title: string;
+  slug: string;
+  cw_name: string;
   description?: string;
   color: string;
+  status: 'active' | 'inactive';
   show_on_sidebar: boolean;
   account_id: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Attachment {

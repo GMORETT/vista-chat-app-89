@@ -169,6 +169,14 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: 'clients/:accountId/labels',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <LabelsPage />
+          </Suspense>
+        ),
+      },
     ],
   },
   {

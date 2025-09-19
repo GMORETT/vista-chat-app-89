@@ -159,10 +159,33 @@ export class AdminChatService {
   // Labels - Mock implementations
   async getLabels(): Promise<Label[]> { return []; }
   async createLabel(data: CreateLabelRequest): Promise<Label> {
-    return { id: Date.now(), ...data, show_on_sidebar: data.show_on_sidebar ?? true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, '-');
+    return { 
+      id: Date.now(), 
+      ...data, 
+      slug: slug,
+      cw_name: `acc${data.account_id}_${slug}`,
+      status: data.status || 'active',
+      show_on_sidebar: data.show_on_sidebar ?? true, 
+      created_at: new Date().toISOString(), 
+      updated_at: new Date().toISOString() 
+    };
   }
   async updateLabel(id: number, data: Partial<CreateLabelRequest>): Promise<Label> {
-    return { id, title: '', account_id: data.account_id || 1, ...data, color: '#6b7280', show_on_sidebar: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const slug = data.slug || data.title?.toLowerCase().replace(/\s+/g, '-') || 'default';
+    return { 
+      id, 
+      title: data.title || 'Default Title', 
+      slug: slug,
+      cw_name: `acc${data.account_id || 1}_${slug}`,
+      account_id: data.account_id || 1, 
+      ...data, 
+      color: data.color || '#6b7280', 
+      status: data.status || 'active',
+      show_on_sidebar: data.show_on_sidebar ?? true, 
+      created_at: new Date().toISOString(), 
+      updated_at: new Date().toISOString() 
+    };
   }
   async deleteLabel(id: number): Promise<void> { console.log('Deleting label:', id); }
   async applyLabelToConversation(conversationId: number, labelIds: number[]): Promise<void> { console.log('Applying labels to conversation:', conversationId, labelIds); }
