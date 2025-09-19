@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { useInboxes } from '../../hooks/admin/useInboxes';
+import { useAccounts } from '../../hooks/admin/useAccounts';
 import { InboxWizard } from '../../components/admin/InboxWizard';
 import { SearchField } from '../../components/admin/shared/SearchField';
 import { ClientFilter } from '../../components/admin/shared/ClientFilter';
@@ -19,6 +20,32 @@ export const InboxesPage: React.FC = () => {
   const accountName = searchParams.get('account_name');
   
   const { data: inboxes, isLoading, refetch } = useInboxes();
+  const { data: accounts = [] } = useAccounts();
+
+  // Filter and search inboxes - must be before early return
+  const filteredInboxes = useMemo(() => {
+    if (!inboxes) return [];
+    
+    let filtered = inboxes;
+    
+    // Filter by account_id from URL params or filter
+    const filterAccountId = accountId ? parseInt(accountId) : selectedAccountId;
+    if (filterAccountId) {
+      filtered = filtered.filter(inbox => inbox.account_id === filterAccountId);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(inbox => 
+        inbox.name.toLowerCase().includes(query) ||
+        inbox.phone_number?.toLowerCase().includes(query) ||
+        inbox.channel_type.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [inboxes, accountId, selectedAccountId, searchQuery]);
 
   const handleInboxCreated = () => {
     setShowWizard(false);
@@ -58,30 +85,6 @@ export const InboxesPage: React.FC = () => {
     );
   }
 
-  // Filter and search inboxes
-  const filteredInboxes = useMemo(() => {
-    if (!inboxes) return [];
-    
-    let filtered = inboxes;
-    
-    // Filter by account_id from URL params or filter
-    const filterAccountId = accountId ? parseInt(accountId) : selectedAccountId;
-    if (filterAccountId) {
-      filtered = filtered.filter(inbox => inbox.account_id === filterAccountId);
-    }
-    
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(inbox => 
-        inbox.name.toLowerCase().includes(query) ||
-        inbox.phone_number?.toLowerCase().includes(query) ||
-        inbox.channel_type.toLowerCase().includes(query)
-      );
-    }
-    
-    return filtered;
-  }, [inboxes, accountId, selectedAccountId, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -121,6 +124,7 @@ export const InboxesPage: React.FC = () => {
           <ClientFilter
             selectedAccountId={selectedAccountId}
             onAccountChange={setSelectedAccountId}
+            accounts={accounts}
           />
         </div>
       )}

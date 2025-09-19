@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { useTeams } from '../../hooks/admin/useTeams';
+import { useAccounts } from '../../hooks/admin/useAccounts';
 import { Team } from '../../models/admin';
 import { TeamsTable } from '../../components/admin/teams/TeamsTable';
 import { SearchField } from '../../components/admin/shared/SearchField';
@@ -19,6 +20,7 @@ export const TeamsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const { data: teams, isLoading } = useTeams();
+  const { data: accounts = [] } = useAccounts();
 
   // Filter and search teams
   const filteredTeams = useMemo(() => {
@@ -100,6 +102,7 @@ export const TeamsPage: React.FC = () => {
         <ClientFilter
           selectedAccountId={selectedAccountId}
           onAccountChange={setSelectedAccountId}
+          accounts={accounts}
         />
       </div>
 

@@ -7,20 +7,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
-import { useAccounts } from '../../../hooks/admin/useAccounts';
+
+interface Account {
+  id: number;
+  name: string;
+}
 
 interface ClientFilterProps {
   selectedAccountId?: number | null;
   onAccountChange: (accountId: number | null) => void;
+  accounts?: Account[];
   className?: string;
 }
 
 export const ClientFilter: React.FC<ClientFilterProps> = ({
   selectedAccountId,
   onAccountChange,
+  accounts = [],
   className = "",
 }) => {
-  const { data: accounts = [] } = useAccounts();
 
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 

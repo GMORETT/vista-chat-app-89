@@ -3,6 +3,7 @@ import { Plus, ArrowLeft } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { useAgents, useCreateAgent, useUpdateAgent, useDeleteAgent } from '../../hooks/admin/useAgents';
+import { useAccounts } from '../../hooks/admin/useAccounts';
 import { AgentsTable } from '../../components/admin/agents/AgentsTable';
 import { AgentFormModal } from '../../components/admin/agents/AgentFormModal';
 import { AgentEditModal } from '../../components/admin/agents/AgentEditModal';
@@ -23,6 +24,7 @@ export const AgentsPage: React.FC = () => {
   const accountName = searchParams.get('account_name');
 
   const { data: agents, isLoading } = useAgents();
+  const { data: accounts = [] } = useAccounts();
   const createAgentMutation = useCreateAgent();
   const updateAgentMutation = useUpdateAgent();
   const deleteAgentMutation = useDeleteAgent();
@@ -112,6 +114,7 @@ export const AgentsPage: React.FC = () => {
           <ClientFilter
             selectedAccountId={selectedAccountId}
             onAccountChange={setSelectedAccountId}
+            accounts={accounts}
           />
         </div>
       )}
