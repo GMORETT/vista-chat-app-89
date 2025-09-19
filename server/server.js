@@ -8,7 +8,7 @@ const PORT = 3001;
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
   process.env.ALLOWED_ORIGINS.split(',') : 
-  ['http://localhost:5173', 'http://localhost:3000'];
+  ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080'];
 
 app.use(cors({
   origin: allowedOrigins,

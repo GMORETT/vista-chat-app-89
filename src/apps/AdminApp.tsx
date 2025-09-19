@@ -11,8 +11,8 @@ interface AdminAppProps {
 export const AdminApp: React.FC<AdminAppProps> = ({ mountOptions }) => {
   const adminConfig = {
     apiBaseUrl: mountOptions.apiBaseUrl || 'http://localhost:3001',
-    getAuthToken: mountOptions.getAuthToken || (() => 'mock-token'),
-    chatwootAccountId: mountOptions.chatwootAccountId || 'mock-account-id',
+    getAuthToken: mountOptions.getAuthToken || (() => 'super_admin_token'),
+    chatwootAccountId: mountOptions.chatwootAccountId || '1',
   };
 
   return (

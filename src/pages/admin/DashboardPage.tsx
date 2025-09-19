@@ -1,16 +1,23 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Inbox, Users, UserCheck, Tags } from 'lucide-react';
+import { Inbox, Users, UserCheck, Tags, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const DashboardPage: React.FC = () => {
   const cards = [
     {
+      title: 'Clients',
+      description: 'Manage client accounts and configurations',
+      icon: Building2,
+      href: '/admin/clients',
+      color: 'text-blue-600'
+    },
+    {
       title: 'Inboxes',
       description: 'Manage communication channels',
       icon: Inbox,
       href: '/admin/inboxes',
-      color: 'text-blue-600'
+      color: 'text-indigo-600'
     },
     {
       title: 'Teams',
