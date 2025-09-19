@@ -8,26 +8,25 @@ import { LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConfirmLogoutDialog } from '../ConfirmLogoutDialog';
 import { useLogoutConfirmation } from '@/hooks/useLogoutConfirmation';
-
 interface AdminLayoutProps {
   mountOptions: MountOptions;
 }
-
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
-  const { user } = useAuth();
+export const AdminLayout: React.FC<AdminLayoutProps> = ({
+  mountOptions
+}) => {
+  const {
+    user
+  } = useAuth();
   const navigate = useNavigate();
-  const { 
-    isModalOpen, 
-    isLoading, 
-    openLogoutConfirmation, 
-    closeLogoutConfirmation, 
-    confirmLogout 
+  const {
+    isModalOpen,
+    isLoading,
+    openLogoutConfirmation,
+    closeLogoutConfirmation,
+    confirmLogout
   } = useLogoutConfirmation();
-
   const currentUser = user || mountOptions.currentUser;
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         
@@ -36,9 +35,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
           <header className="h-14 flex items-center justify-between border-b bg-background px-4">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <h1 className="text-lg font-semibold text-foreground">
-                Solabs Messages Admin
-              </h1>
+              <h1 className="text-lg font-semibold text-foreground">Solabs Admin</h1>
             </div>
             
             <div className="flex items-center gap-2">
@@ -47,22 +44,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
               </span>
               
               {/* Back to operator mode */}
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/')}
-              >
+              <Button variant="outline" size="sm" onClick={() => navigate('/')}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Operador
               </Button>
               
               {/* Logout button */}
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={openLogoutConfirmation}
-                title="Sair"
-              >
+              <Button variant="ghost" size="sm" onClick={openLogoutConfirmation} title="Sair">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -76,12 +64,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ mountOptions }) => {
       </div>
       
       {/* Logout confirmation dialog */}
-      <ConfirmLogoutDialog
-        open={isModalOpen}
-        onOpenChange={closeLogoutConfirmation}
-        onConfirm={confirmLogout}
-        isLoading={isLoading}
-      />
-    </SidebarProvider>
-  );
+      <ConfirmLogoutDialog open={isModalOpen} onOpenChange={closeLogoutConfirmation} onConfirm={confirmLogout} isLoading={isLoading} />
+    </SidebarProvider>;
 };
