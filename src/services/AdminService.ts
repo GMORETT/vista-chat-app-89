@@ -1,3 +1,4 @@
+import React from 'react';
 import { useAdminClient } from '../contexts/AdminClientProvider';
 import { 
   Channel, 
@@ -59,7 +60,7 @@ class AdminServiceClass {
     return response.json();
   }
 
-  private inMemoryAccounts: Account[] = [
+  private static inMemoryAccounts: Account[] = [
     {
       id: 1,
       name: "Solabs Demo",
@@ -102,7 +103,7 @@ class AdminServiceClass {
     const body = options.body ? JSON.parse(options.body as string) : null;
 
     if (method === 'GET') {
-      return { payload: this.inMemoryAccounts };
+      return { payload: AdminServiceClass.inMemoryAccounts };
     }
 
     if (method === 'POST' && body) {
@@ -114,7 +115,7 @@ class AdminServiceClass {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
-      this.inMemoryAccounts.push(newAccount);
+      AdminServiceClass.inMemoryAccounts.push(newAccount);
       return newAccount;
     }
 
@@ -123,22 +124,22 @@ class AdminServiceClass {
       const id = idMatch ? parseInt(idMatch[1]) : null;
       
       if (id && body) {
-        const accountIndex = this.inMemoryAccounts.findIndex(acc => acc.id === id);
+        const accountIndex = AdminServiceClass.inMemoryAccounts.findIndex(acc => acc.id === id);
         if (accountIndex !== -1) {
           if (endpoint.includes('/status')) {
-            this.inMemoryAccounts[accountIndex] = {
-              ...this.inMemoryAccounts[accountIndex],
+            AdminServiceClass.inMemoryAccounts[accountIndex] = {
+              ...AdminServiceClass.inMemoryAccounts[accountIndex],
               status: body.status,
               updated_at: new Date().toISOString()
             };
             return { id, status: body.status };
           } else {
-            this.inMemoryAccounts[accountIndex] = {
-              ...this.inMemoryAccounts[accountIndex],
+            AdminServiceClass.inMemoryAccounts[accountIndex] = {
+              ...AdminServiceClass.inMemoryAccounts[accountIndex],
               ...body,
               updated_at: new Date().toISOString()
             };
-            return this.inMemoryAccounts[accountIndex];
+            return AdminServiceClass.inMemoryAccounts[accountIndex];
           }
         }
       }
@@ -149,7 +150,7 @@ class AdminServiceClass {
       const id = idMatch ? parseInt(idMatch[1]) : null;
       
       if (id) {
-        this.inMemoryAccounts = this.inMemoryAccounts.filter(acc => acc.id !== id);
+        AdminServiceClass.inMemoryAccounts = AdminServiceClass.inMemoryAccounts.filter(acc => acc.id !== id);
         return;
       }
     }
@@ -390,5 +391,16 @@ class AdminServiceClass {
 // Hook to create service instance with current config
 export const useAdminService = () => {
   const config = useAdminClient();
-  return new AdminServiceClass(config);
+  
+  // Memoize the service instance to prevent recreation
+  const serviceRef = React.useRef<AdminServiceClass | null>(null);
+  const configRef = React.useRef(config);
+  
+  // Only create new instance if config changed
+  if (!serviceRef.current || configRef.current !== config) {
+    serviceRef.current = new AdminServiceClass(config);
+    configRef.current = config;
+  }
+  
+  return serviceRef.current;
 };
