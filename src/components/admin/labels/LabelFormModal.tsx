@@ -140,7 +140,7 @@ export const LabelFormModal: React.FC<LabelFormModalProps> = ({
           <div className="space-y-2">
             <Label>Cliente Associado *</Label>
             <Select
-              value={form.watch('account_id')?.toString()}
+              value={form.watch('account_id')?.toString() || ''}
               onValueChange={(value) => form.setValue('account_id', parseInt(value))}
             >
               <SelectTrigger>

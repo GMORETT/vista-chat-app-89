@@ -297,7 +297,14 @@ class AdminServiceClass {
   // Labels
   async listLabels(): Promise<Label[]> {
     try {
-      return this.request<Label[]>('/labels');
+      const labels = await this.request<Label[]>('/labels');
+      // Ensure all labels have required fields with defaults
+      return labels.map(label => ({
+        ...label,
+        slug: label.slug || this.generateSlug(label.title),
+        cw_name: label.cw_name || this.generateCwName(label.account_id, label.slug || this.generateSlug(label.title)),
+        status: label.status || 'active',
+      }));
     } catch (error) {
       // Fallback to in-memory labels
       return AdminServiceClass.inMemoryLabels;
@@ -306,11 +313,15 @@ class AdminServiceClass {
 
   async createLabel(data: CreateLabelRequest): Promise<Label> {
     try {
-      return this.request<Label>('/labels', {
+      console.log('Creating label with data:', data);
+      const response = await this.request<Label>('/labels', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+      console.log('Label created successfully:', response);
+      return response;
     } catch (error) {
+      console.error('API call failed, using fallback:', error);
       // Fallback: Add to in-memory labels
       const slug = data.slug || this.generateSlug(data.title);
       const newLabel: Label = {
@@ -327,6 +338,7 @@ class AdminServiceClass {
         updated_at: new Date().toISOString(),
       };
       AdminServiceClass.inMemoryLabels.push(newLabel);
+      console.log('Created fallback label:', newLabel);
       return newLabel;
     }
   }

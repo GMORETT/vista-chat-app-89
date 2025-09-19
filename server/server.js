@@ -11,7 +11,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS ?
   ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080'];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => callback(null, true), // Allow all origins in development
   credentials: true
 }));
 
