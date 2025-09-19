@@ -59,6 +59,25 @@ class AdminServiceClass {
     return response.json();
   }
 
+  private async bffRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const headers = await this.getHeaders();
+    const url = `${this.config.apiBaseUrl}${endpoint}`;
+    
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
   // Inboxes/Channels
   async listInboxes(): Promise<Channel[]> {
     return this.request<Channel[]>('/inboxes');
@@ -252,33 +271,33 @@ class AdminServiceClass {
     if (query?.name) params.append('name', query.name);
     if (query?.status) params.append('status', query.status);
     
-    const response = await this.request<{ payload: Account[] }>(`/admin/accounts?${params}`);
+    const response = await this.bffRequest<{ payload: Account[] }>(`/api/admin/accounts?${params}`);
     return response.payload;
   }
 
   async createAccount(data: CreateAccountRequest): Promise<Account> {
-    return this.request<Account>('/admin/accounts', {
+    return this.bffRequest<Account>('/api/admin/accounts', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateAccount(id: number, data: UpdateAccountRequest): Promise<Account> {
-    return this.request<Account>(`/admin/accounts/${id}`, {
+    return this.bffRequest<Account>(`/api/admin/accounts/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
   }
 
   async updateAccountStatus(id: number, status: 'active' | 'inactive'): Promise<{ id: number; status: string }> {
-    return this.request<{ id: number; status: string }>(`/admin/accounts/${id}/status`, {
+    return this.bffRequest<{ id: number; status: string }>(`/api/admin/accounts/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
   }
 
   async deleteAccount(id: number): Promise<void> {
-    await this.request<void>(`/admin/accounts/${id}`, {
+    await this.bffRequest<void>(`/api/admin/accounts/${id}`, {
       method: 'DELETE',
     });
   }
