@@ -13,6 +13,7 @@ import {
   useListAccounts,
   useCreateAccount,
   useUpdateAccount,
+  useUpdateAccountStatus,
   useDeleteAccount,
 } from '../../hooks/admin/useAccounts';
 
@@ -24,16 +25,18 @@ export const ClientsPage: React.FC = () => {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [pendingStatus, setPendingStatus] = useState<'active' | 'inactive'>('active');
   const [searchTerm, setSearchTerm] = useState('');
+  const [serverSearch, setServerSearch] = useState('');
 
   const { toast } = useToast();
 
   // Queries and mutations
-  const { data: accounts = [], isLoading } = useListAccounts();
+  const { data: accounts = [], isLoading, refetch } = useListAccounts();
   const createAccountMutation = useCreateAccount();
   const updateAccountMutation = useUpdateAccount();
+  const updateAccountStatusMutation = useUpdateAccountStatus();
   const deleteAccountMutation = useDeleteAccount();
 
-  // Filter accounts based on search term
+  // Client-side filter for immediate feedback
   const filteredAccounts = useMemo(() => {
     if (!searchTerm) return accounts;
     return accounts.filter(account => 
@@ -41,6 +44,14 @@ export const ClientsPage: React.FC = () => {
       account.slug.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [accounts, searchTerm]);
+
+  // Handle search with Enter key for server-side search
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setServerSearch(searchTerm);
+      refetch();
+    }
+  };
 
   const handleCreateAccount = async (data: { name: string }) => {
     try {
@@ -97,20 +108,22 @@ export const ClientsPage: React.FC = () => {
     if (!selectedAccount) return;
 
     try {
-      await updateAccountMutation.mutateAsync({ 
+      await updateAccountStatusMutation.mutateAsync({ 
         id: selectedAccount.id, 
-        data: { status: pendingStatus }
+        status: pendingStatus
       });
       setShowStatusDialog(false);
       setSelectedAccount(null);
       
-      // Simulate agent access disabling for inactive clients
+      // Effects based on status change
       if (pendingStatus === 'inactive') {
+        console.log(`[CLIENT_MANAGEMENT] Cliente ${selectedAccount.name} inativado - acesso de agentes desabilitado`);
         toast({
           title: 'Cliente desativado',
           description: 'O cliente foi desativado e todos os agentes associados perderam acesso.',
         });
       } else {
+        console.log(`[CLIENT_MANAGEMENT] Cliente ${selectedAccount.name} reativado - acesso de agentes restaurado`);
         toast({
           title: 'Cliente ativado',
           description: 'O cliente foi ativado com sucesso.',
@@ -168,9 +181,10 @@ export const ClientsPage: React.FC = () => {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Buscar clientes por nome ou slug..."
+            placeholder="Buscar clientes por nome ou slug... (Enter para busca no servidor)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchSubmit}
             className="pl-10"
           />
         </div>
@@ -213,7 +227,7 @@ export const ClientsPage: React.FC = () => {
         account={selectedAccount}
         newStatus={pendingStatus}
         onConfirm={handleConfirmStatusChange}
-        isLoading={updateAccountMutation.isPending}
+        isLoading={updateAccountStatusMutation.isPending}
       />
     </div>
   );

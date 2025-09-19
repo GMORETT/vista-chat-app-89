@@ -44,6 +44,18 @@ export const useUpdateAccount = () => {
   });
 };
 
+export const useUpdateAccountStatus = () => {
+  const adminService = useAdminService();
+  const queryClient = useQueryClient();
+  
+  return useMutation<{ id: number; status: string }, Error, { id: number; status: 'active' | 'inactive' }>({
+    mutationFn: ({ id, status }) => adminService.updateAccountStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'accounts'] });
+    },
+  });
+};
+
 export const useDeleteAccount = () => {
   const adminService = useAdminService();
   const queryClient = useQueryClient();

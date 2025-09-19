@@ -176,7 +176,7 @@ const filterConversations = (conversations, query) => {
 };
 
 // CONVERSATIONS ROUTES
-app.get('/api/messaging/conversations', async (req, res) => {
+app.get('/api/messaging/conversations', rbacAuth, enforceAccountStatus, async (req, res) => {
   await delay();
   
   try {
@@ -218,7 +218,7 @@ app.get('/api/messaging/conversations', async (req, res) => {
   }
 });
 
-app.get('/api/messaging/conversations/meta', async (req, res) => {
+app.get('/api/messaging/conversations/meta', rbacAuth, enforceAccountStatus, async (req, res) => {
   await delay();
   
   try {
@@ -772,6 +772,22 @@ app.get('/api/messaging/contacts/:id/conversations', async (req, res) => {
 
 // ACCOUNT MANAGEMENT ROUTES - Platform API Structure
 // Only super_admin can access these routes
+
+// Middleware to enforce account status for agent routes
+const enforceAccountStatus = (req, res, next) => {
+  const accountId = req.currentUser?.account_id;
+  if (accountId) {
+    const account = mockData.accounts.find(a => a.id === accountId);
+    if (account && account.status === 'inactive') {
+      return res.status(403).json({ 
+        error: 'Client is inactive', 
+        code: 'CLIENT_INACTIVE' 
+      });
+    }
+  }
+  next();
+};
+
 app.get('/api/admin/accounts', rbacAuth, async (req, res) => {
   await delay();
   try {
@@ -782,10 +798,11 @@ app.get('/api/admin/accounts', rbacAuth, async (req, res) => {
     const { page = 1, name, status, sort = 'name_asc' } = req.query;
     let accounts = [...mockData.accounts];
     
-    // Filter by name
+    // Filter by name (server-side search)
     if (name) {
       accounts = accounts.filter(account => 
-        account.name.toLowerCase().includes(name.toLowerCase())
+        account.name.toLowerCase().includes(name.toLowerCase()) ||
+        account.slug.toLowerCase().includes(name.toLowerCase())
       );
     }
     
@@ -828,11 +845,20 @@ app.post('/api/admin/accounts', rbacAuth, async (req, res) => {
       return res.status(400).json({ error: 'Name is required' });
     }
     
+    // Simulate potential Chatwoot Platform API failure
+    if (Math.random() < 0.1) { // 10% chance of failure for testing
+      return res.status(502).json({ 
+        error: 'Failed to create Chatwoot account', 
+        code: 'CW_CREATE_ACCOUNT_FAILED' 
+      });
+    }
+    
     const newAccount = {
       id: Date.now(),
       name,
-      slug: slug || name.toLowerCase().replace(/\s+/g, '-'),
-      status: 'active',
+      slug: slug || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      status: 'active', // Always start as active
+      chatwoot_account_id: `cw_${Date.now()}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -858,13 +884,56 @@ app.patch('/api/admin/accounts/:id', rbacAuth, async (req, res) => {
       return res.status(404).json({ error: 'Account not found' });
     }
     
-    const { name, slug, status } = req.body;
+    const { name, slug } = req.body;
     if (name) account.name = name;
     if (slug) account.slug = slug;
-    if (status) account.status = status;
     account.updated_at = new Date().toISOString();
     
     res.json(account);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Separate route for status changes with agent access effects
+app.patch('/api/admin/accounts/:id/status', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    if (req.currentUser.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Forbidden: super_admin role required' });
+    }
+    
+    const accountId = parseInt(req.params.id);
+    const account = mockData.accounts.find(a => a.id === accountId);
+    
+    if (!account) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+    
+    const { status } = req.body;
+    if (!status || !['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be active or inactive' });
+    }
+    
+    const oldStatus = account.status;
+    account.status = status;
+    account.updated_at = new Date().toISOString();
+    
+    // Simulate effects of status change
+    if (status === 'inactive' && oldStatus === 'active') {
+      console.log(`[ACCOUNT_STATUS] Account ${accountId} set to inactive - blocking agent access`);
+      // In real implementation, this would:
+      // - Remove Account Users (non-super-admin) from Chatwoot Account
+      // - Clear inbox members for this account
+      // - Mark conversations as paused
+    } else if (status === 'active' && oldStatus === 'inactive') {
+      console.log(`[ACCOUNT_STATUS] Account ${accountId} reactivated - restoring agent access`);
+      // In real implementation, this would:
+      // - Restore Account Users and inbox members
+      // - Resume conversations
+    }
+    
+    res.json({ id: account.id, status: account.status });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -878,13 +947,28 @@ app.delete('/api/admin/accounts/:id', rbacAuth, async (req, res) => {
     }
     
     const accountId = parseInt(req.params.id);
-    const index = mockData.accounts.findIndex(a => a.id === accountId);
+    const account = mockData.accounts.find(a => a.id === accountId);
     
-    if (index === -1) {
+    if (!account) {
       return res.status(404).json({ error: 'Account not found' });
     }
     
+    // Check if account has active inboxes
+    const hasActiveInboxes = mockData.inboxes?.some(inbox => 
+      inbox.account_id === accountId
+    );
+    
+    if (hasActiveInboxes) {
+      return res.status(409).json({ 
+        error: 'Cannot delete account with active inboxes. Please remove or cancel channels first.',
+        code: 'ACCOUNT_HAS_ACTIVE_INBOXES'
+      });
+    }
+    
+    const index = mockData.accounts.findIndex(a => a.id === accountId);
     mockData.accounts.splice(index, 1);
+    
+    console.log(`[ACCOUNT_DELETE] Account ${accountId} deleted`);
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: error.message });

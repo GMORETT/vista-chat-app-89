@@ -246,63 +246,41 @@ class AdminServiceClass {
   private static mockAccounts: Account[] = [];
   private static mockAccountIdCounter = 1;
 
-  // Accounts (Client Management) - Mock Implementation
+  // Use BFF endpoints for account management
   async listAccounts(query?: ClientQuery): Promise<Account[]> {
-    let accounts = [...AdminServiceClass.mockAccounts];
+    const params = new URLSearchParams();
+    if (query?.name) params.append('name', query.name);
+    if (query?.status) params.append('status', query.status);
     
-    // Filter by name if provided
-    if (query?.name) {
-      accounts = accounts.filter(account => 
-        account.name.toLowerCase().includes(query.name!.toLowerCase()) ||
-        account.slug.toLowerCase().includes(query.name!.toLowerCase())
-      );
-    }
-    
-    // Filter by status if provided
-    if (query?.status) {
-      accounts = accounts.filter(account => account.status === query.status);
-    }
-    
-    return accounts;
+    const response = await this.request<{ payload: Account[] }>(`/admin/accounts?${params}`);
+    return response.payload;
   }
 
   async createAccount(data: CreateAccountRequest): Promise<Account> {
-    const newAccount: Account = {
-      id: AdminServiceClass.mockAccountIdCounter++,
-      name: data.name,
-      slug: data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-      status: 'active', // Default status is active
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    
-    AdminServiceClass.mockAccounts.push(newAccount);
-    return newAccount;
+    return this.request<Account>('/admin/accounts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   async updateAccount(id: number, data: UpdateAccountRequest): Promise<Account> {
-    const accountIndex = AdminServiceClass.mockAccounts.findIndex(account => account.id === id);
-    if (accountIndex === -1) {
-      throw new Error('Account not found');
-    }
-    
-    const updatedAccount = {
-      ...AdminServiceClass.mockAccounts[accountIndex],
-      ...data,
-      updated_at: new Date().toISOString(),
-    };
-    
-    AdminServiceClass.mockAccounts[accountIndex] = updatedAccount;
-    return updatedAccount;
+    return this.request<Account>(`/admin/accounts/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAccountStatus(id: number, status: 'active' | 'inactive'): Promise<{ id: number; status: string }> {
+    return this.request<{ id: number; status: string }>(`/admin/accounts/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
   }
 
   async deleteAccount(id: number): Promise<void> {
-    const accountIndex = AdminServiceClass.mockAccounts.findIndex(account => account.id === id);
-    if (accountIndex === -1) {
-      throw new Error('Account not found');
-    }
-    
-    AdminServiceClass.mockAccounts.splice(accountIndex, 1);
+    await this.request<void>(`/admin/accounts/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   // Credentials
