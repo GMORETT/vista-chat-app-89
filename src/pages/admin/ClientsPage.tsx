@@ -229,13 +229,15 @@ export const ClientsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      <AccountsTable
-        accounts={filteredAccounts}
-        isLoading={isLoading}
-        onEdit={handleEditAccount}
-        onDelete={handleDeleteAccount}
-        onToggleStatus={handleToggleStatus}
-      />
+      <div className="mt-6">
+        <AccountsTable
+          accounts={filteredAccounts}
+          isLoading={isLoading}
+          onEdit={handleEditAccount}
+          onDelete={handleDeleteAccount}
+          onToggleStatus={handleToggleStatus}
+        />
+      </div>
 
       <AccountFormModal
         open={showCreateModal}
