@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
@@ -7,6 +7,8 @@ import { AgentsTable } from '../../components/admin/agents/AgentsTable';
 import { AgentFormModal } from '../../components/admin/agents/AgentFormModal';
 import { AgentEditModal } from '../../components/admin/agents/AgentEditModal';
 import { ConfirmDeleteAgentDialog } from '../../components/admin/agents/ConfirmDeleteAgentDialog';
+import { SearchField } from '../../components/admin/shared/SearchField';
+import { ClientFilter } from '../../components/admin/shared/ClientFilter';
 import { Agent, CreateAgentRequest, UpdateAgentRequest } from '../../models/admin';
 
 export const AgentsPage: React.FC = () => {
@@ -14,6 +16,8 @@ export const AgentsPage: React.FC = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
   const accountId = searchParams.get('account_id');
   const accountName = searchParams.get('account_name');
@@ -45,10 +49,30 @@ export const AgentsPage: React.FC = () => {
     setShowDeleteDialog(true);
   };
 
-  // Filter agents by account_id if provided
-  const filteredAgents = accountId 
-    ? agents?.filter(agent => agent.account_id === parseInt(accountId))
-    : agents;
+  // Filter and search agents
+  const filteredAgents = useMemo(() => {
+    if (!agents) return [];
+    
+    let filtered = agents;
+    
+    // Filter by account_id from URL params or filter
+    const filterAccountId = accountId ? parseInt(accountId) : selectedAccountId;
+    if (filterAccountId) {
+      filtered = filtered.filter(agent => agent.account_id === filterAccountId);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(agent => 
+        agent.name.toLowerCase().includes(query) ||
+        agent.email?.toLowerCase().includes(query) ||
+        agent.role?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [agents, accountId, selectedAccountId, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -76,6 +100,21 @@ export const AgentsPage: React.FC = () => {
           Add Agent
         </Button>
       </div>
+
+      {!accountId && (
+        <div className="flex gap-4 items-center">
+          <SearchField
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Buscar por nome, email ou role..."
+            className="flex-1"
+          />
+          <ClientFilter
+            selectedAccountId={selectedAccountId}
+            onAccountChange={setSelectedAccountId}
+          />
+        </div>
+      )}
 
       <AgentsTable
         agents={filteredAgents || []}

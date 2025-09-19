@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { useTeams } from '../../hooks/admin/useTeams';
 import { Team } from '../../models/admin';
 import { TeamsTable } from '../../components/admin/teams/TeamsTable';
+import { SearchField } from '../../components/admin/shared/SearchField';
+import { ClientFilter } from '../../components/admin/shared/ClientFilter';
 import { useNavigate } from 'react-router-dom';
 import { TeamMembersModal } from '../../components/admin/teams/TeamMembersModal';
 import { ConfirmDeleteDialog } from '../../components/admin/teams/ConfirmDeleteDialog';
@@ -14,7 +16,32 @@ export const TeamsPage: React.FC = () => {
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | undefined>();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const { data: teams, isLoading } = useTeams();
+
+  // Filter and search teams
+  const filteredTeams = useMemo(() => {
+    if (!teams) return [];
+    
+    let filtered = teams;
+    
+    // Filter by account
+    if (selectedAccountId) {
+      filtered = filtered.filter(team => team.account_id === selectedAccountId);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(team => 
+        team.name.toLowerCase().includes(query) ||
+        team.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [teams, selectedAccountId, searchQuery]);
 
   const handleEdit = (team: Team) => {
     // TODO: Implement edit functionality
@@ -63,9 +90,22 @@ export const TeamsPage: React.FC = () => {
         </Button>
       </div>
 
-      {teams && teams.length > 0 ? (
+      <div className="flex gap-4 items-center">
+        <SearchField
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Buscar por nome ou descrição..."
+          className="flex-1"
+        />
+        <ClientFilter
+          selectedAccountId={selectedAccountId}
+          onAccountChange={setSelectedAccountId}
+        />
+      </div>
+
+      {filteredTeams && filteredTeams.length > 0 ? (
         <TeamsTable
-          teams={teams}
+          teams={filteredTeams}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onManageMembers={handleManageMembers}

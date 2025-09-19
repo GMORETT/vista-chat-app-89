@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
@@ -6,10 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Badge } from '../../components/ui/badge';
 import { useInboxes } from '../../hooks/admin/useInboxes';
 import { InboxWizard } from '../../components/admin/InboxWizard';
+import { SearchField } from '../../components/admin/shared/SearchField';
+import { ClientFilter } from '../../components/admin/shared/ClientFilter';
 import { format } from 'date-fns';
 
 export const InboxesPage: React.FC = () => {
   const [showWizard, setShowWizard] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
   const accountId = searchParams.get('account_id');
   const accountName = searchParams.get('account_name');
@@ -54,10 +58,30 @@ export const InboxesPage: React.FC = () => {
     );
   }
 
-  // Filter inboxes by account_id if provided
-  const filteredInboxes = accountId 
-    ? inboxes?.filter(inbox => inbox.account_id === parseInt(accountId))
-    : inboxes;
+  // Filter and search inboxes
+  const filteredInboxes = useMemo(() => {
+    if (!inboxes) return [];
+    
+    let filtered = inboxes;
+    
+    // Filter by account_id from URL params or filter
+    const filterAccountId = accountId ? parseInt(accountId) : selectedAccountId;
+    if (filterAccountId) {
+      filtered = filtered.filter(inbox => inbox.account_id === filterAccountId);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(inbox => 
+        inbox.name.toLowerCase().includes(query) ||
+        inbox.phone_number?.toLowerCase().includes(query) ||
+        inbox.channel_type.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [inboxes, accountId, selectedAccountId, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -85,6 +109,21 @@ export const InboxesPage: React.FC = () => {
           Create Inbox
         </Button>
       </div>
+
+      {!accountId && (
+        <div className="flex gap-4 items-center">
+          <SearchField
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Buscar por nome, telefone ou tipo..."
+            className="flex-1"
+          />
+          <ClientFilter
+            selectedAccountId={selectedAccountId}
+            onAccountChange={setSelectedAccountId}
+          />
+        </div>
+      )}
 
       {filteredInboxes && filteredInboxes.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

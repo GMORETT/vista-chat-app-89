@@ -32,10 +32,19 @@ export const ConfirmDeleteLabelDialog: React.FC<ConfirmDeleteLabelDialogProps> =
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirmar Inativação</AlertDialogTitle>
+          <AlertDialogTitle>Confirmar Exclusão de Label</AlertDialogTitle>
           <AlertDialogDescription>
-            Tem certeza que deseja inativar a label "{label.title}"? 
-            Ela não aparecerá mais nos filtros ativos, mas o histórico será mantido.
+            Tem certeza que deseja excluir a label "{label.title}"?
+            <br /><br />
+            <strong>Esta ação não pode ser desfeita.</strong> A label será removida permanentemente e não aparecerá mais em:
+            <br />
+            • Filtros de conversas e contatos
+            <br />
+            • Histórico de mensagens
+            <br />
+            • Relatórios e analytics
+            <br /><br />
+            Conversas e contatos que possuem esta label perderão essa marcação.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -47,7 +56,7 @@ export const ConfirmDeleteLabelDialog: React.FC<ConfirmDeleteLabelDialogProps> =
             disabled={isLoading}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {isLoading ? 'Inativando...' : 'Inativar Label'}
+            {isLoading ? 'Excluindo...' : 'Excluir Label'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

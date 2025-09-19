@@ -1,26 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, Edit, Trash2, Tag } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { useLabels, useCreateLabel, useUpdateLabel, useDeleteLabel } from '../../hooks/admin/useLabels';
+import { useAccounts } from '../../hooks/admin/useAccounts';
 import { useToast } from '../../hooks/use-toast';
 import { format } from 'date-fns';
 import { LabelFormModal } from '../../components/admin/labels/LabelFormModal';
 import { LabelEditModal } from '../../components/admin/labels/LabelEditModal';
 import { ConfirmDeleteLabelDialog } from '../../components/admin/labels/ConfirmDeleteLabelDialog';
+import { LabelsTable } from '../../components/admin/labels/LabelsTable';
+import { SearchField } from '../../components/admin/shared/SearchField';
+import { ClientFilter } from '../../components/admin/shared/ClientFilter';
 import { Label } from '../../models/admin';
 
 export const LabelsPage: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingLabel, setEditingLabel] = useState<Label | null>(null);
   const [deletingLabel, setDeletingLabel] = useState<Label | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   
   const { data: labels, isLoading } = useLabels();
+  const { data: accounts = [] } = useAccounts();
   const createLabelMutation = useCreateLabel();
   const updateLabelMutation = useUpdateLabel();
   const deleteLabelMutation = useDeleteLabel();
   const { toast } = useToast();
+
+  // Filter and search labels
+  const filteredLabels = useMemo(() => {
+    if (!labels) return [];
+    
+    let filtered = labels;
+    
+    // Filter by account
+    if (selectedAccountId) {
+      filtered = filtered.filter(label => label.account_id === selectedAccountId);
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(label => 
+        label.title.toLowerCase().includes(query) ||
+        label.slug?.toLowerCase().includes(query) ||
+        label.description?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [labels, selectedAccountId, searchQuery]);
 
   const handleCreateLabel = async (data: any) => {
     try {
@@ -103,90 +134,61 @@ export const LabelsPage: React.FC = () => {
         </Button>
       </div>
 
-      {labels && labels.length > 0 ? (
-        <div className="space-y-6">
-          {/* Labels Cloud */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Tag className="h-5 w-5" />
-                Labels Cloud
-              </CardTitle>
-              <CardDescription>
-                Visual overview of all labels
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {labels.map((label) => (
-                  <Badge 
-                    key={label.id}
-                    style={{ backgroundColor: label.color }}
-                    className="text-white hover:opacity-80 cursor-pointer"
-                  >
-                    {label.title}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+      <div className="flex gap-4 items-center">
+        <SearchField
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Buscar por nome, slug ou descrição..."
+          className="flex-1"
+        />
+        <ClientFilter
+          selectedAccountId={selectedAccountId}
+          onAccountChange={setSelectedAccountId}
+        />
+      </div>
 
-          {/* Labels Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {labels.map((label) => (
-              <Card key={label.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-4 h-4 rounded-full"
-                          style={{ backgroundColor: label.color }}
-                        />
-                        <CardTitle className="text-lg">{label.title}</CardTitle>
-                      </div>
-                      {label.description && (
-                        <CardDescription className="text-sm">
-                          {label.description}
-                        </CardDescription>
-                      )}
-                    </div>
-                    <div className="flex gap-1">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => setEditingLabel(label)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => setDeletingLabel(label)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant={label.status === 'active' ? "default" : "secondary"}>
-                      {label.status === 'active' ? "Ativo" : "Inativo"}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {label.color}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Created {format(new Date(label.created_at), 'MMM d, yyyy')}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ) : (
+      {/* Labels Cloud */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Tag className="h-5 w-5" />
+            Labels Cloud
+          </CardTitle>
+          <CardDescription>
+            Visual overview of all labels
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {filteredLabels && filteredLabels.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {filteredLabels.map((label) => (
+                <Badge 
+                  key={label.id}
+                  style={{ backgroundColor: label.color }}
+                  className="text-white hover:opacity-80 cursor-pointer"
+                >
+                  {label.title}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm">
+              {searchQuery || selectedAccountId ? 'Nenhuma label encontrada com os filtros aplicados' : 'No labels created yet'}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Labels Table */}
+      <LabelsTable
+        labels={filteredLabels}
+        isLoading={isLoading}
+        onEdit={setEditingLabel}
+        onDelete={setDeletingLabel}
+        accounts={accounts}
+      />
+
+      {!isLoading && (!filteredLabels || filteredLabels.length === 0) && !searchQuery && !selectedAccountId && (
         <Card className="text-center py-12">
           <CardContent>
             <div className="text-muted-foreground mb-4">
