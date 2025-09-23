@@ -105,18 +105,33 @@ const auditConfigs = {
   inbox: {
     entity_type: 'inbox',
     captureBefore: async (req) => {
-      if (req.method === 'PATCH' || req.method === 'DELETE') {
-        return { operation: req.method, id: req.params.id };
+      if (req.method === 'PUT' || req.method === 'DELETE') {
+        // Return stored original state or fetch from params
+        return req.auditOriginalState || { operation: req.method, id: req.params.id };
       }
       return null;
     },
     captureAfter: async (req, res) => {
-      return req.body;
+      // Mask sensitive data from inbox configs
+      const data = { ...req.body };
+      if (data.provider_config) {
+        const masked = { ...data.provider_config };
+        // Mask tokens and sensitive credentials
+        Object.keys(masked).forEach(key => {
+          if (key.toLowerCase().includes('token') || 
+              key.toLowerCase().includes('secret') || 
+              key.toLowerCase().includes('key')) {
+            masked[key] = '[MASKED]';
+          }
+        });
+        data.provider_config = masked;
+      }
+      return data;
     },
     resolveIds: async (req, res) => {
       const body = res.locals?.responseData || req.body;
       return {
-        account_id: body?.account_id || req.currentUser?.account_id,
+        account_id: body?.account_id || req.currentUser?.account_id || parseInt(req.params.accountId),
         cw_entity_id: body?.id || req.params.id
       };
     }

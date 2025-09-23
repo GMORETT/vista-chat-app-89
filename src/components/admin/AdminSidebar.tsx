@@ -58,6 +58,11 @@ const menuItems = [
     url: '/admin/logs', 
     icon: Shield 
   },
+  { 
+    title: 'Auditoria Inboxes', 
+    url: '/admin/logs/inboxes', 
+    icon: Shield 
+  },
 ];
 
 export const AdminSidebar: React.FC = () => {

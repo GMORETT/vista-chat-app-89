@@ -1008,8 +1008,8 @@ const adminAuth = (req, res, next) => {
   next();
 };
 
-// Inboxes
-app.get('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
+// Inboxes with audit middleware
+app.get('/api/v1/accounts/:accountId/inboxes', adminAuth, createAuditWrapper('inbox', 'read'), async (req, res) => {
   await delay();
   try {
     // Filter inboxes by account_id for non-super_admin users
@@ -1023,7 +1023,7 @@ app.get('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
   }
 });
 
-app.post('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
+app.post('/api/v1/accounts/:accountId/inboxes', adminAuth, createAuditWrapper('inbox', 'create'), async (req, res) => {
   await delay();
   try {
     const { name, channel, greeting_enabled, greeting_message } = req.body;
@@ -1045,13 +1045,15 @@ app.post('/api/v1/accounts/:accountId/inboxes', adminAuth, async (req, res) => {
     if (!mockData.inboxes) mockData.inboxes = [];
     mockData.inboxes.push(newInbox);
     
+    // Store response data for audit logging
+    res.locals.responseData = newInbox;
     res.json(newInbox);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.put('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res) => {
+app.put('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, createAuditWrapper('inbox', 'update'), async (req, res) => {
   await delay();
   try {
     const inboxId = parseInt(req.params.id);
@@ -1061,14 +1063,20 @@ app.put('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res) =
       return res.status(404).json({ error: 'Inbox not found' });
     }
     
+    // Store original state for audit
+    req.auditOriginalState = { ...inbox };
+    
     Object.assign(inbox, req.body, { updated_at: new Date().toISOString() });
+    
+    // Store response data for audit logging
+    res.locals.responseData = inbox;
     res.json(inbox);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.delete('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res) => {
+app.delete('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, createAuditWrapper('inbox', 'delete'), async (req, res) => {
   await delay();
   try {
     const inboxId = parseInt(req.params.id);
@@ -1078,6 +1086,9 @@ app.delete('/api/v1/accounts/:accountId/inboxes/:id', adminAuth, async (req, res
     if (index === -1) {
       return res.status(404).json({ error: 'Inbox not found' });
     }
+    
+    // Store original state for audit
+    req.auditOriginalState = { ...mockData.inboxes[index] };
     
     mockData.inboxes.splice(index, 1);
     res.status(204).send();
@@ -1334,31 +1345,21 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/ping', rbacAuth, async
 app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req, res) => {
   await delay();
   
-  // Short-circuit for debugging - return empty structure immediately
-  console.log('🔍 Short-circuiting audit logs endpoint for debugging');
-  res.status(200).json({
-    payload: [],
-    meta: {
-      current_page: 1,
-      next_page: null,
-      prev_page: null,
-      total_pages: 0,
-      total_count: 0
-    }
-  });
-  
-  /* COMMENTED OUT FOR DEBUGGING - Original implementation:
   try {
     console.log('🔍 Fetching audit logs with query:', req.query);
     const page = parseInt(req.query.page) || 1;
     const filters = { ...req.query };
     delete filters.page;
+    
+    // Process filter types
     if (filters.account_id) filters.account_id = parseInt(filters.account_id);
     if (filters.actor_id) filters.actor_id = parseInt(filters.actor_id);
     if (filters.success !== undefined) filters.success = filters.success === 'true';
+    
     console.log('📋 Processed filters:', filters, 'page:', page);
     const result = auditService.getLogs(filters, page);
     console.log('✅ Found', result.payload.length, 'audit logs (total:', result.meta.total_count, ')');
+    
     // Return raw structure expected by client
     res.json(result);
   } catch (error) {
@@ -1375,7 +1376,6 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req
       }
     });
   }
-  */
 });
 
 // Single audit log detail
@@ -1418,6 +1418,39 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/validate', rbacAuth, a
     const result = auditService.validateChain(accountId);
     // Return raw validation result
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// OAuth routes for inbox setup
+const inboxOAuthRoutes = require('./routes/inbox-oauth');
+app.use('/api/oauth', rbacAuth, inboxOAuthRoutes);
+
+// Inbox member assignment with audit
+app.post('/api/v1/accounts/:accountId/inboxes/:inboxId/members', adminAuth, createAuditWrapper('inbox', 'assign_members'), async (req, res) => {
+  await delay();
+  try {
+    const { inboxId } = req.params;
+    const { agent_ids } = req.body;
+    
+    // Store for audit
+    req.auditOriginalState = {
+      inbox_id: parseInt(inboxId),
+      previous_members: [] // In real implementation, fetch current members
+    };
+    
+    res.locals.responseData = {
+      inbox_id: parseInt(inboxId),
+      assigned_agents: agent_ids,
+      account_id: parseInt(req.params.accountId)
+    };
+    
+    res.json({ 
+      success: true, 
+      assigned_agents: agent_ids,
+      inbox_id: parseInt(inboxId)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

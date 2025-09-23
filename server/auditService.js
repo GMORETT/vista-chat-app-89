@@ -232,105 +232,180 @@ class AuditService {
 // Singleton instance
 const auditService = new AuditService();
 
-// Add example audit log data for development
+// Add example audit log data for development with focus on inbox operations
 const initExampleData = () => {
   const now = new Date();
-  const exampleLogs = [
-    {
-      id: 1,
-      request_id: 'req_001',
-      timestamp: new Date(now.getTime() - 86400000).toISOString(),
-      actor_id: 1,
-      actor_role: 'super_admin',
-      actor_ip: '192.168.1.100',
-      entity_type: 'account',
-      action: 'create',
-      account_id: 1,
-      cw_entity_id: 1,
-      before: null,
-      after: { name: 'Test Account', status: 'active' },
-      success: true,
-      error_message: null,
-      hash: 'abc123',
-      prev_hash: null
-    },
-    {
-      id: 2,
-      request_id: 'req_002',
-      timestamp: new Date(now.getTime() - 43200000).toISOString(),
-      actor_id: 2,
-      actor_role: 'admin',
-      actor_ip: '192.168.1.101',
-      entity_type: 'inbox',
-      action: 'update',
-      account_id: 1,
-      cw_entity_id: 10,
-      before: { name: 'Support Inbox', settings: { auto_assignment: false } },
-      after: { name: 'Support Inbox', settings: { auto_assignment: true } },
-      success: true,
-      error_message: null,
-      hash: 'def456',
-      prev_hash: 'abc123'
-    },
-    {
-      id: 3,
-      request_id: 'req_003',
-      timestamp: new Date(now.getTime() - 21600000).toISOString(),
-      actor_id: 1,
-      actor_role: 'super_admin',
-      actor_ip: '192.168.1.100',
-      entity_type: 'label',
-      action: 'create',
-      account_id: 1,
-      cw_entity_id: 5,
-      before: null,
-      after: { title: 'Priority', description: 'High priority issues', color: '#ff0000' },
-      success: true,
-      error_message: null,
-      hash: 'ghi789',
-      prev_hash: 'def456'
-    },
-    {
-      id: 4,
-      request_id: 'req_004',
-      timestamp: new Date(now.getTime() - 10800000).toISOString(),
-      actor_id: 3,
-      actor_role: 'admin',
-      actor_ip: '192.168.1.102',
-      entity_type: 'agent',
-      action: 'delete',
-      account_id: 1,
-      cw_entity_id: 15,
-      before: { name: 'John Doe', email: 'john@example.com', role: 'agent' },
-      after: null,
-      success: false,
-      error_message: 'Cannot delete agent with active conversations',
-      hash: 'jkl012',
-      prev_hash: 'ghi789'
-    },
-    {
-      id: 5,
-      request_id: 'req_005',
-      timestamp: new Date(now.getTime() - 3600000).toISOString(),
-      actor_id: 2,
-      actor_role: 'admin',
-      actor_ip: '192.168.1.101',
-      entity_type: 'team',
-      action: 'update',
-      account_id: 1,
-      cw_entity_id: 20,
-      before: { name: 'Support Team', members: [1, 2] },
-      after: { name: 'Support Team', members: [1, 2, 3] },
-      success: true,
-      error_message: null,
-      hash: 'mno345',
-      prev_hash: 'jkl012'
-    }
+  const exampleLogs = [];
+  
+  // Generate realistic inbox audit logs over the past 30 days
+  const inboxActions = ['create', 'update', 'delete', 'assign_members', 'oauth_start', 'oauth_complete'];
+  const channelTypes = ['whatsapp', 'facebook', 'instagram', 'telegram'];
+  const actors = [
+    { id: 1, role: 'super_admin', ip: '192.168.1.100' },
+    { id: 2, role: 'admin', ip: '192.168.1.105' },
+    { id: 3, role: 'admin', ip: '10.0.0.50' }
   ];
+  
+  // Create 50+ inbox-related audit logs
+  for (let i = 0; i < 60; i++) {
+    const daysAgo = Math.floor(Math.random() * 30);
+    const hoursAgo = Math.floor(Math.random() * 24);
+    const minutesAgo = Math.floor(Math.random() * 60);
+    const timestamp = new Date(now.getTime() - (daysAgo * 86400000) - (hoursAgo * 3600000) - (minutesAgo * 60000));
+    
+    const actor = actors[Math.floor(Math.random() * actors.length)];
+    const action = inboxActions[Math.floor(Math.random() * inboxActions.length)];
+    const channelType = channelTypes[Math.floor(Math.random() * channelTypes.length)];
+    const accountId = Math.floor(Math.random() * 3) + 1;
+    const inboxId = 1000 + i;
+    const success = Math.random() > 0.15; // 85% success rate
+    
+    let before = null;
+    let after = null;
+    let errorMessage = null;
+    
+    if (action === 'create') {
+      after = {
+        name: `${channelType.charAt(0).toUpperCase() + channelType.slice(1)} ${Math.floor(Math.random() * 100)}`,
+        channel_type: channelType,
+        account_id: accountId
+      };
+      
+      if (channelType === 'whatsapp') {
+        after.phone_number = `+5511${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+        after.provider_config = { verified: true, token: '[MASKED]' };
+      } else if (channelType === 'facebook') {
+        after.provider_config = { 
+          page_id: `page_${Math.floor(Math.random() * 10000)}`, 
+          page_name: `Empresa ${Math.floor(Math.random() * 100)} LTDA`,
+          access_token: '[MASKED]' 
+        };
+      } else if (channelType === 'instagram') {
+        after.provider_config = { 
+          business_account: `iba_${Math.floor(Math.random() * 10000)}`,
+          username: `@empresa${Math.floor(Math.random() * 100)}`,
+          access_token: '[MASKED]' 
+        };
+      }
+      
+      if (!success) {
+        errorMessage = `Failed to create ${channelType} inbox: OAuth configuration invalid`;
+      }
+    } else if (action === 'update') {
+      const inboxName = `${channelType.charAt(0).toUpperCase() + channelType.slice(1)} Inbox`;
+      before = { name: inboxName, channel_type: channelType, greeting_enabled: false };
+      after = { name: `${inboxName} - Atualizado`, channel_type: channelType, greeting_enabled: true };
+      
+      if (!success) {
+        errorMessage = 'Update failed: Validation error in inbox configuration';
+      }
+    } else if (action === 'delete') {
+      before = { 
+        name: `${channelType.charAt(0).toUpperCase() + channelType.slice(1)} Temp`, 
+        channel_type: channelType, 
+        account_id: accountId 
+      };
+      
+      if (!success) {
+        errorMessage = 'Cannot delete inbox with active conversations';
+      }
+    } else if (action === 'assign_members') {
+      const agentCount = Math.floor(Math.random() * 5) + 1;
+      const agents = Array.from({length: agentCount}, (_, i) => i + 1);
+      before = { assigned_agents: [] };
+      after = { assigned_agents: agents, inbox_id: inboxId };
+      
+      if (!success) {
+        errorMessage = 'Agent assignment failed: Some agents not found';
+      }
+    } else if (action === 'oauth_start') {
+      after = { 
+        provider: channelType, 
+        oauth_initiated: true, 
+        state: `${channelType}_${timestamp.getTime()}`,
+        account_id: accountId
+      };
+      
+      if (!success) {
+        errorMessage = `OAuth initialization failed: ${channelType} API error`;
+      }
+    } else if (action === 'oauth_complete') {
+      after = { 
+        provider: channelType, 
+        oauth_completed: true, 
+        account_id: accountId
+      };
+      
+      if (channelType === 'whatsapp') {
+        after.phone_number = `+5511${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+      } else if (channelType === 'facebook') {
+        after.page_name = `Página ${Math.floor(Math.random() * 100)}`;
+      } else if (channelType === 'instagram') {
+        after.username = `@user${Math.floor(Math.random() * 100)}`;
+      }
+      
+      if (!success) {
+        errorMessage = `OAuth completion failed: Token exchange error with ${channelType}`;
+      }
+    }
+    
+    exampleLogs.push({
+      id: i + 1,
+      request_id: `req_inbox_${i.toString().padStart(3, '0')}`,
+      timestamp: timestamp.toISOString(),
+      actor_id: actor.id,
+      actor_role: actor.role,
+      actor_ip: actor.ip,
+      entity_type: 'inbox',
+      action: action,
+      account_id: accountId,
+      cw_entity_id: action === 'oauth_start' ? null : inboxId,
+      before,
+      after,
+      success,
+      error_message: errorMessage,
+      hash: `hash_${i}`,
+      prev_hash: i > 0 ? `hash_${i-1}` : null
+    });
+  }
+  
+  // Add some logs for other entity types for variety
+  const otherEntities = ['account', 'label', 'agent', 'team'];
+  for (let i = 0; i < 20; i++) {
+    const entity = otherEntities[Math.floor(Math.random() * otherEntities.length)];
+    const actions = ['create', 'update', 'delete'];
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    const actor = actors[Math.floor(Math.random() * actors.length)];
+    
+    const daysAgo = Math.floor(Math.random() * 15);
+    const timestamp = new Date(now.getTime() - (daysAgo * 86400000));
+    
+    exampleLogs.push({
+      id: 100 + i,
+      request_id: `req_${entity}_${i.toString().padStart(3, '0')}`,
+      timestamp: timestamp.toISOString(),
+      actor_id: actor.id,
+      actor_role: actor.role,
+      actor_ip: actor.ip,
+      entity_type: entity,
+      action: action,
+      account_id: Math.floor(Math.random() * 3) + 1,
+      cw_entity_id: 2000 + i,
+      before: action !== 'create' ? { id: 2000 + i, name: `${entity} ${i}` } : null,
+      after: action !== 'delete' ? { id: 2000 + i, name: `Updated ${entity} ${i}` } : null,
+      success: Math.random() > 0.1,
+      error_message: Math.random() > 0.9 ? `Random ${entity} error for testing` : null,
+      hash: `hash_other_${i}`,
+      prev_hash: i > 0 ? `hash_other_${i-1}` : null
+    });
+  }
 
-  // Add logs to the service
+  // Add logs to the service - sort by timestamp
+  exampleLogs.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   auditLogs.push(...exampleLogs);
-  console.log('✅ Added', exampleLogs.length, 'example audit logs');
+  
+  const inboxLogCount = exampleLogs.filter(log => log.entity_type === 'inbox').length;
+  console.log(`✅ Added ${exampleLogs.length} example audit logs (${inboxLogCount} inbox-related)`);
 };
 
 // Initialize example data
