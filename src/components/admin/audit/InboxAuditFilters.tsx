@@ -19,7 +19,7 @@ export const InboxAuditFilters: React.FC<InboxAuditFiltersProps> = ({
   const handleFilterChange = (key: keyof AuditLogFilters, value: any) => {
     onFiltersChange({
       ...filters,
-      [key]: value === '' ? undefined : value,
+      [key]: value === '' || value === 'all' ? undefined : value,
     });
   };
 
@@ -82,7 +82,7 @@ export const InboxAuditFilters: React.FC<InboxAuditFiltersProps> = ({
                 <SelectValue placeholder="Todos os perfis" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os perfis</SelectItem>
+                <SelectItem value="all">Todos os perfis</SelectItem>
                 <SelectItem value="super_admin">Super Admin</SelectItem>
                 <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="user">Usuário</SelectItem>
@@ -104,7 +104,7 @@ export const InboxAuditFilters: React.FC<InboxAuditFiltersProps> = ({
                 <SelectValue placeholder="Todas as ações" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as ações</SelectItem>
+                <SelectItem value="all">Todas as ações</SelectItem>
                 <SelectItem value="create">Criar</SelectItem>
                 <SelectItem value="read">Visualizar</SelectItem>
                 <SelectItem value="update">Atualizar</SelectItem>
@@ -126,7 +126,7 @@ export const InboxAuditFilters: React.FC<InboxAuditFiltersProps> = ({
                 <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
+                <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="true">Sucesso</SelectItem>
                 <SelectItem value="false">Erro</SelectItem>
               </SelectContent>
