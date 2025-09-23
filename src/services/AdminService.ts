@@ -45,36 +45,89 @@ class AdminServiceClass {
     const headers = await this.getHeaders();
     const url = `${this.config.apiBaseUrl}/api/v1/accounts/${this.config.chatwootAccountId}${endpoint}`;
     
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...headers,
-        ...options.headers,
-      },
-    });
-
-    if (!response.ok) {
-      console.error('🔴 API Request failed:', {
-        url: response.url,
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...headers,
+          ...options.headers,
+        },
       });
-      
-      const contentType = response.headers.get('content-type') || '';
-      let details = '';
-      try {
-        if (contentType.includes('application/json')) {
-          const data = await response.json();
-          details = typeof data === 'string' ? data : (data.error || JSON.stringify(data));
-        } else {
-          details = await response.text();
-        }
-      } catch (_) {}
-      throw new Error(`API Error: ${response.status} ${response.statusText}${details ? ' - ' + details : ''}`);
-    }
 
-    return response.json();
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type') || '';
+        let details = '';
+        try {
+          if (contentType.includes('application/json')) {
+            const data = await response.json();
+            details = typeof data === 'string' ? data : (data.error || JSON.stringify(data));
+          } else {
+            details = await response.text();
+          }
+        } catch (_) {}
+        
+        console.error('🔴 API Request failed:', {
+          url: response.url,
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: details
+        });
+
+        // Classify error type based on status code for better error handling
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('TOKEN_EXPIRED: Unauthorized access');
+        } else if (response.status >= 500) {
+          throw new Error('PROVIDER_ERROR: Server error');
+        } else if (response.status === 422) {
+          throw new Error('VALIDATION: Invalid data provided');
+        } else if (response.status >= 400) {
+          throw new Error(`VALIDATION: ${details || 'Bad request'}`);
+        }
+        
+        throw new Error(`NETWORK: Request failed with status ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('NETWORK: Connection failed. Check your internet connection.');
+      }
+      throw error;
+    }
+  }
+
+  // Enhanced retry logic with exponential backoff
+  private async withRetry<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    baseDelay: number = 1000
+  ): Promise<T> {
+    let lastError: Error;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error as Error;
+        
+        // Don't retry on authentication or validation errors
+        if (lastError.message.includes('TOKEN_EXPIRED') || 
+            lastError.message.includes('VALIDATION')) {
+          throw lastError;
+        }
+        
+        if (attempt === maxRetries) {
+          throw lastError;
+        }
+        
+        // Exponential backoff with jitter
+        const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+    
+    throw lastError!;
   }
 
   private static inMemoryAccounts: Account[] = [
@@ -575,12 +628,110 @@ class AdminServiceClass {
     }
   }
 
-  // Integrations - WhatsApp Cloud
+  // Enhanced Integrations with retry logic
   async startWaCloudIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
-    // Initiates OAuth flow on the BFF; never exposes tokens to the frontend
-    return this.bffRequest<{ authorization_url: string }>(`/api/admin/integrations/wa-cloud/start`, {
-      method: 'POST',
-      body: JSON.stringify({ accountId, name }),
+    return this.withRetry(async () => {
+      // Mock implementation with simulated delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simulate different types of failures for testing
+      const random = Math.random();
+      if (random < 0.05) {
+        throw new Error('TOKEN_EXPIRED: WhatsApp token expired');
+      } else if (random < 0.1) {
+        throw new Error('PROVIDER_ERROR: WhatsApp service temporarily unavailable');
+      } else if (random < 0.15) {
+        throw new Error('VALIDATION: Invalid inbox name format');
+      }
+      
+      return {
+        authorization_url: `https://meta.com/oauth?account=${accountId}&inbox=${encodeURIComponent(name)}&state=mock_state`
+      };
+    });
+  }
+
+  // Reconnection method for WhatsApp Cloud
+  async reconnectWaCloud(accountId: number, inboxId: number): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      if (Math.random() < 0.1) {
+        throw new Error('OAUTH: Failed to restart WhatsApp Cloud authentication');
+      }
+      
+      return {
+        authorization_url: `https://meta.com/oauth/reconnect?account=${accountId}&inbox=${inboxId}&state=reconnect_${Date.now()}`
+      };
+    });
+  }
+
+  // Facebook Integration with enhanced error handling
+  async startFacebookIntegration(accountId: number, inboxName: string): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const random = Math.random();
+      if (random < 0.05) {
+        throw new Error('TOKEN_EXPIRED: Facebook token expired');
+      } else if (random < 0.1) {
+        throw new Error('PERMISSION: Insufficient Facebook permissions');
+      } else if (random < 0.15) {
+        throw new Error('PROVIDER_ERROR: Facebook API temporarily unavailable');
+      }
+      
+      return {
+        authorization_url: `https://facebook.com/oauth?account=${accountId}&inbox=${encodeURIComponent(inboxName)}`
+      };
+    });
+  }
+
+  // Reconnection method for Facebook
+  async reconnectFacebook(accountId: number, inboxId: number): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      if (Math.random() < 0.1) {
+        throw new Error('OAUTH: Failed to restart Facebook authentication');
+      }
+      
+      return {
+        authorization_url: `https://facebook.com/oauth/reconnect?account=${accountId}&inbox=${inboxId}&state=reconnect_${Date.now()}`
+      };
+    });
+  }
+
+  // Instagram Integration with enhanced error handling  
+  async startInstagramIntegration(accountId: number, inboxName: string): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 900));
+      
+      const random = Math.random();
+      if (random < 0.05) {
+        throw new Error('TOKEN_EXPIRED: Instagram token expired');
+      } else if (random < 0.1) {
+        throw new Error('PERMISSION: Instagram business account required');
+      } else if (random < 0.15) {
+        throw new Error('CONFIGURATION: Instagram account not linked to Facebook page');
+      }
+      
+      return {
+        authorization_url: `https://instagram.com/oauth?account=${accountId}&inbox=${encodeURIComponent(inboxName)}`
+      };
+    });
+  }
+
+  // Reconnection method for Instagram
+  async reconnectInstagram(accountId: number, inboxId: number): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 700));
+      
+      if (Math.random() < 0.1) {
+        throw new Error('OAUTH: Failed to restart Instagram authentication');
+      }
+      
+      return {
+        authorization_url: `https://instagram.com/oauth/reconnect?account=${accountId}&inbox=${inboxId}&state=reconnect_${Date.now()}`
+      };
     });
   }
 
@@ -649,22 +800,6 @@ class AdminServiceClass {
     });
   }
 
-  // Facebook Integration
-  async startFacebookIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
-    try {
-      return await this.bffRequest<{ authorization_url: string }>(`/integrations/facebook/start`, {
-        method: 'POST',
-        body: JSON.stringify({ accountId, name }),
-      });
-    } catch (error) {
-      // Mock fallback for prototype
-      console.log('Using mock Facebook integration');
-      return {
-        authorization_url: `https://www.facebook.com/v18.0/dialog/oauth?client_id=mock&redirect_uri=${encodeURIComponent(window.location.origin)}/admin/inboxes&state=${btoa(JSON.stringify({ type: 'facebook', accountId, name }))}&scope=pages_manage_metadata,pages_messaging`
-      };
-    }
-  }
-
   async listFacebookPages(accountId: number): Promise<{ id: string; name: string; followers_count?: number; picture?: string }[]> {
     try {
       return await this.bffRequest<{ id: string; name: string; followers_count?: number; picture?: string }[]>(`/integrations/facebook/pages?accountId=${accountId}`);
@@ -730,26 +865,6 @@ class AdminServiceClass {
     }
   }
 
-  // Instagram Integration Methods
-  async startInstagramIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
-    try {
-      const response = await this.bffRequest<{ authorization_url: string }>('/integrations/instagram/start', {
-        method: 'POST',
-        body: JSON.stringify({
-          accountId,
-          inbox_name: name
-        })
-      });
-      return response;
-    } catch (error) {
-      // Mock fallback for prototype
-      console.log('Using mock Instagram integration');
-      const state = btoa(JSON.stringify({ type: 'instagram', accountId, name }));
-      return {
-        authorization_url: `https://api.instagram.com/oauth/authorize?client_id=mock&redirect_uri=${encodeURIComponent(window.location.origin)}/admin/inboxes&state=${state}&scope=instagram_basic,pages_show_list,business_management`
-      };
-    }
-  }
 
   async listInstagramAccounts(accountId: number): Promise<Array<{
     ig_business_account_id: string;
