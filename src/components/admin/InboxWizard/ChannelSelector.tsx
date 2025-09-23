@@ -32,12 +32,16 @@ interface ChannelSelectorProps {
 
 const getChannelIcon = (channelType: string) => {
   switch (channelType.toLowerCase()) {
+    case 'whatsapp':
+    case 'whatsapp_cloud':
+      return () => <img src="/assets/whatsapp-logo.webp" alt="WhatsApp" className="w-5 h-5" />;
+    case 'facebook':
+      return () => <img src="/assets/facebook-logo.svg" alt="Facebook" className="w-5 h-5" />;
+    case 'instagram':
+      return () => <img src="/assets/instagram-logo.jpg" alt="Instagram" className="w-5 h-5" />;
     case 'website':
     case 'web_widget':
       return Globe;
-    case 'whatsapp':
-    case 'whatsapp_cloud':
-      return MessageCircle;
     case 'sms':
     case 'twilio_sms':
       return Smartphone;
@@ -46,10 +50,6 @@ const getChannelIcon = (channelType: string) => {
       return Phone;
     case 'email':
       return Mail;
-    case 'facebook':
-      return Facebook;
-    case 'instagram':
-      return Instagram;
     case 'twitter':
       return Twitter;
     default:
@@ -106,7 +106,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {channels.map((channel) => {
-            const Icon = getChannelIcon(channel.id);
+            const IconComponent = getChannelIcon(channel.id);
             const isSelected = selectedChannel?.id === channel.id;
             
             return (
@@ -126,7 +126,7 @@ export const ChannelSelector: React.FC<ChannelSelectorProps> = ({
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Icon className="w-5 h-5 text-primary" />
+                      <IconComponent />
                       <CardTitle className="text-base">{channel.name}</CardTitle>
                     </div>
                     {isSelected && (

@@ -211,7 +211,7 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
   return (
     <>
       <Dialog open onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto [&>button]:hidden">
           <DialogHeader>
             <DialogTitle>Nova Inbox</DialogTitle>
           </DialogHeader>
@@ -268,13 +268,21 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
 
             {/* Actions */}
             <div className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                disabled={currentStep === 1}
-              >
-                Voltar
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={currentStep === 1}
+                >
+                  Voltar
+                </Button>
+              </div>
               <Button
                 onClick={handleNext}
                 disabled={!canProceed() || createInbox.isPending}
