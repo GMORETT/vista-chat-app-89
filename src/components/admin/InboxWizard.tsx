@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -21,6 +21,20 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
   
   const { data: channelTypes = [] } = useChannelTypes();
   const createInbox = useCreateInbox();
+
+  const getChannelIcon = (channelId: string) => {
+    switch (channelId.toLowerCase()) {
+      case 'whatsapp':
+      case 'whatsapp_cloud':
+        return <img src="/assets/whatsapp-logo.webp" alt="WhatsApp" className="w-8 h-8" />;
+      case 'facebook':
+        return <img src="/assets/facebook-logo.svg" alt="Facebook" className="w-8 h-8" />;
+      case 'instagram':
+        return <img src="/assets/instagram-logo.jpg" alt="Instagram" className="w-8 h-8" />;
+      default:
+        return <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm">📧</div>;
+    }
+  };
 
   const steps = [
     { id: 1, title: 'Choose Channel', description: 'Select communication channel' },
@@ -89,7 +103,7 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
-                      <div className="text-2xl">{channel.icon}</div>
+                      {getChannelIcon(channel.id)}
                       <div>
                         <CardTitle className="text-lg">{channel.name}</CardTitle>
                         <CardDescription className="text-sm">
@@ -198,14 +212,9 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Create New Inbox</DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle>Create New Inbox</DialogTitle>
         </DialogHeader>
 
         {/* Progress Steps */}
@@ -239,23 +248,21 @@ export const InboxWizard: React.FC<InboxWizardProps> = ({ onClose, onSuccess }) 
 
         {/* Actions */}
         <div className="flex justify-between pt-6 border-t">
-          <Button 
-            variant="outline" 
-            onClick={currentStep === 1 ? onClose : handleBack}
-            disabled={createInbox.isPending}
-          >
-            {currentStep === 1 ? (
-              <>
-                <X className="w-4 h-4 mr-2" />
-                Cancel
-              </>
-            ) : (
-              <>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} disabled={createInbox.isPending}>
+              Cancel
+            </Button>
+            {currentStep > 1 && (
+              <Button 
+                variant="outline" 
+                onClick={handleBack}
+                disabled={createInbox.isPending}
+              >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
-              </>
+              </Button>
             )}
-          </Button>
+          </div>
 
           <Button 
             onClick={currentStep === 3 ? handleCreate : handleNext}
