@@ -54,7 +54,17 @@ class AdminServiceClass {
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      const contentType = response.headers.get('content-type') || '';
+      let details = '';
+      try {
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          details = typeof data === 'string' ? data : (data.error || JSON.stringify(data));
+        } else {
+          details = await response.text();
+        }
+      } catch (_) {}
+      throw new Error(`API Error: ${response.status} ${response.statusText}${details ? ' - ' + details : ''}`);
     }
 
     return response.json();
