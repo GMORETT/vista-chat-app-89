@@ -1325,7 +1325,7 @@ app.get('/api/v1/accounts/:accountId/channel-types', adminAuth, async (req, res)
 });
 
 // ============= AUDIT LOGS ROUTES =============
-app.get('/api/admin/audit-logs', rbacAuth, async (req, res) => {
+app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req, res) => {
   await delay();
   try {
     const page = parseInt(req.query.page) || 1;
@@ -1341,7 +1341,7 @@ app.get('/api/admin/audit-logs', rbacAuth, async (req, res) => {
   }
 });
 
-app.get('/api/admin/audit-logs/export', rbacAuth, async (req, res) => {
+app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/export', rbacAuth, async (req, res) => {
   await delay();
   try {
     const format = req.query.format || 'csv';
@@ -1356,7 +1356,7 @@ app.get('/api/admin/audit-logs/export', rbacAuth, async (req, res) => {
   }
 });
 
-app.get('/api/admin/audit-logs/validate', rbacAuth, async (req, res) => {
+app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/validate', rbacAuth, async (req, res) => {
   await delay();
   try {
     const accountId = req.query.account_id ? parseInt(req.query.account_id) : undefined;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Inbox, Users, UserCheck, Tags, Building2 } from 'lucide-react';
+import { Inbox, Users, UserCheck, Tags, Building2, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const DashboardPage: React.FC = () => {
@@ -39,6 +39,13 @@ export const DashboardPage: React.FC = () => {
       icon: Tags,
       href: '/admin/labels',
       color: 'text-orange-600'
+    },
+    {
+      title: 'Logs',
+      description: 'View and monitor audit logs',
+      icon: Shield,
+      href: '/admin/logs',
+      color: 'text-red-600'
     }
   ];
 
