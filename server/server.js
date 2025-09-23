@@ -1341,6 +1341,23 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req
   }
 });
 
+// Single audit log detail
+app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/:id', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    const { id } = req.params;
+    const all = auditService.getLogs({}, 1, 10000).payload;
+    const log = all.find(l => String(l.id) === String(id));
+    if (!log) {
+      return res.status(404).json({ data: null, error: 'Audit log not found' });
+    }
+    res.json({ data: log, error: null });
+  } catch (error) {
+    res.status(500).json({ data: null, error: error.message });
+  }
+});
+
+
 app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/export', rbacAuth, async (req, res) => {
   await delay();
   try {

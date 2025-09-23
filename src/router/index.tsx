@@ -36,16 +36,16 @@ const PageLoader = () => (
 
 // Mock mount options for standalone admin access
 const mockMountOptions = {
-  apiBaseUrl: 'http://localhost:3001',
+  apiBaseUrl: '',
   getAuthToken: () => 'mock-token',
-  chatwootAccountId: 'mock-account-id',
+  chatwootAccountId: '1',
 };
 
 // Admin client config for operator routes
 const adminClientConfig = {
-  apiBaseUrl: 'http://localhost:3001',
+  apiBaseUrl: '',
   getAuthToken: () => 'mock-token',
-  chatwootAccountId: 'mock-account-id',
+  chatwootAccountId: '1',
 };
 
 export const router = createBrowserRouter([
