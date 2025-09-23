@@ -459,7 +459,7 @@ class AdminServiceClass {
         Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null && value !== '')
       )
     });
-    
+
     return this.request(`/api/admin/audit-logs?${params}`);
   }
 
@@ -474,8 +474,15 @@ class AdminServiceClass {
         Object.entries(request.filters || {}).filter(([_, value]) => value !== undefined && value !== null && value !== '')
       )
     });
-    
-    return this.request(`/api/admin/audit-logs/export?${params}`);
+
+    // Use raw fetch to get text (CSV/JSON) instead of JSON parsing
+    const headers = await this.getHeaders();
+    const url = `${this.config.apiBaseUrl}/api/v1/accounts/${this.config.chatwootAccountId}/api/admin/audit-logs/export?${params}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+    return response.text();
   }
 
   async validateAuditChain(accountId?: number): Promise<{ valid: boolean; error?: string }> {

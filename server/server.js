@@ -1338,10 +1338,11 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req
     console.log('📋 Processed filters:', filters, 'page:', page);
     const result = auditService.getLogs(filters, page);
     console.log('✅ Found', result.payload.length, 'audit logs (total:', result.meta.total_count, ')');
-    res.json({ data: result, error: null });
+    // Return raw structure expected by client
+    res.json(result);
   } catch (error) {
     console.error('❌ Error fetching audit logs:', error);
-    res.status(500).json({ data: null, error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1353,11 +1354,12 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/:id', rbacAuth, async 
     const all = auditService.getLogs({}, 1, 10000).payload;
     const log = all.find(l => String(l.id) === String(id));
     if (!log) {
-      return res.status(404).json({ data: null, error: 'Audit log not found' });
+      return res.status(404).json({ error: 'Audit log not found' });
     }
-    res.json({ data: log, error: null });
+    // Return raw log object
+    res.json(log);
   } catch (error) {
-    res.status(500).json({ data: null, error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1382,9 +1384,10 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/validate', rbacAuth, a
   try {
     const accountId = req.query.account_id ? parseInt(req.query.account_id) : undefined;
     const result = auditService.validateChain(accountId);
-    res.json({ data: result, error: null });
+    // Return raw validation result
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ data: null, error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
