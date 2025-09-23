@@ -74,6 +74,18 @@ export const AdminSidebar: React.FC = () => {
     if (exact) {
       return location.pathname === path;
     }
+    
+    // Para rotas com sub-rotas, verificar se não há uma correspondência mais específica
+    const allPaths = menuItems.map(item => item.url);
+    const moreSpecificPaths = allPaths.filter(p => 
+      p.startsWith(path) && p !== path && location.pathname.startsWith(p)
+    );
+    
+    // Se existe uma rota mais específica que corresponde, não ativar esta
+    if (moreSpecificPaths.length > 0) {
+      return false;
+    }
+    
     return location.pathname.startsWith(path);
   };
 
