@@ -19,6 +19,7 @@ interface ConversationState {
   setMeta: (meta: ConversationMeta) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  clearSelection: () => void;
   reset: () => void;
 }
 
@@ -62,6 +63,11 @@ export const useConversationStore = create<ConversationState>()(
       setMeta: (meta) => set({ meta }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+
+      clearSelection: () => set({
+        selectedConversationId: null,
+        selectedConversation: null,
+      }),
 
       reset: () => set({
         conversations: getConversations(15),

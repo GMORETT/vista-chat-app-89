@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useConversationStore } from '../state/stores/conversationStore';
 
 export interface User {
   id: number;
@@ -83,6 +84,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { clearSelection } = useConversationStore();
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -126,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('solabs-auth-user');
+    clearSelection(); // Clear conversation selection on logout
   };
 
   const value = {
