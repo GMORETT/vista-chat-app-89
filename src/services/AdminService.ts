@@ -426,6 +426,93 @@ class AdminServiceClass {
   private static mockAccounts: Account[] = [];
   private static mockAccountIdCounter = 1;
 
+  // Mock data for client inboxes
+  private static inMemoryInboxes: Channel[] = [
+    {
+      id: 1,
+      name: 'WhatsApp Suporte',
+      channel_type: 'whatsapp',
+      phone_number: '+5511999999999',
+      account_id: 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      name: 'Facebook Messenger',
+      channel_type: 'facebook',
+      account_id: 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+  ];
+
+  // Client-specific Inboxes (BFF endpoints)
+  async listClientInboxes(accountId: number): Promise<Channel[]> {
+    try {
+      return this.bffRequest<Channel[]>(`/api/admin/accounts/${accountId}/inboxes`);
+    } catch (error) {
+      // Fallback to mock data
+      return AdminServiceClass.inMemoryInboxes.filter(inbox => inbox.account_id === accountId);
+    }
+  }
+
+  async createClientInbox(accountId: number, data: CreateChannelRequest): Promise<Channel> {
+    try {
+      return this.bffRequest<Channel>(`/api/admin/accounts/${accountId}/inboxes`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      // Fallback: Add to in-memory inboxes
+      const newInbox: Channel = {
+        id: Math.max(...AdminServiceClass.inMemoryInboxes.map(i => i.id), 0) + 1,
+        name: data.name,
+        channel_type: data.channel_type,
+        phone_number: data.phone_number,
+        account_id: accountId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      AdminServiceClass.inMemoryInboxes.push(newInbox);
+      return newInbox;
+    }
+  }
+
+  async updateClientInbox(accountId: number, inboxId: number, data: Partial<CreateChannelRequest>): Promise<Channel> {
+    try {
+      return this.bffRequest<Channel>(`/api/admin/accounts/${accountId}/inboxes/${inboxId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      // Fallback: Update in-memory inbox
+      const inboxIndex = AdminServiceClass.inMemoryInboxes.findIndex(i => i.id === inboxId && i.account_id === accountId);
+      if (inboxIndex !== -1) {
+        AdminServiceClass.inMemoryInboxes[inboxIndex] = {
+          ...AdminServiceClass.inMemoryInboxes[inboxIndex],
+          ...data,
+          updated_at: new Date().toISOString(),
+        };
+        return AdminServiceClass.inMemoryInboxes[inboxIndex];
+      }
+      throw new Error('Inbox not found');
+    }
+  }
+
+  async deleteClientInbox(accountId: number, inboxId: number): Promise<void> {
+    try {
+      await this.bffRequest<void>(`/api/admin/accounts/${accountId}/inboxes/${inboxId}`, {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      // Fallback: Remove from in-memory inboxes
+      AdminServiceClass.inMemoryInboxes = AdminServiceClass.inMemoryInboxes.filter(
+        i => !(i.id === inboxId && i.account_id === accountId)
+      );
+    }
+  }
+
   // Use BFF endpoints for account management
   async listAccounts(query?: ClientQuery): Promise<Account[]> {
     const params = new URLSearchParams();

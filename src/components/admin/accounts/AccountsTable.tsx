@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Edit, Trash2, Settings, Power, PowerOff, Loader2, AlertCircle, Clock } from 'lucide-react';
+import { Building2, Edit, Trash2, Settings, Power, PowerOff, Loader2, AlertCircle, Clock, Inbox } from 'lucide-react';
 import { Account } from '../../../models/chat';
 import { OptimisticAccount } from '../../../types/syncState';
 import { Button } from '../../ui/button';
@@ -147,6 +147,16 @@ export const AccountsTable: React.FC<AccountsTableProps> = ({
                     ) : (
                       <PowerOff className="h-4 w-4" />
                     )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                  >
+                    <Link to={`/admin/clients/${account.id}/inboxes`}>
+                      <Inbox className="h-4 w-4 mr-1" />
+                      Inboxes
+                    </Link>
                   </Button>
                   <Button
                     variant="outline"

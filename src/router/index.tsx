@@ -22,6 +22,7 @@ const TeamWizard = React.lazy(() => import('../components/admin/teams/TeamWizard
 const AgentsPage = React.lazy(() => import('../pages/admin/AgentsPage').then(module => ({ default: module.AgentsPage })));
 const LabelsPage = React.lazy(() => import('../pages/admin/LabelsPage').then(module => ({ default: module.LabelsPage })));
 const AuditLogsPage = React.lazy(() => import('../pages/admin/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })));
+const ClientInboxesPage = React.lazy(() => import('../pages/admin/ClientInboxesPage').then(module => ({ default: module.ClientInboxesPage })));
 
 // Loading component
 const PageLoader = () => (
@@ -175,6 +176,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <LabelsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'clients/:accountId/inboxes',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <ClientInboxesPage />
           </Suspense>
         ),
       },
