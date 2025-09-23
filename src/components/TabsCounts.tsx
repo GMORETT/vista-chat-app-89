@@ -1,12 +1,12 @@
 import React from 'react';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { useConversationsMeta } from '../hooks/useConversations';
 import { AssignType } from '../models';
 import { Badge } from './ui/badge';
 import { mockConversationMeta } from '../data/mockData';
 
 export const TabsCounts: React.FC = () => {
-  const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
+  const { filters, activeTab, setActiveTab } = useFilterStore();
   
   // Use current active filters for tab counts to reflect filtered results
   const tabCountsFilters = { 

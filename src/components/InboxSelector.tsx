@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useInboxes } from '../hooks/useInboxes';
 import { useCurrentClient } from '../hooks/useCurrentClient';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
 import { MessageCircle } from 'lucide-react';
@@ -11,16 +11,13 @@ export const InboxSelector: React.FC = () => {
   const { user } = useAuth();
   const { currentAccountId } = useCurrentClient();
   const { data: inboxesResponse, isLoading } = useInboxes(currentAccountId);
-  const { filters, setFilters } = useChatStore();
+  const { filters, setFilters } = useFilterStore();
 
   const inboxes = inboxesResponse?.payload || [];
   
   const handleInboxChange = (inboxId: string) => {
-    const newInboxId = inboxId === 'all' ? null : parseInt(inboxId);
-    setFilters({
-      ...filters,
-      inbox_id: newInboxId
-    });
+    const newInboxId = inboxId === 'all' ? undefined : parseInt(inboxId);
+    setFilters({ inbox_id: newInboxId });
   };
 
   const selectedInbox = inboxes.find(inbox => inbox.id === filters.inbox_id);

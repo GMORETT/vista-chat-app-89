@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useAccounts } from '../hooks/admin/useAccounts';
 import { useCurrentClient } from '../hooks/useCurrentClient';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
 import { Building2 } from 'lucide-react';
@@ -11,7 +11,7 @@ export const ClientAccountFilter: React.FC = () => {
   const { user } = useAuth();
   const { data: accounts, isLoading } = useAccounts();
   const { selectedAccountId, setSelectedAccountId } = useCurrentClient();
-  const { clearDependentFilters } = useChatStore();
+  const { resetFilters } = useFilterStore();
 
   // Only show for super admin
   if (user?.role !== 'super_admin') {
@@ -22,7 +22,7 @@ export const ClientAccountFilter: React.FC = () => {
     const newAccountId = accountId === 'all' ? null : parseInt(accountId);
     setSelectedAccountId(newAccountId);
     // Clear dependent filters when changing account
-    clearDependentFilters();
+    resetFilters();
   };
 
   const selectedAccount = accounts?.find(acc => acc.id === selectedAccountId);

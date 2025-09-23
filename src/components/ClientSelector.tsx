@@ -4,13 +4,13 @@ import { useAccounts } from '../hooks/admin/useAccounts';
 import { Account } from '../models/chat';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
-import { useChatStore } from '../state/useChatStore';
+import { useCurrentClient } from '../hooks/useCurrentClient';
 import { Building2 } from 'lucide-react';
 
 export const ClientSelector: React.FC = () => {
   const { user } = useAuth();
   const { data: accounts, isLoading } = useAccounts();
-  const { selectedAccountId, setSelectedAccountId } = useChatStore();
+  const { selectedAccountId, setSelectedAccountId } = useCurrentClient();
 
   // Only show for super admin
   if (user?.role !== 'super_admin') {
