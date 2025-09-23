@@ -15,7 +15,7 @@ interface FacebookWizardProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   accountId: number;
-  onSuccess: () => void;
+  onFinished: () => void;
 }
 
 interface FacebookPage {
@@ -31,7 +31,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
   open,
   onOpenChange,
   accountId,
-  onSuccess
+  onFinished
 }) => {
   const [step, setStep] = useState<WizardStep>('name');
   const [inboxName, setInboxName] = useState('');
@@ -157,7 +157,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
         setStep('agents');
       } else {
         handleClose();
-        onSuccess();
+        onFinished();
       }
     } catch (error) {
       console.error('Error creating Facebook inbox:', error);
@@ -176,7 +176,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
     if (!createdInboxId || selectedAgents.length === 0) {
       // Skip if no agents selected
       handleClose();
-      onSuccess();
+      onFinished();
       return;
     }
 
@@ -192,7 +192,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
       });
 
       handleClose();
-      onSuccess();
+      onFinished();
     } catch (error) {
       console.error('Error assigning agents:', error);
       toast({
@@ -203,7 +203,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
       
       // Still close and call onSuccess since inbox was created
       handleClose();
-      onSuccess();
+      onFinished();
     } finally {
       setIsLoading(false);
     }
@@ -445,7 +445,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => {
                   handleClose();
-                  onSuccess();
+                  onFinished();
                 }}>
                   Pular
                 </Button>

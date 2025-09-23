@@ -652,6 +652,114 @@ class AdminServiceClass {
     }
   }
 
+  // Instagram Integration Methods
+  async startInstagramIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
+    try {
+      const response = await this.bffRequest<{ authorization_url: string }>('/integrations/instagram/start', {
+        method: 'POST',
+        body: JSON.stringify({
+          accountId,
+          inbox_name: name
+        })
+      });
+      return response;
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Using mock Instagram integration');
+      const state = btoa(JSON.stringify({ type: 'instagram', accountId, name }));
+      return {
+        authorization_url: `https://api.instagram.com/oauth/authorize?client_id=mock&redirect_uri=${encodeURIComponent(window.location.origin)}/admin/inboxes&state=${state}&scope=instagram_basic,pages_show_list,business_management`
+      };
+    }
+  }
+
+  async listInstagramAccounts(accountId: number): Promise<Array<{
+    ig_business_account_id: string;
+    username: string;
+    name: string;
+    profile_picture_url: string;
+    followers_count: number;
+    page_id: string;
+    page_name: string;
+  }>> {
+    try {
+      return await this.bffRequest<Array<{
+        ig_business_account_id: string;
+        username: string;
+        name: string;
+        profile_picture_url: string;
+        followers_count: number;
+        page_id: string;
+        page_name: string;
+      }>>(`/integrations/instagram/accounts?accountId=${accountId}`);
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Using mock Instagram accounts');
+      return [
+        {
+          ig_business_account_id: 'ig_123456789',
+          username: 'solabs_official',
+          name: 'SoLabs',
+          profile_picture_url: 'https://via.placeholder.com/150x150?text=SL',
+          followers_count: 25000,
+          page_id: 'page_123',
+          page_name: 'SoLabs Page'
+        },
+        {
+          ig_business_account_id: 'ig_987654321', 
+          username: 'solabs_support',
+          name: 'SoLabs Support',
+          profile_picture_url: 'https://via.placeholder.com/150x150?text=SS',
+          followers_count: 12500,
+          page_id: 'page_456',
+          page_name: 'SoLabs Support Page'
+        },
+        {
+          ig_business_account_id: 'ig_555444333',
+          username: 'solabs_sales',
+          name: 'SoLabs Vendas',
+          profile_picture_url: 'https://via.placeholder.com/150x150?text=SV',
+          followers_count: 8750,
+          page_id: 'page_789',
+          page_name: 'SoLabs Sales Page'
+        }
+      ];
+    }
+  }
+
+  async selectInstagramAccount(accountId: number, igBusinessAccountId: string, inboxName: string): Promise<Channel> {
+    try {
+      const response = await this.bffRequest<Channel>('/integrations/instagram/select-ig', {
+        method: 'POST',
+        body: JSON.stringify({
+          accountId,
+          ig_business_account_id: igBusinessAccountId,
+          inbox_name: inboxName
+        })
+      });
+      return response;
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Creating mock Instagram inbox');
+      const newInbox: Channel = {
+        id: Date.now(),
+        account_id: accountId,
+        name: inboxName,
+        channel_type: 'Channel::InstagramDirect',
+        webhook_url: `https://graph.facebook.com/v18.0/${igBusinessAccountId}/subscribed_apps`,
+        greeting_enabled: true,
+        greeting_message: 'Olá! Como podemos ajudar via Instagram?',
+        working_hours_enabled: false,
+        out_of_office_message: 'Estamos fora do horário comercial.',
+        timezone: 'America/Sao_Paulo',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      return newInbox;
+    }
+  }
+
   // Credentials
   async listCredentials(): Promise<Array<{ id: string; name: string; description?: string; created_at: string }>> {
     return this.request('/credentials');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, ArrowLeft, Inbox, Edit, Users, Trash2, Smartphone } from 'lucide-react';
+import { Plus, ArrowLeft, Inbox, Edit, Users, Trash2, Smartphone, Instagram } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -19,6 +19,7 @@ import { ClientInboxMembersModal } from '../../components/admin/inboxes/ClientIn
 import { ConfirmDeleteInboxDialog } from '../../components/admin/inboxes/ConfirmDeleteInboxDialog';
 import { WaCloudWizard } from '../../components/admin/inboxes/WaCloudWizard';
 import { FacebookWizard } from '../../components/admin/inboxes/FacebookWizard';
+import { InstagramWizard } from '../../components/admin/inboxes/InstagramWizard';
 import { Skeleton } from '../../components/ui/skeleton';
 
 export const ClientInboxesPage: React.FC = () => {
@@ -33,6 +34,7 @@ export const ClientInboxesPage: React.FC = () => {
   const [selectedInbox, setSelectedInbox] = useState<Channel | null>(null);
   const [isWaCloudWizardOpen, setIsWaCloudWizardOpen] = useState(false);
   const [isFacebookWizardOpen, setIsFacebookWizardOpen] = useState(false);
+  const [isInstagramWizardOpen, setIsInstagramWizardOpen] = useState(false);
 
   const accountIdNum = accountId ? parseInt(accountId, 10) : 0;
 
@@ -188,6 +190,10 @@ export const ClientInboxesPage: React.FC = () => {
             <Plus className="h-4 w-4" />
             Adicionar Facebook
           </Button>
+          <Button onClick={() => setIsInstagramWizardOpen(true)} variant="outline" className="gap-2">
+            <Instagram className="h-4 w-4" />
+            Adicionar Instagram
+          </Button>
           <Button onClick={() => setShowWizard(true)} variant="outline">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Inbox
@@ -219,6 +225,10 @@ export const ClientInboxesPage: React.FC = () => {
               <Button onClick={() => setIsFacebookWizardOpen(true)} variant="outline" size="lg" className="gap-2">
                 <Plus className="h-5 w-5" />
                 Facebook
+              </Button>
+              <Button onClick={() => setIsInstagramWizardOpen(true)} variant="outline" size="lg" className="gap-2">
+                <Instagram className="h-5 w-5" />
+                Instagram
               </Button>
             </div>
             <Button onClick={() => setShowWizard(true)} variant="outline" size="sm">
@@ -281,9 +291,19 @@ export const ClientInboxesPage: React.FC = () => {
         open={isFacebookWizardOpen}
         onOpenChange={setIsFacebookWizardOpen}
         accountId={accountIdNum}
-        onSuccess={() => {
+        onFinished={() => {
           refetch();
           setIsFacebookWizardOpen(false);
+        }}
+      />
+
+      <InstagramWizard
+        open={isInstagramWizardOpen}
+        onOpenChange={setIsInstagramWizardOpen}
+        accountId={accountIdNum}
+        onFinished={() => {
+          refetch();
+          setIsInstagramWizardOpen(false);
         }}
       />
     </div>
