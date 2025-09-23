@@ -486,6 +486,26 @@ class AdminServiceClass {
         body: JSON.stringify(data),
       });
     } catch (error) {
+      // Mock validation
+      if (data.name && data.name.trim().length < 3) {
+        throw new Error('Nome deve ter pelo menos 3 caracteres');
+      }
+      
+      if (data.name && data.name.trim().length > 50) {
+        throw new Error('Nome deve ter no máximo 50 caracteres');
+      }
+      
+      // Check for duplicate names
+      const duplicateInbox = AdminServiceClass.inMemoryInboxes.find(
+        inbox => inbox.id !== inboxId && 
+        inbox.account_id === accountId && 
+        inbox.name.toLowerCase() === data.name?.trim().toLowerCase()
+      );
+      
+      if (duplicateInbox) {
+        throw new Error('Já existe um inbox com este nome');
+      }
+      
       // Fallback: Update in-memory inbox
       const inboxIndex = AdminServiceClass.inMemoryInboxes.findIndex(i => i.id === inboxId && i.account_id === accountId);
       if (inboxIndex !== -1) {
@@ -496,7 +516,7 @@ class AdminServiceClass {
         };
         return AdminServiceClass.inMemoryInboxes[inboxIndex];
       }
-      throw new Error('Inbox not found');
+      throw new Error('Inbox não encontrado');
     }
   }
 
@@ -506,10 +526,52 @@ class AdminServiceClass {
         method: 'DELETE',
       });
     } catch (error) {
-      // Fallback: Remove from in-memory inboxes
+      // Mock dependency checks
+      const inbox = AdminServiceClass.inMemoryInboxes.find(i => i.id === inboxId && i.account_id === accountId);
+      if (!inbox) {
+        throw new Error('Inbox não encontrado');
+      }
+      
+      // Simulate checking for active dependencies
+      const hasActiveConversations = Math.random() > 0.7; // 30% chance of having active conversations
+      const hasActiveCredentials = Math.random() > 0.8;   // 20% chance of having active credentials
+      
+      if (hasActiveConversations) {
+        throw new Error('Não é possível excluir: inbox possui conversas ativas. Encerre todas as conversas antes de continuar.');
+      }
+      
+      if (hasActiveCredentials) {
+        throw new Error('Não é possível excluir: credenciais ainda estão ativas no provedor. Desative as credenciais primeiro.');
+      }
+      
+      // Fallback: Remove from in-memory inboxes (soft delete simulation)
       AdminServiceClass.inMemoryInboxes = AdminServiceClass.inMemoryInboxes.filter(
         i => !(i.id === inboxId && i.account_id === accountId)
       );
+      
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1200));
+    }
+  }
+
+  async checkInboxDependencies(accountId: number, inboxId: number): Promise<{
+    activeConversations: number;
+    activeCredentials: number;
+    assignedAgents: number;
+  }> {
+    try {
+      return await this.bffRequest<any>(`/api/admin/accounts/${accountId}/inboxes/${inboxId}/dependencies`);
+    } catch (error) {
+      // Mock dependency check
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            activeConversations: Math.floor(Math.random() * 5),
+            activeCredentials: Math.floor(Math.random() * 2),
+            assignedAgents: Math.floor(Math.random() * 3),
+          });
+        }, 800);
+      });
     }
   }
 
