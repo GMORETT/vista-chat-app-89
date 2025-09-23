@@ -16,6 +16,7 @@ import { useToast } from '../../../hooks/use-toast';
 import { useAdminService } from '../../../services/AdminService';
 import { useAgents } from '../../../hooks/admin/useAgents';
 import { useQueryClient } from '@tanstack/react-query';
+import { createPKCEParams, storePKCEParams, retrievePKCEParams, clearPKCEStorage } from '../../../utils/pkce';
 
 interface WaCloudWizardProps {
   open: boolean;
@@ -24,8 +25,8 @@ interface WaCloudWizardProps {
   onFinished?: () => void;
 }
 
-// Local storage key used to resume the flow after OAuth redirect
-const WA_CLOUD_STATE_KEY = 'waCloudState';
+// Session storage key for PKCE parameters
+const WA_CLOUD_PKCE_KEY = 'wa_cloud_pkce';
 
 export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange, accountId, onFinished }) => {
   const adminService = useAdminService();
@@ -46,22 +47,39 @@ export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange
 
   const { data: agents = [], isLoading: loadingAgents } = useAgents(accountId);
 
-  // Resume flow after OAuth redirect
+  // Handle OAuth callback and resume flow
   React.useEffect(() => {
     if (!open) return;
 
+    // Check for OAuth callback parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code && state) {
+      // Clear URL parameters
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Handle OAuth callback with PKCE
+      handleOAuthCallback(code, state);
+      return;
+    }
+
+    // Check for existing state in storage to resume flow
     try {
-      const raw = localStorage.getItem(WA_CLOUD_STATE_KEY);
-      if (!raw) return;
-      const st = JSON.parse(raw);
-      if (st && st.accountId === accountId && st.name) {
-        // Move to step 3 and start polling until the inbox appears
-        setName(st.name);
-        setStep(3);
-        startPollingForInbox(st.name);
+      const pkceParams = retrievePKCEParams(WA_CLOUD_PKCE_KEY);
+      if (pkceParams && pkceParams.state.includes(`${accountId}_`)) {
+        // Extract name from state
+        const stateParts = pkceParams.state.split('_');
+        if (stateParts.length >= 3) {
+          const nameFromState = stateParts.slice(2).join('_');
+          setName(nameFromState);
+          setStep(3);
+          startPollingForInbox(nameFromState);
+        }
       }
     } catch (_) {
-      // ignore
+      // ignore parsing errors
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, accountId]);
@@ -75,6 +93,7 @@ export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange
       setCreateError(null);
       setSelectedAgents([]);
       setCreatedInboxId(null);
+      clearPKCEStorage();
     }
   }, [open]);
 
@@ -99,8 +118,8 @@ export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange
           queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'client-inboxes', accountId] });
           // Go to step 4
           setStep(4);
-          // Clear state
-          localStorage.removeItem(WA_CLOUD_STATE_KEY);
+          // Clear PKCE storage
+          clearPKCEStorage();
           toast({ title: 'Conectado', description: 'WhatsApp Cloud conectado com sucesso.' });
         } else if (attempts >= maxAttempts) {
           clearInterval(interval);
@@ -121,11 +140,29 @@ export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange
     if (!name.trim()) return;
     setAuthError(null);
     setAuthLoading(true);
+    
     try {
-      const res = await adminService.startWaCloudIntegration(accountId, name.trim());
-      // Persist state so we can resume after redirect
-      localStorage.setItem(WA_CLOUD_STATE_KEY, JSON.stringify({ accountId, name: name.trim(), startedAt: Date.now() }));
-      // Redirect to Meta authorization URL (server-side OAuth)
+      // Generate PKCE parameters
+      const pkceParams = await createPKCEParams();
+      
+      // Create state with account and name info for resuming flow
+      const state = `wa_${accountId}_${name.trim()}_${Date.now()}`;
+      
+      // Store PKCE parameters securely
+      storePKCEParams(WA_CLOUD_PKCE_KEY, {
+        code_verifier: pkceParams.code_verifier,
+        state
+      });
+      
+      // Start OAuth with PKCE
+      const res = await adminService.startWaCloudIntegrationWithPKCE(
+        accountId, 
+        name.trim(), 
+        pkceParams.code_challenge,
+        pkceParams.code_challenge_method
+      );
+      
+      // Redirect to Meta authorization URL
       window.location.href = res.authorization_url;
     } catch (e) {
       setAuthError('Falha na autorização');
@@ -159,9 +196,48 @@ export const WaCloudWizard: React.FC<WaCloudWizardProps> = ({ open, onOpenChange
     }
   };
 
+  // Handle OAuth callback with PKCE verification
+  const handleOAuthCallback = async (code: string, state: string) => {
+    try {
+      // Retrieve PKCE parameters
+      const pkceParams = retrievePKCEParams(WA_CLOUD_PKCE_KEY);
+      if (!pkceParams || pkceParams.state !== state) {
+        setAuthError('Invalid OAuth state - possible CSRF attack');
+        return;
+      }
+      
+      // Extract account ID and name from state
+      const stateParts = state.split('_');
+      if (stateParts.length < 3 || parseInt(stateParts[1]) !== accountId) {
+        setAuthError('State validation failed');
+        return;
+      }
+      
+      const nameFromState = stateParts.slice(2, -1).join('_');
+      setName(nameFromState);
+      setStep(3);
+      
+      // Complete OAuth flow with PKCE
+      await adminService.completeWaCloudOAuthWithPKCE(
+        accountId,
+        code,
+        state,
+        pkceParams.code_verifier
+      );
+      
+      // Start polling for inbox creation
+      startPollingForInbox(nameFromState);
+      
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      setAuthError('OAuth callback failed');
+      setStep(1);
+    }
+  };
+
   const closeAndClear = (open: boolean) => {
     if (!open) {
-      localStorage.removeItem(WA_CLOUD_STATE_KEY);
+      clearPKCEStorage();
     }
     onOpenChange(open);
   };

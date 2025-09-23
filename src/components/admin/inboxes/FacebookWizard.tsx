@@ -10,6 +10,7 @@ import { useAgents } from '../../../hooks/admin/useAgents';
 import { Checkbox } from '../../ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
 import { Badge } from '../../ui/badge';
+import { createPKCEParams, storePKCEParams, retrievePKCEParams, clearPKCEStorage } from '../../../utils/pkce';
 
 interface FacebookWizardProps {
   open: boolean;
@@ -26,6 +27,9 @@ interface FacebookPage {
 }
 
 type WizardStep = 'name' | 'oauth' | 'pages' | 'agents';
+
+// Session storage key for PKCE parameters
+const FACEBOOK_PKCE_KEY = 'facebook_pkce';
 
 export const FacebookWizard: React.FC<FacebookWizardProps> = ({
   open,
@@ -46,7 +50,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
   const adminService = useAdminService();
   const { data: agents = [] } = useAgents(accountId);
 
-  // Check for OAuth callback on mount
+  // Check for OAuth callback on mount and handle PKCE
   useEffect(() => {
     if (open) {
       const urlParams = new URLSearchParams(window.location.search);
@@ -54,20 +58,28 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
       const state = urlParams.get('state');
       
       if (code && state) {
-        try {
-          const stateData = JSON.parse(atob(state));
-          if (stateData.type === 'facebook' && stateData.accountId === accountId) {
-            // Clear URL params
-            window.history.replaceState({}, '', window.location.pathname);
-            
-            // Set inbox name from state and proceed to pages step
-            setInboxName(stateData.name);
-            setStep('pages');
-            handleLoadPages();
+        // Clear URL params immediately
+        window.history.replaceState({}, '', window.location.pathname);
+        
+        // Handle OAuth callback with PKCE
+        handleOAuthCallback(code, state);
+        return;
+      }
+      
+      // Check for existing PKCE state to resume flow
+      try {
+        const pkceParams = retrievePKCEParams(FACEBOOK_PKCE_KEY);
+        if (pkceParams && pkceParams.state.includes(`fb_${accountId}_`)) {
+          // Extract name from state
+          const stateParts = pkceParams.state.split('_');
+          if (stateParts.length >= 3) {
+            const nameFromState = stateParts.slice(2, -1).join('_');
+            setInboxName(nameFromState);
+            setStep('oauth');
           }
-        } catch (error) {
-          console.error('Error parsing OAuth state:', error);
         }
+      } catch (error) {
+        console.error('Error checking PKCE state:', error);
       }
     }
   }, [open, accountId]);
@@ -86,14 +98,25 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
     setError(null);
 
     try {
-      const response = await adminService.startFacebookIntegration(accountId, inboxName);
+      // Generate PKCE parameters
+      const pkceParams = await createPKCEParams();
       
-      // Store state in localStorage as backup
-      localStorage.setItem('facebook_oauth_state', JSON.stringify({
-        accountId,
+      // Create state with account and name info for resuming flow
+      const state = `fb_${accountId}_${inboxName.trim()}_${Date.now()}`;
+      
+      // Store PKCE parameters securely
+      storePKCEParams(FACEBOOK_PKCE_KEY, {
+        code_verifier: pkceParams.code_verifier,
+        state
+      });
+      
+      // Start OAuth with PKCE
+      const response = await adminService.startFacebookIntegrationWithPKCE(
+        accountId, 
         inboxName,
-        step: 'oauth'
-      }));
+        pkceParams.code_challenge,
+        pkceParams.code_challenge_method
+      );
       
       // Redirect to Facebook OAuth
       window.location.href = response.authorization_url;
@@ -209,6 +232,50 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
     }
   };
 
+  // Handle OAuth callback with PKCE verification
+  const handleOAuthCallback = async (code: string, state: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Retrieve PKCE parameters
+      const pkceParams = retrievePKCEParams(FACEBOOK_PKCE_KEY);
+      if (!pkceParams || pkceParams.state !== state) {
+        setError('Invalid OAuth state - possible CSRF attack');
+        return;
+      }
+      
+      // Extract account ID and name from state
+      const stateParts = state.split('_');
+      if (stateParts.length < 3 || parseInt(stateParts[1]) !== accountId) {
+        setError('State validation failed');
+        return;
+      }
+      
+      const nameFromState = stateParts.slice(2, -1).join('_');
+      setInboxName(nameFromState);
+      
+      // Complete OAuth flow with PKCE
+      await adminService.completeFacebookOAuthWithPKCE(
+        accountId,
+        code,
+        state,
+        pkceParams.code_verifier
+      );
+      
+      // Proceed to pages step
+      setStep('pages');
+      await handleLoadPages();
+      
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      setError('OAuth callback failed');
+      setStep('name');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleClose = () => {
     setStep('name');
     setInboxName('');
@@ -217,7 +284,7 @@ export const FacebookWizard: React.FC<FacebookWizardProps> = ({
     setSelectedPageId(null);
     setSelectedAgents([]);
     setCreatedInboxId(null);
-    localStorage.removeItem('facebook_oauth_state');
+    clearPKCEStorage();
     onOpenChange(false);
   };
 

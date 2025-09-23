@@ -650,6 +650,81 @@ class AdminServiceClass {
     });
   }
 
+  // PKCE-enhanced WhatsApp Cloud integration
+  async startWaCloudIntegrationWithPKCE(
+    accountId: number, 
+    name: string, 
+    codeChallenge: string, 
+    codeChallengeMethod: string
+  ): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Validate PKCE parameters
+      if (!codeChallenge || !codeChallengeMethod) {
+        throw new Error('PKCE parameters are required');
+      }
+      
+      if (codeChallengeMethod !== 'S256') {
+        throw new Error('Only S256 code challenge method is supported');
+      }
+      
+      // Simulate failures
+      const random = Math.random();
+      if (random < 0.05) {
+        throw new Error('TOKEN_EXPIRED: WhatsApp token expired');
+      } else if (random < 0.1) {
+        throw new Error('PROVIDER_ERROR: WhatsApp service temporarily unavailable');
+      }
+      
+      // Make BFF request with PKCE
+      try {
+        const response = await this.bffRequest<{ auth_url: string; state: string }>('/integrations/whatsapp/start', {
+          method: 'POST',
+          body: JSON.stringify({
+            client_id: 'mock_client_id',
+            redirect_uri: `${window.location.origin}/admin/inboxes`,
+            account_id: accountId,
+            code_challenge: codeChallenge,
+            code_challenge_method: codeChallengeMethod
+          })
+        });
+        
+        return { authorization_url: response.auth_url };
+      } catch (error) {
+        console.error('WhatsApp OAuth start failed:', error);
+        throw error;
+      }
+    });
+  }
+
+  // Complete WhatsApp Cloud OAuth with PKCE verification
+  async completeWaCloudOAuthWithPKCE(
+    accountId: number,
+    code: string,
+    state: string,
+    codeVerifier: string
+  ): Promise<void> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      try {
+        await this.bffRequest('/integrations/whatsapp/callback', {
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            state,
+            account_id: accountId,
+            code_verifier: codeVerifier
+          })
+        });
+      } catch (error) {
+        console.error('WhatsApp OAuth callback failed:', error);
+        throw error;
+      }
+    });
+  }
+
   // Reconnection method for WhatsApp Cloud
   async reconnectWaCloud(accountId: number, inboxId: number): Promise<{ authorization_url: string }> {
     return this.withRetry(async () => {
@@ -682,6 +757,81 @@ class AdminServiceClass {
       return {
         authorization_url: `https://facebook.com/oauth?account=${accountId}&inbox=${encodeURIComponent(inboxName)}`
       };
+    });
+  }
+
+  // PKCE-enhanced Facebook integration
+  async startFacebookIntegrationWithPKCE(
+    accountId: number, 
+    inboxName: string, 
+    codeChallenge: string, 
+    codeChallengeMethod: string
+  ): Promise<{ authorization_url: string }> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Validate PKCE parameters
+      if (!codeChallenge || !codeChallengeMethod) {
+        throw new Error('PKCE parameters are required');
+      }
+      
+      if (codeChallengeMethod !== 'S256') {
+        throw new Error('Only S256 code challenge method is supported');
+      }
+      
+      // Simulate failures
+      const random = Math.random();
+      if (random < 0.05) {
+        throw new Error('TOKEN_EXPIRED: Facebook token expired');
+      } else if (random < 0.1) {
+        throw new Error('PERMISSION: Insufficient Facebook permissions');
+      }
+      
+      // Make BFF request with PKCE
+      try {
+        const response = await this.bffRequest<{ auth_url: string; state: string }>('/integrations/facebook/start', {
+          method: 'POST',
+          body: JSON.stringify({
+            client_id: 'mock_facebook_client_id',
+            redirect_uri: `${window.location.origin}/admin/inboxes`,
+            account_id: accountId,
+            code_challenge: codeChallenge,
+            code_challenge_method: codeChallengeMethod
+          })
+        });
+        
+        return { authorization_url: response.auth_url };
+      } catch (error) {
+        console.error('Facebook OAuth start failed:', error);
+        throw error;
+      }
+    });
+  }
+
+  // Complete Facebook OAuth with PKCE verification
+  async completeFacebookOAuthWithPKCE(
+    accountId: number,
+    code: string,
+    state: string,
+    codeVerifier: string
+  ): Promise<void> {
+    return this.withRetry(async () => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      try {
+        await this.bffRequest('/integrations/facebook/callback', {
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            state,
+            account_id: accountId,
+            code_verifier: codeVerifier
+          })
+        });
+      } catch (error) {
+        console.error('Facebook OAuth callback failed:', error);
+        throw error;
+      }
     });
   }
 

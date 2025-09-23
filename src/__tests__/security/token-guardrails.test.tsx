@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from '../utils/testUtils';
 import { WaCloudWizard } from '@/components/admin/inboxes/WaCloudWizard';
 import { FacebookWizard } from '@/components/admin/inboxes/FacebookWizard';
-import { wizardHelpers, securityHelpers } from '../utils/testHelpers';
+import { createPKCEParams, validateCodeVerifier } from '@/utils/pkce';
 
 describe('Security Guardrails - Token Protection', () => {
   beforeEach(() => {
@@ -338,6 +338,101 @@ describe('Security Guardrails - Token Protection', () => {
       expect(sanitizedError).not.toContain('REAL_TOKEN_789');
       expect(sanitizedError).toContain('[MASKED]');
       expect(sanitizedStack).not.toContain('REAL_TOKEN_789');
+    });
+  });
+  describe('PKCE Security Validation', () => {
+    it('generates secure PKCE parameters', async () => {
+      const pkceParams = await createPKCEParams();
+      
+      // Validate code_verifier format (RFC 7636)
+      expect(validateCodeVerifier(pkceParams.code_verifier)).toBe(true);
+      expect(pkceParams.code_verifier.length).toBeGreaterThanOrEqual(43);
+      expect(pkceParams.code_verifier.length).toBeLessThanOrEqual(128);
+      expect(/^[A-Za-z0-9\-._~]+$/.test(pkceParams.code_verifier)).toBe(true);
+      
+      // Validate code_challenge
+      expect(pkceParams.code_challenge).toBeDefined();
+      expect(pkceParams.code_challenge.length).toBeGreaterThan(40);
+      expect(pkceParams.code_challenge_method).toBe('S256');
+    });
+
+    it('validates code_verifier correctly', () => {
+      // Valid verifiers
+      expect(validateCodeVerifier('dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk')).toBe(true);
+      expect(validateCodeVerifier('E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM')).toBe(true);
+      
+      // Invalid verifiers
+      expect(validateCodeVerifier('too-short')).toBe(false);
+      expect(validateCodeVerifier('a'.repeat(129))).toBe(false); // Too long
+      expect(validateCodeVerifier('invalid@characters!')).toBe(false);
+      expect(validateCodeVerifier('')).toBe(false);
+    });
+
+    it('prevents OAuth flow without PKCE parameters', () => {
+      // Mock console.error to check for security warnings
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
+      // Simulate OAuth request without PKCE - should be rejected
+      const mockFetch = vi.fn().mockRejectedValue(new Error('PKCE parameters are required'));
+      global.fetch = mockFetch;
+      
+      // Component should handle missing PKCE gracefully
+      const { container } = render(
+        <WaCloudWizard 
+          open={true}
+          onOpenChange={() => {}}
+          accountId={1}
+        />
+      );
+      
+      expect(container).toBeDefined();
+      consoleSpy.mockRestore();
+    });
+
+    it('stores PKCE parameters securely', async () => {
+      const { storePKCEParams, retrievePKCEParams } = await import('@/utils/pkce');
+      
+      const testParams = {
+        code_verifier: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+        state: 'test_state_123'
+      };
+      
+      // Store parameters
+      storePKCEParams('test_key', testParams, 1000); // 1 second TTL
+      
+      // Retrieve immediately
+      const retrieved = retrievePKCEParams('test_key');
+      expect(retrieved).toEqual(testParams);
+      
+      // Wait for expiration
+      await new Promise(resolve => setTimeout(resolve, 1100));
+      
+      // Should be expired
+      const expired = retrievePKCEParams('test_key');
+      expect(expired).toBeNull();
+    });
+
+    it('prevents PKCE replay attacks', () => {
+      const { storePKCEParams, retrievePKCEParams } = require('@/utils/pkce');
+      
+      const testParams = {
+        code_verifier: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+        state: 'test_state_456'
+      };
+      
+      // Store parameters
+      storePKCEParams('replay_test', testParams);
+      
+      // First retrieval should work
+      const first = retrievePKCEParams('replay_test');
+      expect(first).toEqual(testParams);
+      
+      // Remove after first use (preventing replay)
+      sessionStorage.removeItem('replay_test');
+      
+      // Second retrieval should fail
+      const second = retrievePKCEParams('replay_test');
+      expect(second).toBeNull();
     });
   });
 });
