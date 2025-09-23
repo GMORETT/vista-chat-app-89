@@ -1325,8 +1325,29 @@ app.get('/api/v1/accounts/:accountId/channel-types', adminAuth, async (req, res)
 });
 
 // ============= AUDIT LOGS ROUTES =============
+
+// Ping endpoint for debugging
+app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/ping', rbacAuth, async (req, res) => {
+  res.json({ ok: true, timestamp: new Date().toISOString(), accountId: req.params.accountId });
+});
+
 app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req, res) => {
   await delay();
+  
+  // Short-circuit for debugging - return empty structure immediately
+  console.log('🔍 Short-circuiting audit logs endpoint for debugging');
+  res.status(200).json({
+    payload: [],
+    meta: {
+      current_page: 1,
+      next_page: null,
+      prev_page: null,
+      total_pages: 0,
+      total_count: 0
+    }
+  });
+  
+  /* COMMENTED OUT FOR DEBUGGING - Original implementation:
   try {
     console.log('🔍 Fetching audit logs with query:', req.query);
     const page = parseInt(req.query.page) || 1;
@@ -1354,6 +1375,7 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req
       }
     });
   }
+  */
 });
 
 // Single audit log detail
@@ -1404,6 +1426,19 @@ app.get('/api/v1/accounts/:accountId/api/admin/audit-logs/validate', rbacAuth, a
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Global error handler for debugging
+app.use((error, req, res, next) => {
+  console.error('🔴 UNCAUGHT SERVER ERROR:', {
+    error: error.message,
+    stack: error.stack,
+    method: req.method,
+    url: req.url,
+    params: req.params,
+    query: req.query
+  });
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {

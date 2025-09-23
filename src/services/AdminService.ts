@@ -54,6 +54,13 @@ class AdminServiceClass {
     });
 
     if (!response.ok) {
+      console.error('🔴 API Request failed:', {
+        url: response.url,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
       const contentType = response.headers.get('content-type') || '';
       let details = '';
       try {
