@@ -1,18 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AdminChatService } from '../../api/AdminChatService';
 import { Agent, CreateAgentRequest } from '../../models/admin';
-
-// Use mock service for development
-const adminChatService = new AdminChatService(
-  'http://localhost:3001',
-  () => 'mock-token',
-  'mock-account-id'
-);
+import { useAdminService } from '../../services/AdminService';
 
 export const useAgents = (accountId?: number) => {
+  const adminService = useAdminService();
+  
   return useQuery<Agent[]>({
     queryKey: ['solabs-admin', 'agents', accountId],
-    queryFn: () => adminChatService.getAgents(),
+    queryFn: () => adminService.listAgents(),
     select: (data) => {
       // Filter agents by account_id if provided
       if (accountId) {
@@ -25,9 +20,10 @@ export const useAgents = (accountId?: number) => {
 
 export const useCreateAgent = () => {
   const queryClient = useQueryClient();
+  const adminService = useAdminService();
   
   return useMutation<Agent, Error, CreateAgentRequest>({
-    mutationFn: (data) => adminChatService.createAgent(data),
+    mutationFn: (data) => adminService.createAgent(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },
@@ -36,9 +32,10 @@ export const useCreateAgent = () => {
 
 export const useUpdateAgent = () => {
   const queryClient = useQueryClient();
+  const adminService = useAdminService();
   
   return useMutation<Agent, Error, { id: number; data: Partial<CreateAgentRequest> }>({
-    mutationFn: ({ id, data }) => adminChatService.updateAgent(id, data),
+    mutationFn: ({ id, data }) => adminService.updateAgent(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },
@@ -47,9 +44,10 @@ export const useUpdateAgent = () => {
 
 export const useDeleteAgent = () => {
   const queryClient = useQueryClient();
+  const adminService = useAdminService();
   
   return useMutation<void, Error, number>({
-    mutationFn: (id) => adminChatService.deleteAgent(id),
+    mutationFn: (id) => adminService.deleteAgent(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solabs-admin', 'agents'] });
     },
