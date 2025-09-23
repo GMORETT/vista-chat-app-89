@@ -2,11 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Message, MessagesResponse, MessageFilters, SendMessageRequest, SendFileRequest, MessageQuery } from '../models/chat';
 import { MockChatService } from '../api/MockChatService';
 import { BffChatService } from '../api/BffChatService';
-import { useChatStore } from '../state/useChatStore';
 
 export const useMessages = (conversationId: number | null, filters?: MessageFilters) => {
   const queryClient = useQueryClient();
-  const { clearDraft } = useChatStore();
+  // Note: Draft functionality removed for simplification
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
@@ -55,7 +54,6 @@ export const useMessages = (conversationId: number | null, filters?: MessageFilt
     },
     onSuccess: () => {
       if (conversationId) {
-        clearDraft(conversationId);
         queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
         queryClient.invalidateQueries({ queryKey: ['conversations'] });
       }
@@ -82,7 +80,6 @@ export const useMessages = (conversationId: number | null, filters?: MessageFilt
     },
     onSuccess: () => {
       if (conversationId) {
-        clearDraft(conversationId);
         queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
         queryClient.invalidateQueries({ queryKey: ['conversations'] });
       }

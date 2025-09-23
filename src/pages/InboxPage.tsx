@@ -150,7 +150,7 @@ export const InboxPage: React.FC = () => {
             
             {/* Conversation list */}
             <div className="flex-1 overflow-hidden">
-              <ConversationListOptimized height={isMobile ? window.innerHeight - 300 : window.innerHeight - 260} />
+              <ConversationListOptimized height={0} />
             </div>
           </>
         )}

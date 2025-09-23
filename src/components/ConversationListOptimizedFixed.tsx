@@ -9,7 +9,7 @@ import { Conversation } from '../models';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ConversationListOptimizedProps {
-  height: number;
+  height?: number;
 }
 
 // Loading skeleton component
@@ -167,7 +167,20 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
 
   // Memoized filtered conversations with proper user ID for "mine" filter
   const filteredConversations = useMemo(() => {
-    return filterConversations(conversations, searchQuery, filters, user?.id);
+    const result = filterConversations(conversations, searchQuery, filters, user?.id);
+    
+    // Debug logging - remove in production
+    if (filters.assignee_type === 'me') {
+      console.log('Debug - Mine filter:', {
+        userId: user?.id,
+        totalConversations: conversations.length,
+        filteredCount: result.length,
+        userAssignedConversations: conversations.filter(c => c.meta.assignee?.id === user?.id).length,
+        allAssignedConversations: conversations.filter(c => c.meta.assignee).length
+      });
+    }
+    
+    return result;
   }, [conversations, searchQuery, filters, user?.id]);
 
   // Optimized callback
@@ -190,7 +203,7 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
   }
 
   return (
-    <div style={{ height }}>
+    <div className="h-full">
       <Virtuoso
         data={filteredConversations}
         itemContent={(index, conversation) => (
@@ -202,7 +215,7 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
             index={index}
           />
         )}
-        className="conversation-list"
+        className="conversation-list h-full"
         components={{
           EmptyPlaceholder: () => <EmptyState searchQuery={searchQuery} />
         }}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useChatStore } from '../../state/useChatStore';
+import { useConversationStore } from '../../state/stores/conversationStore';
+import { useFilterStore } from '../../state/stores/filterStore';
 import { useUiStore } from '../../state/uiStore';
 import { useConversations } from '../../hooks/useConversations';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -26,7 +27,8 @@ import { mockLabels } from '../../data/mockData';
 import { Label } from '../../models/chat';
 
 export const ActionsBar: React.FC = () => {
-  const { selectedConversation, filters } = useChatStore();
+  const { selectedConversation } = useConversationStore();
+  const { filters } = useFilterStore();
   const { toggleStatus, togglePriority, updateLabels, isStatusLoading, isPriorityLoading, isLabelsLoading } = useConversations(filters);
   const { isMobile, isExpanded, setActivePane, setIsExpanded } = useUiStore();
   const [isLabelPopoverOpen, setIsLabelPopoverOpen] = useState(false);

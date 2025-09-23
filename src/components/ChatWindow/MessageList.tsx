@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import { useChatStore } from '../../state/useChatStore';
+import { useConversationStore } from '../../state/stores/conversationStore';
 import { useMessages } from '../../hooks/useMessages';
 import { Message } from '../../models';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,7 @@ import { LoadNewerMessagesButton } from './LoadNewerMessagesButton';
 interface MessageListProps {}
 
 export const MessageList: React.FC<MessageListProps> = () => {
-  const { selectedConversationId } = useChatStore();
+  const { selectedConversationId } = useConversationStore();
   const { messages, isLoading, loadMoreMessages, loadNewerMessages } = useMessages(selectedConversationId);
   const listRef = useRef<VirtuosoHandle>(null);
 

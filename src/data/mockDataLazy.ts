@@ -72,7 +72,14 @@ export const getConversations = (count: number = 15): Conversation[] => {
     const inbox = mockInboxes[i % mockInboxes.length];
     const status = statuses[i % statuses.length];
     const priority = priorities[i % priorities.length];
-    const assignee = i % 3 === 0 ? mockAgents[i % mockAgents.length] : null;
+    // Assign conversations to specific agents to match auth context
+    // First agent (id: 1) matches our mock user
+    let assignee = null;
+    if (i % 3 === 0) {
+      assignee = mockAgents[0]; // Always assign to first agent (Samuel França - id: 1)
+    } else if (i % 5 === 0) {
+      assignee = mockAgents[1]; // Some to Marina Costa
+    }
     const unreadCount = status === 'open' ? Math.floor(Math.random() * 3) : 0;
     
     return {
@@ -176,9 +183,20 @@ export const generateMessages = (conversationId: number, count: number = 5): Mes
   });
 };
 
-export const mockConversationMeta = {
-  mine_count: 5,
-  unassigned_count: 8,
-  assigned_count: 7,
-  all_count: 15,
+// Calculate meta based on actual conversations
+const calculateMeta = () => {
+  const conversations = getConversations(15);
+  const mine_count = conversations.filter(c => c.meta.assignee?.id === 1).length; // Samuel França
+  const unassigned_count = conversations.filter(c => !c.meta.assignee).length;
+  const assigned_count = conversations.filter(c => c.meta.assignee).length;
+  const all_count = conversations.length;
+  
+  return {
+    mine_count,
+    unassigned_count,
+    assigned_count,
+    all_count,
+  };
 };
+
+export const mockConversationMeta = calculateMeta();

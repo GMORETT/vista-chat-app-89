@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useConversation } from '../hooks/useConversations';
-import { useChatStore } from '../state/useChatStore';
+import { useConversationStore } from '../state/stores/conversationStore';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
@@ -15,7 +15,7 @@ export const ConversationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const conversationId = id ? parseInt(id, 10) : null;
   
-  const { setSelectedConversationId } = useChatStore();
+  const { setSelectedConversationId } = useConversationStore();
   const { data: conversation, isLoading, error } = useConversation(conversationId);
   const { data: labels } = useConversationLabels(conversationId || 0);
   const applyLabelsMutation = useApplyLabelsToConversation();

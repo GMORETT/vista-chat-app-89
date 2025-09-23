@@ -6,6 +6,7 @@ import { useConversationStore } from '../state/stores/conversationStore';
 import { useToast } from '../hooks/use-toast';
 import { useCurrentClient } from '../hooks/useCurrentClient';
 import { useAuth } from '../contexts/AuthContext';
+import { getConversations } from '../data/mockDataLazy';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
@@ -289,6 +290,32 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
   const chatService = useBff ? new BffChatService() : new MockChatService();
   const { currentAccountId } = useCurrentClient();
   const { user } = useAuth();
+  
+  // For mock service, calculate meta directly from conversations
+  if (!useBff) {
+    return useQuery({
+      queryKey: ['conversationsMeta', filters, user?.id],
+      queryFn: () => {
+        // Get all conversations and calculate accurate counts
+        const allConversations = getConversations(15);
+        
+        const mine_count = allConversations.filter(c => c.meta.assignee?.id === user?.id).length;
+        const unassigned_count = allConversations.filter(c => !c.meta.assignee).length;
+        const assigned_count = allConversations.filter(c => c.meta.assignee).length;
+        const all_count = allConversations.length;
+        
+        return Promise.resolve({
+          mine_count,
+          unassigned_count,  
+          assigned_count,
+          all_count,
+        });
+      },
+      staleTime: 30 * 1000, // 30 seconds
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      refetchInterval: 30 * 1000, // Refresh every 30 seconds
+    });
+  }
   
   // Convert filters to query format - Fix mine filter by handling assignee_type properly
   const query: ConversationQuery | undefined = filters ? {
