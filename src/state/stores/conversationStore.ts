@@ -80,7 +80,9 @@ export const useConversationStore = create<ConversationState>()(
     }),
     {
       name: 'conversation-store',
-      partialize: (state) => ({ selectedConversationId: state.selectedConversationId }),
+      partialize: () => ({}),
+      version: 2,
+      migrate: () => ({}),
     }
   )
 );
