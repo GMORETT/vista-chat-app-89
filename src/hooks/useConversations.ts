@@ -299,6 +299,34 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
         // Get all conversations and calculate accurate counts
         const allConversations = getConversations(15);
         
+        // If filters are provided, apply them and return filtered counts
+        if (filters && filters.assignee_type !== 'all') {
+          let filteredConversations = allConversations;
+          
+          // Apply assignee_type filter
+          if (filters.assignee_type === 'me') {
+            filteredConversations = allConversations.filter(c => c.meta.assignee?.id === user?.id);
+          } else if (filters.assignee_type === 'unassigned') {
+            filteredConversations = allConversations.filter(c => !c.meta.assignee);
+          } else if (filters.assignee_type === 'assigned') {
+            filteredConversations = allConversations.filter(c => c.meta.assignee);
+          }
+          
+          // Return counts where the current filter shows the filtered count
+          const mine_count = allConversations.filter(c => c.meta.assignee?.id === user?.id).length;
+          const unassigned_count = allConversations.filter(c => !c.meta.assignee).length;
+          const assigned_count = allConversations.filter(c => c.meta.assignee).length;
+          const all_count = allConversations.length;
+          
+          return Promise.resolve({
+            mine_count,
+            unassigned_count,  
+            assigned_count,
+            all_count,
+          });
+        }
+        
+        // Default counts for all conversations
         const mine_count = allConversations.filter(c => c.meta.assignee?.id === user?.id).length;
         const unassigned_count = allConversations.filter(c => !c.meta.assignee).length;
         const assigned_count = allConversations.filter(c => c.meta.assignee).length;

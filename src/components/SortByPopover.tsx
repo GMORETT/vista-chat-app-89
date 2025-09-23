@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowUpDown, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { SortBy } from '../models';
 
 interface SortOption {
@@ -23,7 +23,7 @@ const sortOptions: SortOption[] = [
 ];
 
 export const SortByPopover: React.FC = () => {
-  const { filters, setFilters } = useChatStore();
+  const { filters, setFilters } = useFilterStore();
 
   const currentSort = sortOptions.find(option => option.value === filters.sort_by);
   
@@ -37,7 +37,7 @@ export const SortByPopover: React.FC = () => {
   }, {} as Record<string, SortOption[]>);
 
   const handleSortChange = (sortBy: SortBy) => {
-    setFilters({ ...filters, sort_by: sortBy });
+    setFilters({ sort_by: sortBy });
   };
 
   return (

@@ -6,11 +6,13 @@ import { useUiStore } from '../state/uiStore';
 import { useToast } from '../hooks/use-toast';
 import { AdvancedFiltersModal } from './AdvancedFiltersModal';
 import { SortByPopover } from './SortByPopover';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
+import { useConversationStore } from '../state/stores/conversationStore';
 
 export const ConversationToolbar: React.FC = () => {
   const { isExpanded, setIsExpanded } = useUiStore();
-  const { filters, resetFilters, selectedConversationId } = useChatStore();
+  const { filters, resetFilters } = useFilterStore();
+  const { selectedConversationId } = useConversationStore();
   const { toast } = useToast();
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
