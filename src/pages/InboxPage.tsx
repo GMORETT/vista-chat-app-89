@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useUiStore } from '../state/uiStore';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
+import { useConversationStore } from '../state/stores/conversationStore';
 import { RoleBasedFilters } from '../components/RoleBasedFilters';
 import { RoleBasedTabsCounts } from '../components/RoleBasedTabsCounts';
 import { ClientSelector } from '../components/ClientSelector';
-import { ConversationList } from '../components/ConversationList';
+import { ConversationListOptimized } from '../components/ConversationListOptimizedFixed';
 import { MessageList } from '../components/ChatWindow/MessageList';
 import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
@@ -27,7 +28,8 @@ export const InboxPage: React.FC = () => {
     setIsExpanded
   } = useUiStore();
   
-  const { selectedConversationId, searchQuery, setSearchQuery } = useChatStore();
+  const { selectedConversationId } = useConversationStore();
+  const { searchQuery, setSearchQuery } = useFilterStore();
   const { user } = useAuth();
   // Initialize current client context for proper RBAC
   useCurrentClient();
@@ -148,7 +150,7 @@ export const InboxPage: React.FC = () => {
             
             {/* Conversation list */}
             <div className="flex-1 overflow-hidden">
-              <ConversationList height={isMobile ? window.innerHeight - 300 : window.innerHeight - 260} />
+              <ConversationListOptimized height={isMobile ? window.innerHeight - 300 : window.innerHeight - 260} />
             </div>
           </>
         )}

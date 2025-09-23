@@ -2,15 +2,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters, UpdateStatusRequest, UpdatePriorityRequest, AssignAgentRequest, AssignTeamRequest, StatusType, PriorityType, Label } from '../models/chat';
 import { MockChatService } from '../api/MockChatService';
 import { BffChatService } from '../api/BffChatService';
-import { useChatStore } from '../state/useChatStore';
+import { useConversationStore } from '../state/stores/conversationStore';
 import { useToast } from '../hooks/use-toast';
 import { useCurrentClient } from '../hooks/useCurrentClient';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
-  const { updateConversation, selectedConversation } = useChatStore();
+  const { updateConversation, selectedConversation } = useConversationStore();
   const { toast } = useToast();
   const { currentAccountId } = useCurrentClient();
+  const { user } = useAuth();
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   
@@ -286,11 +288,12 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
   const useBff = import.meta.env.VITE_USE_BFF === 'true';
   const chatService = useBff ? new BffChatService() : new MockChatService();
   const { currentAccountId } = useCurrentClient();
+  const { user } = useAuth();
   
-  // Convert filters to query format
+  // Convert filters to query format - Fix mine filter by handling assignee_type properly
   const query: ConversationQuery | undefined = filters ? {
     status: filters.status,
-    assignee_type: filters.assignee_type,
+    assignee_type: filters.assignee_type === 'me' ? 'assigned' : filters.assignee_type, // Convert 'me' to 'assigned'
     inbox_id: filters.inbox_id,
     team_id: filters.team_id,
     labels: filters.labels,

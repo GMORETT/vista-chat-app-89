@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { useToast } from '../hooks/use-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useListAccounts } from '../hooks/admin/useAccounts';
+import { useCurrentClient } from '../hooks/useCurrentClient';
 
 interface FilterRule {
   id: string;
@@ -75,7 +76,8 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { filters, setFilters, selectedAccountId } = useChatStore();
+  const { filters, setFilters } = useFilterStore();
+  const { currentAccountId } = useCurrentClient();
   const { user } = useAuth();
   const { toast } = useToast();
   const [rules, setRules] = useState<FilterRule[]>([]);
@@ -89,12 +91,12 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     const newRules: FilterRule[] = [];
     
     // Add account filter for super admin
-    if (isSuperAdmin && selectedAccountId) {
+    if (isSuperAdmin && currentAccountId) {
       newRules.push({
         id: Date.now().toString() + '_account',
         field: 'account_id',
         operator: 'equal_to',
-        value: selectedAccountId.toString(),
+        value: currentAccountId.toString(),
         connector: newRules.length > 0 ? 'AND' : undefined,
       });
     }
@@ -172,7 +174,7 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
     }
     
     setRules(newRules);
-  }, [filters, open, selectedAccountId, isSuperAdmin]);
+  }, [filters, open, currentAccountId, isSuperAdmin]);
 
   const addNewRule = () => {
     const newRule: FilterRule = {
@@ -213,12 +215,11 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   const applyFilters = () => {
     try {
       const newFilters = { ...filters };
-      const { setSelectedAccountId } = useChatStore.getState();
       
       rules.forEach(rule => {
         switch (rule.field) {
           case 'account_id':
-            setSelectedAccountId(parseInt(rule.value));
+            // Account ID is handled by useCurrentClient context
             break;
           case 'status':
             newFilters.status = rule.value as any;
@@ -266,7 +267,7 @@ export const AdvancedFiltersModal: React.FC<AdvancedFiltersModalProps> = ({
   const clearAllRules = () => {
     setRules([]);
     // Also reset filters in the store to clear all applied filters
-    const { resetFilters } = useChatStore.getState();
+    const { resetFilters } = useFilterStore.getState();
     resetFilters();
     toast({
       title: "Filtros limpos",

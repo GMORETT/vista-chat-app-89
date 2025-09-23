@@ -1,5 +1,5 @@
 import React from 'react';
-import { useChatStore } from '../state/useChatStore';
+import { useFilterStore } from '../state/stores/filterStore';
 import { useConversationsMeta } from '../hooks/useConversations';
 import { AssignType } from '../models';
 import { Badge } from './ui/badge';
@@ -9,7 +9,7 @@ import { useCurrentClient } from '../hooks/useCurrentClient';
 
 export const RoleBasedTabsCounts: React.FC = () => {
   const { user } = useAuth();
-  const { filters, setFilters, activeTab, setActiveTab } = useChatStore();
+  const { filters, activeTab, setActiveTab } = useFilterStore();
   const { currentAccountId } = useCurrentClient();
   
   // Use current active filters for tab counts to reflect filtered results
