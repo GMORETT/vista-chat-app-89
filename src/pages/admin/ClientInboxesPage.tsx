@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, ArrowLeft, Inbox, Edit, Users, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, Inbox, Edit, Users, Trash2, Smartphone } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -17,6 +17,7 @@ import { ClientInboxWizard } from '../../components/admin/inboxes/ClientInboxWiz
 import { ClientInboxEditModal } from '../../components/admin/inboxes/ClientInboxEditModal';
 import { ClientInboxMembersModal } from '../../components/admin/inboxes/ClientInboxMembersModal';
 import { ConfirmDeleteInboxDialog } from '../../components/admin/inboxes/ConfirmDeleteInboxDialog';
+import { WaCloudWizard } from '../../components/admin/inboxes/WaCloudWizard';
 import { Skeleton } from '../../components/ui/skeleton';
 
 export const ClientInboxesPage: React.FC = () => {

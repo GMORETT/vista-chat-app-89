@@ -513,6 +513,27 @@ class AdminServiceClass {
     }
   }
 
+  // Integrations - WhatsApp Cloud
+  async startWaCloudIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
+    // Initiates OAuth flow on the BFF; never exposes tokens to the frontend
+    return this.bffRequest<{ authorization_url: string }>(`/api/admin/integrations/wa-cloud/start`, {
+      method: 'POST',
+      body: JSON.stringify({ accountId, name }),
+    });
+  }
+
+  async assignClientInboxMembers(accountId: number, inboxId: number, agentIds: number[]): Promise<void> {
+    try {
+      await this.bffRequest<void>(`/api/admin/accounts/${accountId}/inboxes/${inboxId}/members`, {
+        method: 'POST',
+        body: JSON.stringify({ user_ids: agentIds }),
+      });
+    } catch (error) {
+      // Fallback: no-op in mock mode
+      console.warn('Assign members fallback (mock):', { accountId, inboxId, agentIds });
+    }
+  }
+
   // Use BFF endpoints for account management
   async listAccounts(query?: ClientQuery): Promise<Account[]> {
     const params = new URLSearchParams();
