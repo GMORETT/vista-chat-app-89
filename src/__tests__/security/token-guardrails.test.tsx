@@ -1,17 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import React from 'react';
 import { render } from '../utils/testUtils';
-import { WaCloudWizard } from '../../components/admin/inboxes/WaCloudWizard';
-import { FacebookWizard } from '../../components/admin/inboxes/FacebookWizard';
-import * as adminService from '../../services/AdminService';
-
-// Mock AdminService
-vi.mock('../../services/AdminService');
-
-const mockAdminService = adminService as any;
+import { WaCloudWizard } from '@/components/admin/inboxes/WaCloudWizard';
+import { FacebookWizard } from '@/components/admin/inboxes/FacebookWizard';
+import { wizardHelpers, securityHelpers } from '../utils/testHelpers';
 
 describe('Security Guardrails - Token Protection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clear any potential sensitive data from previous tests
+    localStorage.clear();
+    sessionStorage.clear();
+    // Clear window postMessage listeners
+    window.removeEventListener('message', () => {});
   });
 
   describe('Frontend Token Exposure Prevention', () => {
@@ -36,8 +37,8 @@ describe('Security Guardrails - Token Protection', () => {
       const elements = container.querySelectorAll('*');
       elements.forEach(element => {
         Array.from(element.attributes).forEach(attr => {
-          expect(attr.value).not.toContain('SENSITIVE_WA_TOKEN_123');
-          expect(attr.value).not.toContain('WEBHOOK_SECRET_456');
+          expect((attr as Attr).value).not.toContain('SENSITIVE_WA_TOKEN_123');
+          expect((attr as Attr).value).not.toContain('WEBHOOK_SECRET_456');
         });
       });
     });
@@ -113,8 +114,6 @@ describe('Security Guardrails - Token Protection', () => {
         },
       };
       
-      mockAdminService.loadFacebookPages.mockResolvedValue(mockResponse);
-      
       // This test ensures we're not accidentally using real tokens in mocks
       // In a real implementation, these should be masked or fake
       const responseString = JSON.stringify(mockResponse);
@@ -158,7 +157,6 @@ describe('Security Guardrails - Token Protection', () => {
   describe('API Response Sanitization', () => {
     it('masks tokens in API error responses', async () => {
       const errorWithToken = new Error('Invalid access_token: REAL_TOKEN_123');
-      mockAdminService.connectWhatsAppCloud.mockRejectedValue(errorWithToken);
       
       const { container } = render(
         <WaCloudWizard 
@@ -334,8 +332,8 @@ describe('Security Guardrails - Token Protection', () => {
       };
       
       // Error reporting should sanitize sensitive data
-      const sanitizedError = sanitiveError(sensitiveError.message);
-      const sanitizedStack = sanitiveError(errorInfo.componentStack);
+      const sanitizedError = sanitizeError(sensitiveError.message);
+      const sanitizedStack = sanitizeError(errorInfo.componentStack);
       
       expect(sanitizedError).not.toContain('REAL_TOKEN_789');
       expect(sanitizedError).toContain('[MASKED]');
@@ -345,6 +343,6 @@ describe('Security Guardrails - Token Protection', () => {
 });
 
 // Helper function to simulate error sanitization
-function sanitiveError(message: string): string {
+function sanitizeError(message: string): string {
   return message.replace(/[A-Z0-9]{20,}/g, '[MASKED]');
 }

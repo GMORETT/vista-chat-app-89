@@ -46,8 +46,3 @@ const customRender = (
 
 export * from '@testing-library/react';
 export { customRender as render, createTestQueryClient };
-
-// Setup global beforeEach for tests
-export const beforeEach = (fn: () => void) => {
-  // This is handled by vitest automatically
-};
