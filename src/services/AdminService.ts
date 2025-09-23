@@ -571,6 +571,87 @@ class AdminServiceClass {
     });
   }
 
+  // Facebook Integration
+  async startFacebookIntegration(accountId: number, name: string): Promise<{ authorization_url: string }> {
+    try {
+      return await this.bffRequest<{ authorization_url: string }>(`/integrations/facebook/start`, {
+        method: 'POST',
+        body: JSON.stringify({ accountId, name }),
+      });
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Using mock Facebook integration');
+      return {
+        authorization_url: `https://www.facebook.com/v18.0/dialog/oauth?client_id=mock&redirect_uri=${encodeURIComponent(window.location.origin)}/admin/inboxes&state=${btoa(JSON.stringify({ type: 'facebook', accountId, name }))}&scope=pages_manage_metadata,pages_messaging`
+      };
+    }
+  }
+
+  async listFacebookPages(accountId: number): Promise<{ id: string; name: string; followers_count?: number; picture?: string }[]> {
+    try {
+      return await this.bffRequest<{ id: string; name: string; followers_count?: number; picture?: string }[]>(`/integrations/facebook/pages?accountId=${accountId}`);
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Using mock Facebook pages');
+      return [
+        {
+          id: 'page_1',
+          name: 'Empresa Demo',
+          followers_count: 1250,
+          picture: 'https://via.placeholder.com/50x50?text=ED'
+        },
+        {
+          id: 'page_2', 
+          name: 'Loja Virtual',
+          followers_count: 3400,
+          picture: 'https://via.placeholder.com/50x50?text=LV'
+        },
+        {
+          id: 'page_3',
+          name: 'Suporte Técnico',
+          followers_count: 890,
+          picture: 'https://via.placeholder.com/50x50?text=ST'
+        }
+      ];
+    }
+  }
+
+  async selectFacebookPage(accountId: number, pageId: string, inboxName: string): Promise<Channel> {
+    try {
+      return await this.bffRequest<Channel>(`/integrations/facebook/select-page`, {
+        method: 'POST',
+        body: JSON.stringify({ accountId, page_id: pageId, inbox_name: inboxName }),
+      });
+    } catch (error) {
+      // Mock fallback for prototype
+      console.log('Using mock Facebook page selection');
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+      
+      const mockInbox: Channel = {
+        id: Date.now(),
+        name: inboxName,
+        channel_type: 'Channel::FacebookPage',
+        webhook_url: `https://app.chatwoot.com/webhooks/facebook/${pageId}`,
+        phone_number: null,
+        provider_config: {
+          page_id: pageId,
+          page_access_token: '[HIDDEN]' // Never expose real tokens
+        },
+        working_hours_enabled: false,
+        working_hours: null,
+        timezone: 'UTC',
+        greeting_enabled: true,
+        greeting_message: 'Olá! Como podemos ajudar você hoje?',
+        out_of_office_message: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        account_id: accountId
+      };
+
+      return mockInbox;
+    }
+  }
+
   // Credentials
   async listCredentials(): Promise<Array<{ id: string; name: string; description?: string; created_at: string }>> {
     return this.request('/credentials');

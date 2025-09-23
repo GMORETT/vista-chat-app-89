@@ -18,6 +18,7 @@ import { ClientInboxEditModal } from '../../components/admin/inboxes/ClientInbox
 import { ClientInboxMembersModal } from '../../components/admin/inboxes/ClientInboxMembersModal';
 import { ConfirmDeleteInboxDialog } from '../../components/admin/inboxes/ConfirmDeleteInboxDialog';
 import { WaCloudWizard } from '../../components/admin/inboxes/WaCloudWizard';
+import { FacebookWizard } from '../../components/admin/inboxes/FacebookWizard';
 import { Skeleton } from '../../components/ui/skeleton';
 
 export const ClientInboxesPage: React.FC = () => {
@@ -30,11 +31,13 @@ export const ClientInboxesPage: React.FC = () => {
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedInbox, setSelectedInbox] = useState<Channel | null>(null);
+  const [isWaCloudWizardOpen, setIsWaCloudWizardOpen] = useState(false);
+  const [isFacebookWizardOpen, setIsFacebookWizardOpen] = useState(false);
 
   const accountIdNum = accountId ? parseInt(accountId, 10) : 0;
 
   // Queries and mutations
-  const { data: inboxes = [], isLoading, error } = useClientInboxes(accountIdNum);
+  const { data: inboxes = [], isLoading, error, refetch } = useClientInboxes(accountIdNum);
   const createInboxMutation = useCreateClientInbox();
   const updateInboxMutation = useUpdateClientInbox();
   const deleteInboxMutation = useDeleteClientInbox();
@@ -176,10 +179,20 @@ export const ClientInboxesPage: React.FC = () => {
             </p>
           </div>
         </div>
-        <Button onClick={() => setShowWizard(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Adicionar Inbox
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsWaCloudWizardOpen(true)} className="gap-2">
+            <Smartphone className="h-4 w-4" />
+            Adicionar WhatsApp Cloud
+          </Button>
+          <Button onClick={() => setIsFacebookWizardOpen(true)} variant="outline" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Adicionar Facebook
+          </Button>
+          <Button onClick={() => setShowWizard(true)} variant="outline">
+            <Plus className="mr-2 h-4 w-4" />
+            Adicionar Inbox
+          </Button>
+        </div>
       </div>
 
       {/* Content */}
@@ -197,10 +210,20 @@ export const ClientInboxesPage: React.FC = () => {
               Este cliente ainda não possui inboxes configurados.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center">
-            <Button onClick={() => setShowWizard(true)} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Criar Primeiro Inbox
+          <CardContent className="text-center space-y-4">
+            <div className="flex gap-2 justify-center">
+              <Button onClick={() => setIsWaCloudWizardOpen(true)} size="lg" className="gap-2">
+                <Smartphone className="h-5 w-5" />
+                WhatsApp Cloud
+              </Button>
+              <Button onClick={() => setIsFacebookWizardOpen(true)} variant="outline" size="lg" className="gap-2">
+                <Plus className="h-5 w-5" />
+                Facebook
+              </Button>
+            </div>
+            <Button onClick={() => setShowWizard(true)} variant="outline" size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Outro Tipo de Inbox
             </Button>
           </CardContent>
         </Card>
@@ -242,6 +265,26 @@ export const ClientInboxesPage: React.FC = () => {
         inbox={selectedInbox}
         onConfirm={handleConfirmDelete}
         isLoading={deleteInboxMutation.isPending}
+      />
+
+      <WaCloudWizard
+        open={isWaCloudWizardOpen}
+        onOpenChange={setIsWaCloudWizardOpen}
+        accountId={accountIdNum}
+        onFinished={() => {
+          refetch();
+          setIsWaCloudWizardOpen(false);
+        }}
+      />
+
+      <FacebookWizard
+        open={isFacebookWizardOpen}
+        onOpenChange={setIsFacebookWizardOpen}
+        accountId={accountIdNum}
+        onSuccess={() => {
+          refetch();
+          setIsFacebookWizardOpen(false);
+        }}
       />
     </div>
   );
