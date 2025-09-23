@@ -12,3 +12,6 @@ export type {
   TeamMember,
   ChannelType
 } from './admin';
+
+// Re-export audit types
+export * from './audit';

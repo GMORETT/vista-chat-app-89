@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const { mockData } = require('./mockData');
+const { auditService } = require('./auditService');
+const { createAuditWrapper } = require('./auditMiddleware');
 const app = express();
 const PORT = 3001;
 
@@ -1322,6 +1324,49 @@ app.get('/api/v1/accounts/:accountId/channel-types', adminAuth, async (req, res)
   }
 });
 
+// ============= AUDIT LOGS ROUTES =============
+app.get('/api/admin/audit-logs', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const filters = { ...req.query };
+    delete filters.page;
+    if (filters.account_id) filters.account_id = parseInt(filters.account_id);
+    if (filters.actor_id) filters.actor_id = parseInt(filters.actor_id);
+    if (filters.success !== undefined) filters.success = filters.success === 'true';
+    const result = auditService.getLogs(filters, page);
+    res.json({ data: result, error: null });
+  } catch (error) {
+    res.status(500).json({ data: null, error: error.message });
+  }
+});
+
+app.get('/api/admin/audit-logs/export', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    const format = req.query.format || 'csv';
+    const filters = { ...req.query };
+    delete filters.format;
+    const logs = auditService.getLogs(filters, 1, 10000).payload;
+    const exportData = format === 'json' ? auditService.exportToJSON(logs) : auditService.exportToCSV(logs);
+    res.setHeader('Content-Type', format === 'json' ? 'application/json' : 'text/csv');
+    res.send(exportData);
+  } catch (error) {
+    res.status(500).json({ data: null, error: error.message });
+  }
+});
+
+app.get('/api/admin/audit-logs/validate', rbacAuth, async (req, res) => {
+  await delay();
+  try {
+    const accountId = req.query.account_id ? parseInt(req.query.account_id) : undefined;
+    const result = auditService.validateChain(accountId);
+    res.json({ data: result, error: null });
+  } catch (error) {
+    res.status(500).json({ data: null, error: error.message });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -1330,5 +1375,6 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Chatwoot BFF Fake Server running on http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔐 Audit system enabled`);
   console.log(`🔗 CORS enabled for: ${allowedOrigins.join(', ')}`);
 });

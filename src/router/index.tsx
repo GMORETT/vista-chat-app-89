@@ -21,6 +21,7 @@ const TeamsPage = React.lazy(() => import('../pages/admin/TeamsPage').then(modul
 const TeamWizard = React.lazy(() => import('../components/admin/teams/TeamWizard').then(module => ({ default: module.TeamWizard })));
 const AgentsPage = React.lazy(() => import('../pages/admin/AgentsPage').then(module => ({ default: module.AgentsPage })));
 const LabelsPage = React.lazy(() => import('../pages/admin/LabelsPage').then(module => ({ default: module.LabelsPage })));
+const AuditLogsPage = React.lazy(() => import('../pages/admin/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })));
 
 // Loading component
 const PageLoader = () => (
@@ -174,6 +175,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <LabelsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'logs',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <AuditLogsPage />
           </Suspense>
         ),
       },

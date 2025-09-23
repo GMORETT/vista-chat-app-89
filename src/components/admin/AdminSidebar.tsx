@@ -6,7 +6,8 @@ import {
   UserCheck, 
   Tags,
   LayoutDashboard,
-  Building2
+  Building2,
+  Shield
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,6 +52,11 @@ const menuItems = [
     title: 'Labels', 
     url: '/admin/labels', 
     icon: Tags 
+  },
+  { 
+    title: 'Logs', 
+    url: '/admin/logs', 
+    icon: Shield 
   },
 ];
 

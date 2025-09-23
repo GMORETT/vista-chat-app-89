@@ -451,6 +451,38 @@ class AdminServiceClass {
     return this.request('/credentials');
   }
 
+  // Audit Logs
+  async getAuditLogs(filters = {}, page = 1): Promise<import('../models/audit').AuditLogResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      )
+    });
+    
+    return this.request(`/api/admin/audit-logs?${params}`);
+  }
+
+  async getAuditLog(id: number): Promise<import('../models/audit').AuditLog> {
+    return this.request(`/api/admin/audit-logs/${id}`);
+  }
+
+  async exportAuditLogs(request: import('../models/audit').AuditExportRequest): Promise<string> {
+    const params = new URLSearchParams({
+      format: request.format,
+      ...Object.fromEntries(
+        Object.entries(request.filters || {}).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      )
+    });
+    
+    return this.request(`/api/admin/audit-logs/export?${params}`);
+  }
+
+  async validateAuditChain(accountId?: number): Promise<{ valid: boolean; error?: string }> {
+    const params = accountId ? `?account_id=${accountId}` : '';
+    return this.request(`/api/admin/audit-logs/validate${params}`);
+  }
+
   // Helper methods
   private generateSlug(title: string): string {
     return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
