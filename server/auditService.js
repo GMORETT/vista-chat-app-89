@@ -232,4 +232,108 @@ class AuditService {
 // Singleton instance
 const auditService = new AuditService();
 
+// Add example audit log data for development
+const initExampleData = () => {
+  const now = new Date();
+  const exampleLogs = [
+    {
+      id: 1,
+      request_id: 'req_001',
+      timestamp: new Date(now.getTime() - 86400000).toISOString(),
+      actor_id: 1,
+      actor_role: 'super_admin',
+      actor_ip: '192.168.1.100',
+      entity_type: 'account',
+      action: 'create',
+      account_id: 1,
+      cw_entity_id: 1,
+      before: null,
+      after: { name: 'Test Account', status: 'active' },
+      success: true,
+      error_message: null,
+      hash: 'abc123',
+      prev_hash: null
+    },
+    {
+      id: 2,
+      request_id: 'req_002',
+      timestamp: new Date(now.getTime() - 43200000).toISOString(),
+      actor_id: 2,
+      actor_role: 'admin',
+      actor_ip: '192.168.1.101',
+      entity_type: 'inbox',
+      action: 'update',
+      account_id: 1,
+      cw_entity_id: 10,
+      before: { name: 'Support Inbox', settings: { auto_assignment: false } },
+      after: { name: 'Support Inbox', settings: { auto_assignment: true } },
+      success: true,
+      error_message: null,
+      hash: 'def456',
+      prev_hash: 'abc123'
+    },
+    {
+      id: 3,
+      request_id: 'req_003',
+      timestamp: new Date(now.getTime() - 21600000).toISOString(),
+      actor_id: 1,
+      actor_role: 'super_admin',
+      actor_ip: '192.168.1.100',
+      entity_type: 'label',
+      action: 'create',
+      account_id: 1,
+      cw_entity_id: 5,
+      before: null,
+      after: { title: 'Priority', description: 'High priority issues', color: '#ff0000' },
+      success: true,
+      error_message: null,
+      hash: 'ghi789',
+      prev_hash: 'def456'
+    },
+    {
+      id: 4,
+      request_id: 'req_004',
+      timestamp: new Date(now.getTime() - 10800000).toISOString(),
+      actor_id: 3,
+      actor_role: 'admin',
+      actor_ip: '192.168.1.102',
+      entity_type: 'agent',
+      action: 'delete',
+      account_id: 1,
+      cw_entity_id: 15,
+      before: { name: 'John Doe', email: 'john@example.com', role: 'agent' },
+      after: null,
+      success: false,
+      error_message: 'Cannot delete agent with active conversations',
+      hash: 'jkl012',
+      prev_hash: 'ghi789'
+    },
+    {
+      id: 5,
+      request_id: 'req_005',
+      timestamp: new Date(now.getTime() - 3600000).toISOString(),
+      actor_id: 2,
+      actor_role: 'admin',
+      actor_ip: '192.168.1.101',
+      entity_type: 'team',
+      action: 'update',
+      account_id: 1,
+      cw_entity_id: 20,
+      before: { name: 'Support Team', members: [1, 2] },
+      after: { name: 'Support Team', members: [1, 2, 3] },
+      success: true,
+      error_message: null,
+      hash: 'mno345',
+      prev_hash: 'jkl012'
+    }
+  ];
+
+  // Add logs to the service
+  auditLogs.push(...exampleLogs);
+  console.log('✅ Added', exampleLogs.length, 'example audit logs');
+};
+
+// Initialize example data
+initExampleData();
+
 module.exports = { auditService, AuditService };

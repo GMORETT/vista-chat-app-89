@@ -1328,15 +1328,19 @@ app.get('/api/v1/accounts/:accountId/channel-types', adminAuth, async (req, res)
 app.get('/api/v1/accounts/:accountId/api/admin/audit-logs', rbacAuth, async (req, res) => {
   await delay();
   try {
+    console.log('🔍 Fetching audit logs with query:', req.query);
     const page = parseInt(req.query.page) || 1;
     const filters = { ...req.query };
     delete filters.page;
     if (filters.account_id) filters.account_id = parseInt(filters.account_id);
     if (filters.actor_id) filters.actor_id = parseInt(filters.actor_id);
     if (filters.success !== undefined) filters.success = filters.success === 'true';
+    console.log('📋 Processed filters:', filters, 'page:', page);
     const result = auditService.getLogs(filters, page);
+    console.log('✅ Found', result.payload.length, 'audit logs (total:', result.meta.total_count, ')');
     res.json({ data: result, error: null });
   } catch (error) {
+    console.error('❌ Error fetching audit logs:', error);
     res.status(500).json({ data: null, error: error.message });
   }
 });
