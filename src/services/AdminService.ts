@@ -17,6 +17,7 @@ import {
   UpdateAccountRequest, 
   ClientQuery 
 } from '../models/chat';
+import { CHANNEL_TYPES } from '../data/channelTypes';
 
 class AdminServiceClass {
   private config: {
@@ -285,6 +286,12 @@ class AdminServiceClass {
   }
 
   async getChannelTypes(): Promise<ChannelType[]> {
+    // Se apiBaseUrl estiver vazio, usar dados mockados dos 3 canais principais
+    if (!this.config.apiBaseUrl) {
+      const mainChannels = ['whatsapp', 'facebook', 'instagram'];
+      return CHANNEL_TYPES.filter(channel => mainChannels.includes(channel.id));
+    }
+    
     return this.request<ChannelType[]>('/channel-types');
   }
 
