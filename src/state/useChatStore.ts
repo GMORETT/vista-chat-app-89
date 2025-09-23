@@ -10,7 +10,7 @@ import {
   Message,
   ConversationMeta 
 } from '../models';
-import { mockConversations } from '../data/mockData';
+import { getConversations } from '../data/mockDataLazy';
 
 // Centralized chat state interface
 interface ChatState {
@@ -128,7 +128,7 @@ export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
       // Initial state
-      conversations: mockConversations,
+      conversations: getConversations(30),
       meta: defaultMeta,
       
       activeTab: 'all',
@@ -209,10 +209,7 @@ export const useChatStore = create<ChatState>()(
       setSelectedConversationId: (id) => {
         let conversation = null;
         if (id) {
-          conversation = get().conversations.find(c => c.id === id);
-          if (!conversation) {
-            conversation = mockConversations.find(c => c.id === id) || null;
-          }
+          conversation = get().conversations.find(c => c.id === id) || null;
         }
         set({ 
           selectedConversationId: id,
@@ -297,7 +294,7 @@ export const useChatStore = create<ChatState>()(
       
       reset: () => {
         set({
-          conversations: mockConversations,
+          conversations: getConversations(30),
           meta: defaultMeta,
           activeTab: 'all',
           filters: defaultFilters,

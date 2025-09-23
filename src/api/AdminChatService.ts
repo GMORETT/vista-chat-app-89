@@ -78,7 +78,7 @@ export class AdminChatService {
   }
 
   async deleteChannel(id: number): Promise<void> {
-    console.log('Deleting channel:', id);
+    // Mock implementation
   }
 
   async getChannelTypes(): Promise<ChannelType[]> {
@@ -134,8 +134,8 @@ export class AdminChatService {
     }
   }
   async getTeamMembers(teamId: number): Promise<TeamMember[]> { return []; }
-  async addTeamMember(teamId: number, agentIds: number[]): Promise<void> { console.log('Adding members:', teamId, agentIds); }
-  async removeTeamMember(teamId: number, agentId: number): Promise<void> { console.log('Removing member:', teamId, agentId); }
+  async addTeamMember(teamId: number, agentIds: number[]): Promise<void> { /* Mock implementation */ }
+  async removeTeamMember(teamId: number, agentId: number): Promise<void> { /* Mock implementation */ }
 
   // Agents - Mock implementations  
   async getAgents(): Promise<Agent[]> { 
@@ -154,7 +154,7 @@ export class AdminChatService {
   async updateAgent(id: number, data: Partial<CreateAgentRequest>): Promise<Agent> {
     return { id, name: '', email: '', account_id: data.account_id || 1, ...data, role: 'user', confirmed: true, availability_status: 'available', auto_offline: false, assigned_inboxes: [], created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   }
-  async deleteAgent(id: number): Promise<void> { console.log('Deleting agent:', id); }
+  async deleteAgent(id: number): Promise<void> { /* Mock implementation */ }
 
   // Labels - Mock implementations
   async getLabels(): Promise<Label[]> { return []; }
@@ -187,7 +187,7 @@ export class AdminChatService {
       updated_at: new Date().toISOString() 
     };
   }
-  async deleteLabel(id: number): Promise<void> { console.log('Deleting label:', id); }
-  async applyLabelToConversation(conversationId: number, labelIds: number[]): Promise<void> { console.log('Applying labels to conversation:', conversationId, labelIds); }
-  async applyLabelToContact(contactId: number, labelIds: number[]): Promise<void> { console.log('Applying labels to contact:', contactId, labelIds); }
+  async deleteLabel(id: number): Promise<void> { /* Mock implementation */ }
+  async applyLabelToConversation(conversationId: number, labelIds: number[]): Promise<void> { /* Mock implementation */ }
+  async applyLabelToContact(contactId: number, labelIds: number[]): Promise<void> { /* Mock implementation */ }
 }

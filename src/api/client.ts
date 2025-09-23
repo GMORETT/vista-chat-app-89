@@ -28,7 +28,7 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       (error) => {
-        console.error('API Error:', error);
+        // Error logged by interceptor
         
         // Handle common errors
         if (error.response?.status === 401) {
