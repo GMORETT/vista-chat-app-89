@@ -46,7 +46,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
               {/* Back to operator mode */}
               <Button variant="outline" size="sm" onClick={() => navigate('/')}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                Operador
+                Conversas
               </Button>
               
               {/* Logout button */}
