@@ -296,41 +296,73 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
     return useQuery({
       queryKey: ['conversationsMeta', filters, user?.id],
       queryFn: () => {
-        // Get all conversations and calculate accurate counts
-        const allConversations = getConversations(15);
+        // Get all conversations
+        let baseConversations = getConversations(15);
         
-        // If filters are provided, apply them and return filtered counts
-        if (filters && filters.assignee_type !== 'all') {
-          let filteredConversations = allConversations;
-          
-          // Apply assignee_type filter
-          if (filters.assignee_type === 'me') {
-            filteredConversations = allConversations.filter(c => c.meta.assignee?.id === user?.id);
-          } else if (filters.assignee_type === 'unassigned') {
-            filteredConversations = allConversations.filter(c => !c.meta.assignee);
-          } else if (filters.assignee_type === 'assigned') {
-            filteredConversations = allConversations.filter(c => c.meta.assignee);
+        // Apply all filters EXCEPT assignee_type to get the filtered base
+        if (filters) {
+          // Filter by status
+          if (filters.status !== 'all') {
+            baseConversations = baseConversations.filter(conv => conv.status === filters.status);
           }
-          
-          // Return counts where the current filter shows the filtered count
-          const mine_count = allConversations.filter(c => c.meta.assignee?.id === user?.id).length;
-          const unassigned_count = allConversations.filter(c => !c.meta.assignee).length;
-          const assigned_count = allConversations.filter(c => c.meta.assignee).length;
-          const all_count = allConversations.length;
-          
-          return Promise.resolve({
-            mine_count,
-            unassigned_count,  
-            assigned_count,
-            all_count,
-          });
+
+          // Filter by inbox_id  
+          if (filters.inbox_id) {
+            baseConversations = baseConversations.filter(conv => conv.inbox_id === filters.inbox_id);
+          }
+
+          // Filter by team_id
+          if (filters.team_id) {
+            baseConversations = baseConversations.filter(conv => conv.team_id === filters.team_id);
+          }
+
+          // Filter by labels
+          if (filters.labels && filters.labels.length > 0) {
+            baseConversations = baseConversations.filter(conv => 
+              filters.labels.some((filterLabel: string) => 
+                conv.labels.some(convLabel => convLabel.title === filterLabel)
+              )
+            );
+          }
+
+          // Filter by priority
+          if (filters.priority) {
+            baseConversations = baseConversations.filter(conv => conv.priority === filters.priority);
+          }
+
+          // Filter by search query
+          if (filters.q) {
+            const query = filters.q.toLowerCase();
+            baseConversations = baseConversations.filter(conv => 
+              conv.meta.sender.name?.toLowerCase().includes(query) ||
+              conv.meta.sender.email?.toLowerCase().includes(query) ||
+              conv.id.toString().includes(query)
+            );
+          }
+
+          // Filter by updated_within
+          if (filters.updated_within) {
+            const now = Date.now();
+            const withinDays = {
+              '1d': 1,
+              '7d': 7,
+              '30d': 30,
+              '90d': 90
+            }[filters.updated_within];
+            
+            if (withinDays) {
+              const cutoff = now - (withinDays * 24 * 60 * 60 * 1000);
+              baseConversations = baseConversations.filter(conv => conv.last_activity_at >= cutoff);
+            }
+          }
+
         }
         
-        // Default counts for all conversations
-        const mine_count = allConversations.filter(c => c.meta.assignee?.id === user?.id).length;
-        const unassigned_count = allConversations.filter(c => !c.meta.assignee).length;
-        const assigned_count = allConversations.filter(c => c.meta.assignee).length;
-        const all_count = allConversations.length;
+        // Now calculate counts from the filtered base conversations
+        const mine_count = baseConversations.filter(c => c.meta.assignee?.id === user?.id).length;
+        const unassigned_count = baseConversations.filter(c => !c.meta.assignee).length;
+        const assigned_count = baseConversations.filter(c => c.meta.assignee).length;
+        const all_count = baseConversations.length;
         
         return Promise.resolve({
           mine_count,
