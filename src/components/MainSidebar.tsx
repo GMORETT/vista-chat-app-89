@@ -31,24 +31,24 @@ export const MainSidebar: React.FC = () => {
   const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
   return <Sidebar collapsible="icon" className="">
       <SidebarHeader className="border-b border-border/20 p-0 h-14">
-        <div className={`flex items-center ${collapsed ? 'justify-center p-3' : 'gap-3 p-4'}`}>
+        <div className={`flex items-center justify-center h-full ${collapsed ? 'px-2' : 'px-4'}`}>
           {collapsed ? (
-            <span className="text-sm font-bold text-primary px-1">SOLABS</span>
+            <span className="text-xs font-bold text-primary">SOL</span>
           ) : (
-            <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain transition-all duration-200" />
+            <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain" />
           )}
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-6">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className="space-y-3">
               {menuItems.map(item => <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild size="lg">
                     <NavLink to={item.url} className={getNavClassName(isActive(item.url))} title={collapsed ? item.title : undefined}>
-                      <item.icon className={`${collapsed ? 'h-6 w-6' : 'h-6 w-6'} flex-shrink-0`} />
-                      {!collapsed && <span className="text-sm font-medium">
+                      <item.icon className="h-7 w-7 flex-shrink-0" />
+                      {!collapsed && <span className="text-base font-medium">
                           {item.title}
                         </span>}
                     </NavLink>
