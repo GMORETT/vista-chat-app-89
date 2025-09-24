@@ -1,173 +1,256 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useCRMStore } from '../state/stores/crmStore';
+import { Stage, Contact } from '../types/crm';
+import { Button } from '../components/ui/button';
+import { Plus, BarChart3 } from 'lucide-react';
+import { FunnelStage } from '../components/crm/FunnelStage';
+import { ContactModal } from '../components/crm/ContactModal';
+import { StageModal } from '../components/crm/StageModal';
+import { StageManager } from '../components/crm/StageManager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { TrendingUp, Target, Users, DollarSign } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const FunilPage: React.FC = () => {
+  const {
+    stages,
+    contacts,
+    addStage,
+    updateStage,
+    deleteStage,
+    reorderStages,
+    addContact,
+    updateContact,
+    deleteContact,
+    moveContact,
+  } = useCRMStore();
+
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | undefined>();
+  const [editingStage, setEditingStage] = useState<Stage | undefined>();
+  const [defaultStageId, setDefaultStageId] = useState<string | undefined>();
+
+  // Sort stages by order
+  const sortedStages = [...stages].sort((a, b) => a.order - b.order);
+
+  const handleAddContact = (stageId?: string) => {
+    setDefaultStageId(stageId);
+    setEditingContact(undefined);
+    setContactModalOpen(true);
+  };
+
+  const handleEditContact = (contact: Contact) => {
+    setEditingContact(contact);
+    setContactModalOpen(true);
+  };
+
+  const handleSaveContact = (contactData: Omit<Contact, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingContact) {
+      updateContact(editingContact.id, contactData);
+      toast.success('Contato atualizado com sucesso!');
+    } else {
+      addContact(contactData);
+      toast.success('Contato criado com sucesso!');
+    }
+    setContactModalOpen(false);
+    setEditingContact(undefined);
+    setDefaultStageId(undefined);
+  };
+
+  const handleDeleteContact = (contactId: string) => {
+    deleteContact(contactId);
+    toast.success('Contato excluído com sucesso!');
+  };
+
+  const handleAddStage = () => {
+    setEditingStage(undefined);
+    setStageModalOpen(true);
+  };
+
+  const handleEditStage = (stage: Stage) => {
+    setEditingStage(stage);
+    setStageModalOpen(true);
+  };
+
+  const handleSaveStage = (stageData: Omit<Stage, 'id'>) => {
+    if (editingStage) {
+      updateStage(editingStage.id, stageData);
+      toast.success('Etapa atualizada com sucesso!');
+    } else {
+      const newOrder = Math.max(...stages.map(s => s.order), 0) + 1;
+      addStage({ ...stageData, order: newOrder });
+      toast.success('Etapa criada com sucesso!');
+    }
+    setStageModalOpen(false);
+    setEditingStage(undefined);
+  };
+
+  const handleDeleteStage = (stageId: string) => {
+    const stageContacts = contacts.filter(c => c.stageId === stageId);
+    if (stageContacts.length > 0) {
+      toast.error('Não é possível excluir uma etapa que possui contatos. Mova os contatos primeiro.');
+      return;
+    }
+    deleteStage(stageId);
+    toast.success('Etapa excluída com sucesso!');
+  };
+
+  const handleContactDrop = (contactId: string, newStageId: string) => {
+    const contact = contacts.find(c => c.id === contactId);
+    if (contact && contact.stageId !== newStageId) {
+      moveContact(contactId, newStageId);
+      toast.success('Contato movido com sucesso!');
+    }
+  };
+
+  // Calculate stats
+  const totalContacts = contacts.length;
+  const totalValue = contacts.reduce((sum, contact) => sum + contact.value, 0);
+  const avgProbability = totalContacts > 0 
+    ? contacts.reduce((sum, contact) => sum + contact.probability, 0) / totalContacts 
+    : 0;
+  const expectedValue = contacts.reduce((sum, contact) => sum + (contact.value * contact.probability / 100), 0);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
   return (
     <div className="h-full overflow-y-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
-        <p className="text-muted-foreground mt-2">
-          Acompanhe seu pipeline de vendas e conversões
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
+          <p className="text-muted-foreground mt-2">
+            Gerencie seu pipeline de vendas com drag & drop
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          <StageManager
+            stages={sortedStages}
+            onAddStage={handleAddStage}
+            onEditStage={handleEditStage}
+            onDeleteStage={handleDeleteStage}
+            onReorderStages={reorderStages}
+          />
+          <Button onClick={() => handleAddContact()}>
+            <Plus className="h-4 w-4 mr-1" />
+            Novo Contato
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Leads Qualificados
+              Total de Contatos
             </CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">
-              +12% desde a semana passada
-            </p>
+            <div className="text-2xl font-bold">{totalContacts}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Propostas Enviadas
+              Valor Total
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">28</div>
-            <p className="text-xs text-muted-foreground">
-              +8% este mês
-            </p>
+            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Vendas Fechadas
+              Probabilidade Média
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
-            <p className="text-xs text-muted-foreground">
-              Taxa de conversão: 53%
-            </p>
+            <div className="text-2xl font-bold">{Math.round(avgProbability)}%</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Receita Total
+              Valor Esperado
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">R$ 89.5K</div>
-            <p className="text-xs text-muted-foreground">
-              +25% este mês
-            </p>
+            <div className="text-2xl font-bold">{formatCurrency(expectedValue)}</div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Pipeline de Vendas</CardTitle>
-            <CardDescription>Estágios do funil de vendas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Leads (100)</span>
-                  <span className="text-sm text-muted-foreground">100%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-3">
-                  <div className="bg-blue-500 h-3 rounded-full" style={{ width: '100%' }}></div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Qualificados (45)</span>
-                  <span className="text-sm text-muted-foreground">45%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-3">
-                  <div className="bg-green-500 h-3 rounded-full" style={{ width: '45%' }}></div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Propostas (28)</span>
-                  <span className="text-sm text-muted-foreground">28%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-3">
-                  <div className="bg-yellow-500 h-3 rounded-full" style={{ width: '28%' }}></div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Fechadas (15)</span>
-                  <span className="text-sm text-muted-foreground">15%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-3">
-                  <div className="bg-primary h-3 rounded-full" style={{ width: '15%' }}></div>
-                </div>
-              </div>
+      {/* Funnel Stages */}
+      <div className="flex gap-6 overflow-x-auto pb-4">
+        {sortedStages.length === 0 ? (
+          <Card className="w-full p-8">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Nenhuma etapa criada</h3>
+              <p className="text-muted-foreground mb-4">
+                Crie sua primeira etapa para começar a organizar seus contatos
+              </p>
+              <Button onClick={handleAddStage}>
+                <Plus className="h-4 w-4 mr-1" />
+                Criar Primeira Etapa
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Oportunidades em Destaque</CardTitle>
-            <CardDescription>Leads com maior potencial</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Empresa ABC Ltda</p>
-                  <p className="text-sm text-muted-foreground">Proposta: R$ 25.000</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-green-600">85% chance</p>
-                  <p className="text-xs text-muted-foreground">Fecha em 3 dias</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Tech Solutions</p>
-                  <p className="text-sm text-muted-foreground">Proposta: R$ 18.500</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-yellow-600">70% chance</p>
-                  <p className="text-xs text-muted-foreground">Fecha em 7 dias</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Startup XYZ</p>
-                  <p className="text-sm text-muted-foreground">Proposta: R$ 12.000</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-blue-600">60% chance</p>
-                  <p className="text-xs text-muted-foreground">Fecha em 10 dias</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </Card>
+        ) : (
+          sortedStages.map((stage) => {
+            const stageContacts = contacts.filter(contact => contact.stageId === stage.id);
+            return (
+              <FunnelStage
+                key={stage.id}
+                stage={stage}
+                contacts={stageContacts}
+                onEditStage={handleEditStage}
+                onDeleteStage={handleDeleteStage}
+                onEditContact={handleEditContact}
+                onDeleteContact={handleDeleteContact}
+                onAddContact={handleAddContact}
+                onContactDrop={handleContactDrop}
+              />
+            );
+          })
+        )}
       </div>
+
+      {/* Modals */}
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => {
+          setContactModalOpen(false);
+          setEditingContact(undefined);
+          setDefaultStageId(undefined);
+        }}
+        onSave={handleSaveContact}
+        contact={editingContact}
+        stages={sortedStages}
+        defaultStageId={defaultStageId}
+      />
+
+      <StageModal
+        isOpen={stageModalOpen}
+        onClose={() => {
+          setStageModalOpen(false);
+          setEditingStage(undefined);
+        }}
+        onSave={handleSaveStage}
+        stage={editingStage}
+      />
     </div>
   );
 };

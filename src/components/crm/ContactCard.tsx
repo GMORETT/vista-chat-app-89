@@ -1,0 +1,122 @@
+import React from 'react';
+import { Contact } from '../../types/crm';
+import { Card, CardContent } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { MoreHorizontal, Building, Mail, Phone, DollarSign } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+
+interface ContactCardProps {
+  contact: Contact;
+  onEdit: (contact: Contact) => void;
+  onDelete: (contactId: string) => void;
+}
+
+export const ContactCard: React.FC<ContactCardProps> = ({
+  contact,
+  onEdit,
+  onDelete,
+}) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('text/plain', contact.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+  };
+
+  const getProbabilityColor = (probability: number) => {
+    if (probability >= 80) return 'bg-green-500';
+    if (probability >= 60) return 'bg-yellow-500';
+    if (probability >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <Card
+      className="cursor-move hover:shadow-md transition-shadow duration-200 mb-3"
+      draggable
+      onDragStart={handleDragStart}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm text-foreground mb-1">
+              {contact.name}
+            </h4>
+            {contact.company && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+                <Building className="h-3 w-3" />
+                <span>{contact.company}</span>
+              </div>
+            )}
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                <MoreHorizontal className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(contact)}>
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onDelete(contact.id)}
+                className="text-destructive"
+              >
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="space-y-2">
+          {contact.email && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Mail className="h-3 w-3" />
+              <span className="truncate">{contact.email}</span>
+            </div>
+          )}
+          
+          {contact.phone && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Phone className="h-3 w-3" />
+              <span>{contact.phone}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 text-xs font-medium">
+              <DollarSign className="h-3 w-3" />
+              <span>{formatCurrency(contact.value)}</span>
+            </div>
+            
+            <Badge 
+              variant="secondary" 
+              className={`text-xs ${getProbabilityColor(contact.probability)} text-white`}
+            >
+              {contact.probability}%
+            </Badge>
+          </div>
+
+          {contact.notes && (
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
+              {contact.notes}
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
