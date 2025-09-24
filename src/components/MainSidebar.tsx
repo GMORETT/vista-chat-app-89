@@ -29,7 +29,7 @@ export const MainSidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
   const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
-  return <Sidebar className={collapsed ? "w-24" : "w-64"} collapsible="icon">
+  return <Sidebar collapsible="icon" className="">
       <SidebarHeader className="border-b border-border/20 p-0">
         <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'gap-3'}`}>
           {collapsed ? (
@@ -47,7 +47,7 @@ export const MainSidebar: React.FC = () => {
               {menuItems.map(item => <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavClassName(isActive(item.url))} title={collapsed ? item.title : undefined}>
-                      <item.icon className={`${collapsed ? 'h-5 w-5' : 'h-5 w-5'} flex-shrink-0`} />
+                      <item.icon className={`${collapsed ? 'h-6 w-6' : 'h-6 w-6'} flex-shrink-0`} />
                       {!collapsed && <span className="text-sm font-medium">
                           {item.title}
                         </span>}

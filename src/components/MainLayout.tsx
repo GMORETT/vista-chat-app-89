@@ -22,7 +22,7 @@ export const MainLayout: React.FC = () => {
   const isAdmin = user?.role === 'super_admin' || user?.role === 'admin';
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ ['--sidebar-width-icon' as any]: '6rem' } as React.CSSProperties}>
       <div className="min-h-screen flex w-full bg-background">
         <MainSidebar />
         
