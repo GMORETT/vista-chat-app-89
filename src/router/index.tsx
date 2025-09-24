@@ -8,13 +8,19 @@ import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
 import { InboxProvider } from '../contexts/InboxContext';
 import { AdminClientProvider } from '../contexts/AdminClientProvider';
+import { MainLayout } from '../components/MainLayout';
 
 // Code splitting for better performance
 const ConversationPage = React.lazy(() => import('../pages/ConversationPage').then(module => ({ default: module.ConversationPage })));
 const ContactPage = React.lazy(() => import('../pages/ContactPage').then(module => ({ default: module.ContactPage })));
 
+// Main app pages - lazy loaded
+const DashboardPage = React.lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })));
+const FunilPage = React.lazy(() => import('../pages/FunilPage').then(module => ({ default: module.FunilPage })));
+const FaleConoscoPage = React.lazy(() => import('../pages/FaleConoscoPage').then(module => ({ default: module.FaleConoscoPage })));
+
 // Admin pages - lazy loaded
-const DashboardPage = React.lazy(() => import('../pages/admin/DashboardPage').then(module => ({ default: module.DashboardPage })));
+const AdminDashboardPage = React.lazy(() => import('../pages/admin/DashboardPage').then(module => ({ default: module.DashboardPage })));
 const ClientsPage = React.lazy(() => import('../pages/admin/ClientsPage').then(module => ({ default: module.ClientsPage })));
 const InboxesPage = React.lazy(() => import('../pages/admin/InboxesPage').then(module => ({ default: module.InboxesPage })));
 const TeamsPage = React.lazy(() => import('../pages/admin/TeamsPage').then(module => ({ default: module.TeamsPage })));
@@ -66,12 +72,50 @@ export const router = createBrowserRouter([
         <AdminClientProvider config={adminClientConfig}>
           <InboxProvider>
             <ProtectedRoute>
-              <InboxPage />
+              <MainLayout />
             </ProtectedRoute>
           </InboxProvider>
         </AdminClientProvider>
       </AuthProvider>
     ),
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <DashboardPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'dashboard',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <DashboardPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'mensageria',
+        element: <InboxPage />,
+      },
+      {
+        path: 'funil',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <FunilPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'fale-conosco',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <FaleConoscoPage />
+          </Suspense>
+        ),
+      },
+    ],
   },
   {
     path: '/conversation/:id',
@@ -120,7 +164,7 @@ export const router = createBrowserRouter([
         index: true,
         element: (
           <Suspense fallback={<PageLoader />}>
-            <DashboardPage />
+            <AdminDashboardPage />
           </Suspense>
         ),
       },
