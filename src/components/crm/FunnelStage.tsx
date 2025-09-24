@@ -3,7 +3,7 @@ import { Stage, Contact } from '../../types/crm';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { MoreHorizontal, Plus } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { ContactCard } from './ContactCard';
 import {
   DropdownMenu,
@@ -17,9 +17,7 @@ interface FunnelStageProps {
   contacts: Contact[];
   onEditStage: (stage: Stage) => void;
   onDeleteStage: (stageId: string) => void;
-  onEditContact: (contact: Contact) => void;
-  onDeleteContact: (contactId: string) => void;
-  onAddContact: (stageId: string) => void;
+  onContactClick: (contact: Contact) => void;
   onContactDrop: (contactId: string, newStageId: string) => void;
 }
 
@@ -28,9 +26,7 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
   contacts,
   onEditStage,
   onDeleteStage,
-  onEditContact,
-  onDeleteContact,
-  onAddContact,
+  onContactClick,
   onContactDrop,
 }) => {
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -111,8 +107,7 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
             <ContactCard
               key={contact.id}
               contact={contact}
-              onEdit={onEditContact}
-              onDelete={onDeleteContact}
+              onClick={onContactClick}
             />
           ))}
           
@@ -124,16 +119,6 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
             </div>
           )}
         </div>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full mt-3"
-          onClick={() => onAddContact(stage.id)}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Adicionar Contato
-        </Button>
       </CardContent>
     </Card>
   );

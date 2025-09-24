@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useCRMStore } from '../state/stores/crmStore';
 import { Stage, Contact } from '../types/crm';
 import { Button } from '../components/ui/button';
-import { Plus, BarChart3 } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { FunnelStage } from '../components/crm/FunnelStage';
-import { ContactModal } from '../components/crm/ContactModal';
 import { StageModal } from '../components/crm/StageModal';
 import { StageManager } from '../components/crm/StageManager';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { ContactDetailsModal } from '../components/crm/ContactDetailsModal';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 
 export const FunilPage: React.FC = () => {
@@ -18,48 +18,20 @@ export const FunilPage: React.FC = () => {
     updateStage,
     deleteStage,
     reorderStages,
-    addContact,
-    updateContact,
-    deleteContact,
     moveContact,
   } = useCRMStore();
 
-  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [stageModalOpen, setStageModalOpen] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | undefined>();
+  const [contactDetailsModalOpen, setContactDetailsModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<Stage | undefined>();
-  const [defaultStageId, setDefaultStageId] = useState<string | undefined>();
+  const [viewingContact, setViewingContact] = useState<Contact | undefined>();
 
   // Sort stages by order
   const sortedStages = [...stages].sort((a, b) => a.order - b.order);
 
-  const handleAddContact = (stageId?: string) => {
-    setDefaultStageId(stageId);
-    setEditingContact(undefined);
-    setContactModalOpen(true);
-  };
-
-  const handleEditContact = (contact: Contact) => {
-    setEditingContact(contact);
-    setContactModalOpen(true);
-  };
-
-  const handleSaveContact = (contactData: Omit<Contact, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (editingContact) {
-      updateContact(editingContact.id, contactData);
-      toast.success('Contato atualizado com sucesso!');
-    } else {
-      addContact(contactData);
-      toast.success('Contato criado com sucesso!');
-    }
-    setContactModalOpen(false);
-    setEditingContact(undefined);
-    setDefaultStageId(undefined);
-  };
-
-  const handleDeleteContact = (contactId: string) => {
-    deleteContact(contactId);
-    toast.success('Contato excluído com sucesso!');
+  const handleContactClick = (contact: Contact) => {
+    setViewingContact(contact);
+    setContactDetailsModalOpen(true);
   };
 
   const handleAddStage = () => {
@@ -120,13 +92,18 @@ export const FunilPage: React.FC = () => {
     }).format(value);
   };
 
+  // Get stage for viewing contact
+  const getContactStage = (contact: Contact) => {
+    return stages.find(stage => stage.id === contact.stageId);
+  };
+
   return (
     <div className="h-full overflow-y-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
           <p className="text-muted-foreground mt-2">
-            Gerencie seu pipeline de vendas com drag & drop
+            Visualize e gerencie seu pipeline de vendas
           </p>
         </div>
         
@@ -138,10 +115,6 @@ export const FunilPage: React.FC = () => {
             onDeleteStage={handleDeleteStage}
             onReorderStages={reorderStages}
           />
-          <Button onClick={() => handleAddContact()}>
-            <Plus className="h-4 w-4 mr-1" />
-            Novo Contato
-          </Button>
         </div>
       </div>
 
@@ -203,7 +176,6 @@ export const FunilPage: React.FC = () => {
                 Crie sua primeira etapa para começar a organizar seus contatos
               </p>
               <Button onClick={handleAddStage}>
-                <Plus className="h-4 w-4 mr-1" />
                 Criar Primeira Etapa
               </Button>
             </div>
@@ -218,9 +190,7 @@ export const FunilPage: React.FC = () => {
                 contacts={stageContacts}
                 onEditStage={handleEditStage}
                 onDeleteStage={handleDeleteStage}
-                onEditContact={handleEditContact}
-                onDeleteContact={handleDeleteContact}
-                onAddContact={handleAddContact}
+                onContactClick={handleContactClick}
                 onContactDrop={handleContactDrop}
               />
             );
@@ -229,19 +199,6 @@ export const FunilPage: React.FC = () => {
       </div>
 
       {/* Modals */}
-      <ContactModal
-        isOpen={contactModalOpen}
-        onClose={() => {
-          setContactModalOpen(false);
-          setEditingContact(undefined);
-          setDefaultStageId(undefined);
-        }}
-        onSave={handleSaveContact}
-        contact={editingContact}
-        stages={sortedStages}
-        defaultStageId={defaultStageId}
-      />
-
       <StageModal
         isOpen={stageModalOpen}
         onClose={() => {
@@ -250,6 +207,16 @@ export const FunilPage: React.FC = () => {
         }}
         onSave={handleSaveStage}
         stage={editingStage}
+      />
+
+      <ContactDetailsModal
+        isOpen={contactDetailsModalOpen}
+        onClose={() => {
+          setContactDetailsModalOpen(false);
+          setViewingContact(undefined);
+        }}
+        contact={viewingContact}
+        stage={viewingContact ? getContactStage(viewingContact) : undefined}
       />
     </div>
   );

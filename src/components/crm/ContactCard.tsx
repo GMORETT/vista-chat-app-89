@@ -2,29 +2,26 @@ import React from 'react';
 import { Contact } from '../../types/crm';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { MoreHorizontal, Building, Mail, Phone, DollarSign } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
+import { Building, Mail, Phone, DollarSign } from 'lucide-react';
 
 interface ContactCardProps {
   contact: Contact;
-  onEdit: (contact: Contact) => void;
-  onDelete: (contactId: string) => void;
+  onClick: (contact: Contact) => void;
 }
 
 export const ContactCard: React.FC<ContactCardProps> = ({
   contact,
-  onEdit,
-  onDelete,
+  onClick,
 }) => {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData('text/plain', contact.id);
     e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Prevent click during drag
+    if (e.detail === 0) return;
+    onClick(contact);
   };
 
   const formatCurrency = (value: number) => {
@@ -43,9 +40,10 @@ export const ContactCard: React.FC<ContactCardProps> = ({
 
   return (
     <Card
-      className="cursor-move hover:shadow-md transition-shadow duration-200 mb-3"
+      className="cursor-pointer hover:shadow-md transition-all duration-200 mb-3 hover:scale-105"
       draggable
       onDragStart={handleDragStart}
+      onClick={handleClick}
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
@@ -60,25 +58,6 @@ export const ContactCard: React.FC<ContactCardProps> = ({
               </div>
             )}
           </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(contact)}>
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => onDelete(contact.id)}
-                className="text-destructive"
-              >
-                Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
         <div className="space-y-2">
