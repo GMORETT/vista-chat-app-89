@@ -76,14 +76,14 @@ export const InboxPage: React.FC = () => {
             ? activePane === 'list' ? 'w-full' : 'hidden'
             : isExpanded ? 'hidden' : 'w-[320px]'
           } 
-          border-r border-border bg-card flex-shrink-0 flex flex-col
+          border-r border-border bg-card flex-shrink-0 flex flex-col h-screen
         `}
       >
         {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
-            {/* Header with Search and User Controls */}
-            <div className="flex items-center gap-2 p-4 border-b border-border bg-card">
+            {/* Header with Search and User Controls - Fixed */}
+            <div className="flex items-center gap-2 p-4 border-b border-border bg-card sticky top-0 z-10">
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -133,14 +133,18 @@ export const InboxPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Filters with integrated toolbar */}
-            <RoleBasedFilters />
+            {/* Filters with integrated toolbar - Fixed */}
+            <div className="sticky top-[73px] z-10 bg-card">
+              <RoleBasedFilters />
+            </div>
             
-            {/* Tabs */}
-            <RoleBasedTabsCounts />
+            {/* Tabs - Fixed */}
+            <div className="sticky top-[121px] z-10 bg-card">
+              <RoleBasedTabsCounts />
+            </div>
             
-            {/* Conversation list */}
-            <div className="flex-1 overflow-hidden">
+            {/* Conversation list - Scrollable */}
+            <div className="flex-1 overflow-y-auto">
               <ConversationListOptimized height={0} />
             </div>
           </>
@@ -154,7 +158,7 @@ export const InboxPage: React.FC = () => {
             ? activePane === 'conversation' ? 'w-full' : 'hidden'
             : isExpanded ? 'w-full' : 'flex-1'
           } 
-          flex flex-col bg-background ${isMobile ? 'pb-16' : ''}
+          flex flex-col bg-background h-screen ${isMobile ? 'pb-16' : ''}
         `}
       >
         {/* Render if there's a selected conversation or mobile with chat view */}
