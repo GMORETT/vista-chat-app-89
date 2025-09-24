@@ -11,11 +11,9 @@ import { Composer } from '../components/ChatWindow/Composer';
 import { ActionsBar } from '../components/ChatWindow/ActionsBar';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { ArrowLeft, Search, X, Settings, LogOut, User } from 'lucide-react';
+import { ArrowLeft, Search, X, Settings, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ConfirmLogoutDialog } from '../components/ConfirmLogoutDialog';
-import { useLogoutConfirmation } from '../hooks/useLogoutConfirmation';
 import { useCurrentClient } from '../hooks/useCurrentClient';
 
 export const InboxPage: React.FC = () => {
@@ -34,13 +32,6 @@ export const InboxPage: React.FC = () => {
   // Initialize current client context for proper RBAC
   useCurrentClient();
   const navigate = useNavigate();
-  const { 
-    isModalOpen, 
-    isLoading, 
-    openLogoutConfirmation, 
-    closeLogoutConfirmation, 
-    confirmLogout 
-  } = useLogoutConfirmation();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   // Debounce search
@@ -119,17 +110,6 @@ export const InboxPage: React.FC = () => {
                     <Settings className="h-4 w-4" />
                   </Button>
                 )}
-                
-                {/* Logout button for all roles */}
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={openLogoutConfirmation}
-                  title="Sair"
-                  className="flex items-center"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
               </div>
             </div>
 
@@ -208,13 +188,6 @@ export const InboxPage: React.FC = () => {
         </div>
       )}
 
-      {/* Logout confirmation dialog */}
-      <ConfirmLogoutDialog
-        open={isModalOpen}
-        onOpenChange={closeLogoutConfirmation}
-        onConfirm={confirmLogout}
-        isLoading={isLoading}
-      />
     </div>
   );
 };
