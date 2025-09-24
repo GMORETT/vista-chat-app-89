@@ -74,7 +74,7 @@ export const InboxPage: React.FC = () => {
         className={`
           ${isMobile 
             ? activePane === 'list' ? 'w-full' : 'hidden'
-            : isExpanded ? 'hidden' : 'w-[420px]'
+            : isExpanded ? 'hidden' : 'w-[320px]'
           } 
           border-r border-border bg-card flex-shrink-0 flex flex-col
         `}
@@ -82,17 +82,8 @@ export const InboxPage: React.FC = () => {
         {/* Rest of the content - Hidden when expanded */}
         {(!isMobile || activePane === 'list') && !isExpanded && (
           <>
-            {/* Header with Logo, Search and User Controls */}
+            {/* Header with Search and User Controls */}
             <div className="flex items-center gap-2 p-4 border-b border-border bg-card">
-              {/* Logo - 1/3 of header width */}
-              <div className="w-1/3 flex-shrink-0">
-                <img 
-                  src="/brand/logo-solabs.png" 
-                  alt="Solabs" 
-                  className="h-8 w-auto object-contain"
-                />
-              </div>
-              
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
