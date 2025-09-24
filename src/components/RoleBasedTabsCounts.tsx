@@ -68,7 +68,7 @@ export const RoleBasedTabsCounts: React.FC = () => {
           key={tab.value}
           onClick={() => handleTabChange(tab.value)}
           className={`
-            relative shrink-0 inline-flex items-center justify-center gap-2 py-3 px-2 text-xs font-heading 
+            relative shrink-0 inline-flex items-center justify-center gap-2 py-3 px-3 text-sm font-heading 
             transition-all duration-200 hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-primary/20
             ${activeTab === tab.value
               ? 'text-primary bg-primary/5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
@@ -80,7 +80,7 @@ export const RoleBasedTabsCounts: React.FC = () => {
           <Badge 
             variant="secondary" 
             className={`
-              min-w-[20px] h-4 text-[10px] font-semibold transition-colors px-1 shrink-0
+              min-w-[22px] h-5 text-xs font-semibold transition-colors px-1.5 shrink-0
               ${activeTab === tab.value 
                 ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'bg-muted text-muted-foreground'
