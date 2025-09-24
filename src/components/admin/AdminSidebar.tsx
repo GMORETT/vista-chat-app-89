@@ -100,23 +100,23 @@ export const AdminSidebar: React.FC = () => {
   };
 
   const getNavClassName = (isActiveRoute: boolean) =>
-    `flex items-center gap-3 rounded-lg px-3 py-3 transition-all ${
+    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
       isActiveRoute 
         ? "bg-primary text-primary-foreground font-medium shadow-sm" 
         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
     }`;
 
   const renderMenuItems = (items: typeof mainMenuItems) => (
-    <SidebarMenu className="space-y-1">
+    <SidebarMenu className="space-y-0.5">
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild size="lg">
+          <SidebarMenuButton asChild size="default">
             <NavLink 
               to={item.url} 
               className={getNavClassName(isActive(item.url, item.exact))}
               title={collapsed ? item.title : undefined}
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <item.icon className="h-4 w-4 flex-shrink-0" />
               {!collapsed && (
                 <span className="text-sm font-medium">
                   {item.title}
@@ -131,19 +131,19 @@ export const AdminSidebar: React.FC = () => {
 
   return (
     <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarHeader className="border-b border-border/50 p-0 h-16">
+      <SidebarHeader className="border-b border-border/50 p-0 h-14">
         <div className={`flex items-center justify-center h-full ${collapsed ? 'px-2' : 'px-4'}`}>
           {collapsed ? (
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-xs font-bold text-primary-foreground">SA</span>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-xs font-bold text-primary-foreground">SA</span>
               </div>
               <div>
-                <h2 className="text-base font-bold text-foreground">Solabs</h2>
+                <h2 className="text-sm font-bold text-foreground">Solabs</h2>
                 <p className="text-xs text-muted-foreground">Administration</p>
               </div>
             </div>
@@ -151,10 +151,10 @@ export const AdminSidebar: React.FC = () => {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-4">
+      <SidebarContent className="px-3 py-3">
         {/* Main Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-1 ${collapsed ? 'sr-only' : ''}`}>
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -163,8 +163,8 @@ export const AdminSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Management Section */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-1 ${collapsed ? 'sr-only' : ''}`}>
             Gerenciamento
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -173,8 +173,8 @@ export const AdminSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Audit Section */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+        <SidebarGroup className="mt-4">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-1 ${collapsed ? 'sr-only' : ''}`}>
             Auditoria & Logs
           </SidebarGroupLabel>
           <SidebarGroupContent>
