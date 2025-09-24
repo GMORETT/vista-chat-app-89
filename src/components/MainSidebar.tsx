@@ -36,55 +36,46 @@ export const MainSidebar: React.FC = () => {
   };
 
   const getNavClassName = (isActiveRoute: boolean) =>
-    `flex items-center gap-4 rounded-xl px-4 py-3 text-base font-medium transition-all duration-200 ${
+    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
       isActiveRoute 
-        ? "bg-primary text-primary-foreground shadow-lg font-semibold" 
-        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-md"
+        ? "bg-primary text-primary-foreground font-medium" 
+        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
     }`;
 
   return (
-    <Sidebar className={collapsed ? "w-20" : "w-80"} collapsible="icon">
+    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarHeader className="border-b border-border/20 p-0">
-        <div className={`flex items-center gap-4 p-6 ${collapsed ? 'justify-center p-5' : ''}`}>
-          <div className="flex-shrink-0">
-            <img 
-              src="/assets/logo-solabs-white.png" 
-              alt="Solabs" 
-              className={`${
-                collapsed 
-                  ? 'h-12 w-12 min-h-[3rem] min-w-[3rem]' 
-                  : 'h-14 w-auto max-w-[200px]'
-              } object-contain transition-all duration-300`} 
-            />
-          </div>
+        <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'gap-3'}`}>
+          <img 
+            src="/assets/logo-solabs-white.png" 
+            alt="Solabs" 
+            className={`${
+              collapsed 
+                ? 'h-8 w-8' 
+                : 'h-10 w-auto'
+            } object-contain transition-all duration-200`} 
+          />
           {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="text-xl font-bold text-sidebar-foreground truncate">SOLABS</span>
-              <span className="text-sm text-sidebar-foreground/60 uppercase tracking-wider">Messages Platform</span>
-            </div>
+            <span className="text-lg font-bold text-sidebar-foreground">SOLABS</span>
           )}
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-4 py-6">
+      <SidebarContent className="px-3 py-4">
         <SidebarGroup>
-          <SidebarGroupLabel className={`px-4 text-sm font-semibold text-sidebar-foreground/70 uppercase tracking-wider mb-4 ${collapsed ? 'sr-only' : ''}`}>
-            Menu Principal
-          </SidebarGroupLabel>
-          
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
+            <SidebarMenu className="space-y-2">
               {menuItems.map(item => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="h-auto p-0">
+                  <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url} 
                       className={getNavClassName(isActive(item.url))} 
                       title={collapsed ? item.title : undefined}
                     >
-                      <item.icon className={`${collapsed ? 'h-7 w-7' : 'h-6 w-6'} flex-shrink-0`} />
+                      <item.icon className={`${collapsed ? 'h-5 w-5' : 'h-5 w-5'} flex-shrink-0`} />
                       {!collapsed && (
-                        <span className="flex-1 text-left text-base font-medium truncate">
+                        <span className="text-sm font-medium">
                           {item.title}
                         </span>
                       )}

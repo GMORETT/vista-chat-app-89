@@ -28,13 +28,9 @@ export const MainLayout: React.FC = () => {
         
         <div className="flex flex-col flex-1 min-w-0">
           {/* Header */}
-          <header className="h-16 flex items-center justify-between border-b bg-card/50 backdrop-blur-sm px-6 shadow-sm">
-            <div className="flex items-center gap-6">
-              <SidebarTrigger className="hover:bg-accent hover:text-accent-foreground transition-colors" />
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold text-foreground">Solabs Messages</h1>
-                <span className="text-xs text-muted-foreground">Plataforma de Comunicação</span>
-              </div>
+          <header className="h-14 flex items-center justify-between border-b bg-background px-4">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
             </div>
             
             <div className="flex items-center gap-2">
