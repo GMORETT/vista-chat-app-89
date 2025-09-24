@@ -42,64 +42,50 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
     }
   };
 
-  const totalValue = contacts.reduce((sum, contact) => sum + contact.value, 0);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   return (
-    <Card className="w-80 flex-shrink-0 h-fit">
-      <CardHeader className="pb-3">
+    <Card className="w-80 flex-shrink-0 h-fit shadow-sm border-l-4" style={{ borderLeftColor: stage.color }}>
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div
-              className="w-3 h-3 rounded-full"
+              className="w-4 h-4 rounded-full shadow-sm"
               style={{ backgroundColor: stage.color }}
             />
-            <CardTitle className="text-base font-semibold">
+            <CardTitle className="text-lg font-semibold text-foreground">
               {stage.name}
             </CardTitle>
-            <Badge variant="secondary" className="text-xs">
-              {contacts.length}
-            </Badge>
           </div>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreHorizontal className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEditStage(stage)}>
-                Editar Etapa
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => onDeleteStage(stage.id)}
-                className="text-destructive"
-              >
-                Excluir Etapa
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-sm font-medium px-2 py-1">
+              {contacts.length} leads
+            </Badge>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-muted">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditStage(stage)}>
+                  Editar Etapa
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onDeleteStage(stage.id)}
+                  className="text-destructive"
+                >
+                  Excluir Etapa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        
-        {totalValue > 0 && (
-          <p className="text-sm text-muted-foreground">
-            Total: {formatCurrency(totalValue)}
-          </p>
-        )}
       </CardHeader>
       
       <CardContent className="pt-0">
         <div
-          className="min-h-[200px] space-y-2"
+          className="min-h-[400px] space-y-3 p-2 rounded-md bg-muted/30"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
@@ -112,10 +98,15 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
           ))}
           
           {contacts.length === 0 && (
-            <div className="flex items-center justify-center h-32 border-2 border-dashed border-muted-foreground/20 rounded-lg">
-              <p className="text-sm text-muted-foreground">
-                Arraste contatos aqui
-              </p>
+            <div className="flex items-center justify-center h-60 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-background/50">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground font-medium mb-1">
+                  Arraste leads aqui
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  Esta etapa está vazia
+                </p>
+              </div>
             </div>
           )}
         </div>

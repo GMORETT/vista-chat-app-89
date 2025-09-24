@@ -77,20 +77,6 @@ export const FunilPage: React.FC = () => {
 
   // Calculate stats
   const totalContacts = contacts.length;
-  const totalValue = contacts.reduce((sum, contact) => sum + contact.value, 0);
-  const avgProbability = totalContacts > 0 
-    ? contacts.reduce((sum, contact) => sum + contact.probability, 0) / totalContacts 
-    : 0;
-  const expectedValue = contacts.reduce((sum, contact) => sum + (contact.value * contact.probability / 100), 0);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
   // Get stage for viewing contact
   const getContactStage = (contact: Contact) => {
@@ -119,49 +105,16 @@ export const FunilPage: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 max-w-xs">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total de Contatos
+              Total de Leads
             </CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalContacts}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Valor Total
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Probabilidade Média
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(avgProbability)}%</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Valor Esperado
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(expectedValue)}</div>
           </CardContent>
         </Card>
       </div>
