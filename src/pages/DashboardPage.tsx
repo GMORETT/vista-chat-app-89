@@ -4,7 +4,7 @@ import { MessageSquare, TrendingUp, Users, BarChart3 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   return (
-    <div className="h-full overflow-auto p-6 space-y-6">
+    <div className="h-full overflow-y-auto p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground mt-2">
