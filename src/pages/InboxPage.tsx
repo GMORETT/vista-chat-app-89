@@ -68,7 +68,7 @@ export const InboxPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-bg">
+    <div className="flex h-screen bg-bg overflow-hidden">
       {/* Conversations List */}
       <div 
         className={`

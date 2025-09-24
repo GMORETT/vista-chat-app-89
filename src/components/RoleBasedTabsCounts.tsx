@@ -27,7 +27,7 @@ export const RoleBasedTabsCounts: React.FC = () => {
   // Define tabs based on user role
   const getAllTabs = () => [
     { value: 'me', label: 'Minhas', shortLabel: 'Minhas', countKey: 'mine_count' as keyof typeof counts },
-    { value: 'unassigned', label: 'Não Atribuídas', shortLabel: 'Não atrib.', countKey: 'unassigned_count' as keyof typeof counts },
+    { value: 'unassigned', label: 'Não Atrib.', shortLabel: 'Não atrib.', countKey: 'unassigned_count' as keyof typeof counts },
     { value: 'all', label: 'Todas', shortLabel: 'Todas', countKey: 'all_count' as keyof typeof counts },
   ];
 
@@ -68,21 +68,19 @@ export const RoleBasedTabsCounts: React.FC = () => {
           key={tab.value}
           onClick={() => handleTabChange(tab.value)}
           className={`
-            relative shrink-0 inline-flex items-center justify-center gap-2 py-3 px-3 text-xs sm:text-sm font-heading 
+            relative shrink-0 inline-flex items-center justify-center gap-2 py-3 px-2 text-xs font-heading 
             transition-all duration-200 hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-primary/20
-            sm:py-4
             ${activeTab === tab.value
               ? 'text-primary bg-primary/5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
               : 'text-muted-foreground hover:text-foreground'
             }
           `}
         >
-          <><span className="sm:hidden truncate text-center">{tab.shortLabel}</span><span className="hidden sm:inline truncate text-left">{tab.label}</span></>
+          <span className="truncate text-center">{tab.label}</span>
           <Badge 
             variant="secondary" 
             className={`
               min-w-[20px] h-4 text-[10px] font-semibold transition-colors px-1 shrink-0
-              sm:min-w-[24px] sm:h-5 sm:text-xs sm:px-2
               ${activeTab === tab.value 
                 ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'bg-muted text-muted-foreground'
