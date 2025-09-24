@@ -26,6 +26,10 @@ export const MainSidebar: React.FC = () => {
   const location = useLocation();
   const collapsed = state === 'collapsed';
   const isActive = (path: string) => {
+    // Handle root path as dashboard
+    if (path === '/dashboard' && location.pathname === '/') {
+      return true;
+    }
     return location.pathname.startsWith(path);
   };
   const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
