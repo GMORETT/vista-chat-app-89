@@ -21,7 +21,7 @@ export const LoginPage: React.FC = () => {
 
   // Redirect if already authenticated
   if (user && !isLoading) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
