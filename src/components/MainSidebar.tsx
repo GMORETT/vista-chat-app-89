@@ -30,7 +30,7 @@ export const MainSidebar: React.FC = () => {
   };
   const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
   return <Sidebar collapsible="icon" className="">
-      <SidebarHeader className="border-b border-border/20 p-0">
+      <SidebarHeader className="border-b border-border/20 p-0 h-14">
         <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'gap-3'}`}>
           {collapsed ? (
             <span className="text-sm font-bold text-primary">SOLABS</span>
