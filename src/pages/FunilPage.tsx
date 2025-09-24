@@ -86,35 +86,33 @@ export const FunilPage: React.FC = () => {
   return (
     <div className="h-full overflow-y-auto p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Funil de Vendas</h1>
-            <p className="text-sm text-muted-foreground">
-              Visualize e gerencie seu pipeline de vendas
-            </p>
-          </div>
-          
-          {/* Stats inline with header */}
-          <div className="ml-8">
-            <Card className="px-4 py-2">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Total de Leads</p>
-                  <p className="text-lg font-bold">{totalContacts}</p>
-                </div>
-              </div>
-            </Card>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Funil de Vendas</h1>
+          <p className="text-sm text-muted-foreground">
+            Visualize e gerencie seu pipeline de vendas
+          </p>
         </div>
         
-        <StageManager
-          stages={sortedStages}
-          onAddStage={handleAddStage}
-          onEditStage={handleEditStage}
-          onDeleteStage={handleDeleteStage}
-          onReorderStages={reorderStages}
-        />
+        <div className="flex items-center gap-3">
+          {/* Stats next to manage button */}
+          <Card className="px-3 py-2 h-10 flex items-center">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-medium">{totalContacts}</span>
+                <span className="text-xs text-muted-foreground">leads</span>
+              </div>
+            </div>
+          </Card>
+          
+          <StageManager
+            stages={sortedStages}
+            onAddStage={handleAddStage}
+            onEditStage={handleEditStage}
+            onDeleteStage={handleDeleteStage}
+            onReorderStages={reorderStages}
+          />
+        </div>
       </div>
 
       {/* Funnel Stages */}
