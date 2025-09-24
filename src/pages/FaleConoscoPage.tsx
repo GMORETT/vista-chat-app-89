@@ -5,7 +5,7 @@ import { HeadphonesIcon, MessageSquare, Mail, Phone, Clock, MapPin } from 'lucid
 
 export const FaleConoscoPage: React.FC = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="h-full overflow-auto p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Fale com a SOL</h1>
         <p className="text-muted-foreground mt-2">

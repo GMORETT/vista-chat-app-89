@@ -68,7 +68,7 @@ export const InboxPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-bg overflow-hidden">
+    <div className="flex h-full bg-bg overflow-hidden">
       {/* Conversations List */}
       <div 
         className={`
@@ -76,7 +76,7 @@ export const InboxPage: React.FC = () => {
             ? activePane === 'list' ? 'w-full' : 'hidden'
             : isExpanded ? 'hidden' : 'w-[320px]'
           } 
-          border-r border-border bg-card flex-shrink-0 flex flex-col h-screen
+          border-r border-border bg-card flex-shrink-0 flex flex-col h-full
         `}
       >
         {/* Rest of the content - Hidden when expanded */}
@@ -158,7 +158,7 @@ export const InboxPage: React.FC = () => {
             ? activePane === 'conversation' ? 'w-full' : 'hidden'
             : isExpanded ? 'w-full' : 'flex-1'
           } 
-          flex flex-col bg-background h-screen ${isMobile ? 'pb-16' : ''}
+          flex flex-col bg-background h-full ${isMobile ? 'pb-16' : ''}
         `}
       >
         {/* Render if there's a selected conversation or mobile with chat view */}

@@ -54,7 +54,7 @@ export const MainLayout: React.FC = () => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 bg-muted/30">
+          <main className="flex-1 bg-muted/30 min-h-0 overflow-hidden">
             <Outlet />
           </main>
         </div>

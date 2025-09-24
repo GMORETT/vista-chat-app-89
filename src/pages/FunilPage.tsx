@@ -4,7 +4,7 @@ import { TrendingUp, Target, Users, DollarSign } from 'lucide-react';
 
 export const FunilPage: React.FC = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="h-full overflow-auto p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
         <p className="text-muted-foreground mt-2">
