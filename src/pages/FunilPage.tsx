@@ -84,71 +84,71 @@ export const FunilPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-6 space-y-6">
+    <div className="h-full overflow-y-auto p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
-          <p className="text-muted-foreground mt-2">
-            Visualize e gerencie seu pipeline de vendas
-          </p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Funil de Vendas</h1>
+            <p className="text-sm text-muted-foreground">
+              Visualize e gerencie seu pipeline de vendas
+            </p>
+          </div>
+          
+          {/* Stats inline with header */}
+          <div className="ml-8">
+            <Card className="px-4 py-2">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Total de Leads</p>
+                  <p className="text-lg font-bold">{totalContacts}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
         
-        <div className="flex gap-2">
-          <StageManager
-            stages={sortedStages}
-            onAddStage={handleAddStage}
-            onEditStage={handleEditStage}
-            onDeleteStage={handleDeleteStage}
-            onReorderStages={reorderStages}
-          />
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 max-w-xs">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total de Leads
-            </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalContacts}</div>
-          </CardContent>
-        </Card>
+        <StageManager
+          stages={sortedStages}
+          onAddStage={handleAddStage}
+          onEditStage={handleEditStage}
+          onDeleteStage={handleDeleteStage}
+          onReorderStages={reorderStages}
+        />
       </div>
 
       {/* Funnel Stages */}
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        {sortedStages.length === 0 ? (
-          <Card className="w-full p-8">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Nenhuma etapa criada</h3>
-              <p className="text-muted-foreground mb-4">
-                Crie sua primeira etapa para começar a organizar seus contatos
-              </p>
-              <Button onClick={handleAddStage}>
-                Criar Primeira Etapa
-              </Button>
-            </div>
-          </Card>
-        ) : (
-          sortedStages.map((stage) => {
-            const stageContacts = contacts.filter(contact => contact.stageId === stage.id);
-            return (
-              <FunnelStage
-                key={stage.id}
-                stage={stage}
-                contacts={stageContacts}
-                onEditStage={handleEditStage}
-                onDeleteStage={handleDeleteStage}
-                onContactClick={handleContactClick}
-                onContactDrop={handleContactDrop}
-              />
-            );
-          })
-        )}
+      <div className="flex-1 min-h-0">
+        <div className="flex gap-4 overflow-x-auto pb-4 h-full">
+          {sortedStages.length === 0 ? (
+            <Card className="w-full p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold mb-2">Nenhuma etapa criada</h3>
+                <p className="text-muted-foreground mb-4">
+                  Crie sua primeira etapa para começar a organizar seus contatos
+                </p>
+                <Button onClick={handleAddStage}>
+                  Criar Primeira Etapa
+                </Button>
+              </div>
+            </Card>
+          ) : (
+            sortedStages.map((stage) => {
+              const stageContacts = contacts.filter(contact => contact.stageId === stage.id);
+              return (
+                <FunnelStage
+                  key={stage.id}
+                  stage={stage}
+                  contacts={stageContacts}
+                  onEditStage={handleEditStage}
+                  onDeleteStage={handleDeleteStage}
+                  onContactClick={handleContactClick}
+                  onContactDrop={handleContactDrop}
+                />
+              );
+            })
+          )}
+        </div>
       </div>
 
       {/* Modals */}
