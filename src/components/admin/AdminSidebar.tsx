@@ -7,7 +7,8 @@ import {
   Tags,
   LayoutDashboard,
   Building2,
-  Shield
+  Shield,
+  FileBarChart
 } from 'lucide-react';
 import {
   Sidebar,
@@ -18,10 +19,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarHeader,
   useSidebar,
 } from '../ui/sidebar';
 
-const menuItems = [
+const mainMenuItems = [
   { 
     title: 'Dashboard', 
     url: '/admin', 
@@ -33,37 +35,45 @@ const menuItems = [
     url: '/admin/clients', 
     icon: Building2 
   },
+];
+
+const managementItems = [
   { 
     title: 'Inboxes', 
     url: '/admin/inboxes', 
     icon: Inbox 
   },
   { 
-    title: 'Teams', 
+    title: 'Equipes', 
     url: '/admin/teams', 
     icon: Users 
   },
   { 
-    title: 'Agents', 
+    title: 'Agentes', 
     url: '/admin/agents', 
     icon: UserCheck 
   },
   { 
-    title: 'Labels', 
+    title: 'Etiquetas', 
     url: '/admin/labels', 
     icon: Tags 
   },
+];
+
+const auditItems = [
   { 
-    title: 'Logs', 
+    title: 'Logs do Sistema', 
     url: '/admin/logs', 
     icon: Shield 
   },
   { 
     title: 'Auditoria Inboxes', 
     url: '/admin/logs/inboxes', 
-    icon: Shield 
+    icon: FileBarChart 
   },
 ];
+
+const allMenuItems = [...mainMenuItems, ...managementItems, ...auditItems];
 
 export const AdminSidebar: React.FC = () => {
   const { state } = useSidebar();
@@ -76,7 +86,7 @@ export const AdminSidebar: React.FC = () => {
     }
     
     // Para rotas com sub-rotas, verificar se não há uma correspondência mais específica
-    const allPaths = menuItems.map(item => item.url);
+    const allPaths = allMenuItems.map(item => item.url);
     const moreSpecificPaths = allPaths.filter(p => 
       p.startsWith(path) && p !== path && location.pathname.startsWith(p)
     );
@@ -90,34 +100,85 @@ export const AdminSidebar: React.FC = () => {
   };
 
   const getNavClassName = (isActiveRoute: boolean) =>
-    isActiveRoute 
-      ? "bg-accent text-accent-foreground font-medium" 
-      : "hover:bg-accent/50";
+    `flex items-center gap-3 rounded-lg px-3 py-3 transition-all ${
+      isActiveRoute 
+        ? "bg-primary text-primary-foreground font-medium shadow-sm" 
+        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+    }`;
+
+  const renderMenuItems = (items: typeof mainMenuItems) => (
+    <SidebarMenu className="space-y-1">
+      {items.map((item) => (
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild size="lg">
+            <NavLink 
+              to={item.url} 
+              className={getNavClassName(isActive(item.url, item.exact))}
+              title={collapsed ? item.title : undefined}
+            >
+              <item.icon className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && (
+                <span className="text-sm font-medium">
+                  {item.title}
+                </span>
+              )}
+            </NavLink>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  );
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible="icon">
-      <SidebarContent>
+    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
+      <SidebarHeader className="border-b border-border/50 p-0 h-16">
+        <div className={`flex items-center justify-center h-full ${collapsed ? 'px-2' : 'px-4'}`}>
+          {collapsed ? (
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-xs font-bold text-primary-foreground">SA</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-xs font-bold text-primary-foreground">SA</span>
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-foreground">Solabs</h2>
+                <p className="text-xs text-muted-foreground">Administration</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
+      
+      <SidebarContent className="px-3 py-4">
+        {/* Main Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {!collapsed && "Administration"}
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+            Principal
           </SidebarGroupLabel>
-          
           <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(isActive(item.url, item.exact))}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            {renderMenuItems(mainMenuItems)}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Management Section */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+            Gerenciamento
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            {renderMenuItems(managementItems)}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Audit Section */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-2 ${collapsed ? 'sr-only' : ''}`}>
+            Auditoria & Logs
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            {renderMenuItems(auditItems)}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
