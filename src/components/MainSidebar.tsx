@@ -28,12 +28,15 @@ export const MainSidebar: React.FC = () => {
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
   };
-  const getNavClassName = (isActiveRoute: boolean) => `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
+  const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
   return <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarHeader className="border-b border-border/20 p-0">
         <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'gap-3'}`}>
-          <img src="/assets/logo-solabs-white.png" alt="Solabs" className={`${collapsed ? 'h-8 w-8' : 'h-10 w-auto'} object-contain transition-all duration-200`} />
-          {!collapsed}
+          {collapsed ? (
+            <span className="text-sm font-bold text-primary">SOLABS</span>
+          ) : (
+            <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-10 w-auto object-contain transition-all duration-200" />
+          )}
         </div>
       </SidebarHeader>
       
