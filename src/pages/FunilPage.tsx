@@ -196,6 +196,14 @@ export const FunilPage: React.FC = () => {
                   </div>
                 </div>
               </Card>
+
+              <DealStageManager
+                stages={sortedStages}
+                onAddStage={handleAddStage}
+                onEditStage={handleEditStage}
+                onDeleteStage={handleDeleteStage}
+                onReorderStages={reorderDealStages}
+              />
             </div>
           </div>
         </div>
