@@ -16,6 +16,8 @@ const ContactPage = React.lazy(() => import('../pages/ContactPage').then(module 
 
 // Main app pages - lazy loaded
 const DashboardPage = React.lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })));
+const LeadsPage = React.lazy(() => import('../pages/LeadsPage').then(module => ({ default: module.LeadsPage })));
+const EmpresasPage = React.lazy(() => import('../pages/EmpresasPage').then(module => ({ default: module.EmpresasPage })));
 const FunilPage = React.lazy(() => import('../pages/FunilPage').then(module => ({ default: module.FunilPage })));
 const FaleConoscoPage = React.lazy(() => import('../pages/FaleConoscoPage').then(module => ({ default: module.FaleConoscoPage })));
 
@@ -92,6 +94,22 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <DashboardPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'leads',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <LeadsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'empresas',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <EmpresasPage />
           </Suspense>
         ),
       },

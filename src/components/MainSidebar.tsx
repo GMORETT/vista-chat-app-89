@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, TrendingUp, HeadphonesIcon, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, TrendingUp, HeadphonesIcon, LogOut, Shield, Users, Building2 } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarHeader, SidebarFooter, SidebarTrigger } from './ui/sidebar';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +11,14 @@ const menuItems = [{
   title: 'Dashboard',
   url: '/dashboard',
   icon: LayoutDashboard
+}, {
+  title: 'Leads',
+  url: '/leads',
+  icon: Users
+}, {
+  title: 'Empresas',
+  url: '/empresas',
+  icon: Building2
 }, {
   title: 'Mensageria',
   url: '/mensageria',
