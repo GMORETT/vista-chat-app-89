@@ -85,7 +85,7 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
       
       <CardContent className="pt-0">
         <div
-          className="min-h-[400px] space-y-3 p-2 rounded-md bg-muted/30"
+          className="min-h-[400px] space-y-2 p-2 rounded-md bg-muted/30"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
