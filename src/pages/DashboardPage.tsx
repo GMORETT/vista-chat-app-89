@@ -141,7 +141,7 @@ export const DashboardPage: React.FC = () => {
         {/* Stats Cards - Top Row */}
         <div className="col-span-12 grid grid-flow-col auto-cols-max gap-3 h-fit mb-4 justify-start">
           <Card className="w-fit px-2 py-2 justify-self-start">
-            <div className="inline-flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-3">
               <div>
                 <p className="text-xs text-muted-foreground leading-tight">Conversas Ativas</p>
                 <p className="text-base font-bold leading-tight">12</p>
@@ -152,7 +152,7 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           <Card className="w-fit px-2 py-2 justify-self-start">
-            <div className="inline-flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-3">
               <div>
                 <p className="text-xs text-muted-foreground leading-tight">Leads</p>
                 <p className="text-base font-bold leading-tight">23</p>
@@ -163,7 +163,7 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           <Card className="w-fit px-2 py-2 justify-self-start">
-            <div className="inline-flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-3">
               <div>
                 <p className="text-xs text-muted-foreground leading-tight">Contatos</p>
                 <p className="text-base font-bold leading-tight">156</p>
@@ -174,7 +174,7 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           <Card className="w-fit px-2 py-2 justify-self-start">
-            <div className="inline-flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-3">
               <div>
                 <p className="text-xs text-muted-foreground leading-tight">Taxa de Conversão</p>
                 <p className="text-base font-bold leading-tight">68%</p>
