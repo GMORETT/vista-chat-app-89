@@ -112,7 +112,7 @@ export const DashboardPage: React.FC = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-12 gap-4">
         {/* Stats Cards - Top Row */}
-        <div className="col-span-12 grid grid-cols-4 gap-3 h-fit">
+        <div className="col-span-12 grid grid-cols-4 gap-3 h-fit mb-4">
           <Card className="p-2">
             <div className="flex items-center justify-between">
               <div>
@@ -317,7 +317,8 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Performance Section - Right Side */}
-        <div className="col-span-4 space-y-4">
+        <div className="col-span-4 h-full">
+          <div className="space-y-4 h-full flex flex-col">
           <Card>
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Atividades Recentes</CardTitle>
@@ -356,7 +357,7 @@ export const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="min-h-[80px]">
+          <Card className="min-h-[80px] flex-1">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Performance</CardTitle>
             </CardHeader>
@@ -392,6 +393,7 @@ export const DashboardPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </div>
