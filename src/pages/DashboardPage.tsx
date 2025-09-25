@@ -27,6 +27,62 @@ export const DashboardPage: React.FC = () => {
     setAppliedEndDate(new Date(endDate));
   };
 
+  // Mock data for charts
+  const mockData = {
+    conversations: [
+      { date: '2024-12-15', value: 32 },
+      { date: '2024-12-20', value: 38 },
+      { date: '2024-12-25', value: 42 },
+      { date: '2024-12-30', value: 45 },
+      { date: '2025-01-01', value: 52 },
+      { date: '2025-01-05', value: 48 },
+      { date: '2025-01-10', value: 61 },
+      { date: '2025-01-15', value: 75 },
+      { date: '2025-01-20', value: 68 },
+      { date: '2025-01-25', value: 82 },
+      { date: '2025-01-30', value: 78 },
+    ],
+    leads: [
+      { date: '2024-12-15', value: 18 },
+      { date: '2024-12-20', value: 21 },
+      { date: '2024-12-25', value: 25 },
+      { date: '2024-12-30', value: 23 },
+      { date: '2025-01-01', value: 28 },
+      { date: '2025-01-05', value: 35 },
+      { date: '2025-01-10', value: 42 },
+      { date: '2025-01-15', value: 38 },
+      { date: '2025-01-20', value: 55 },
+      { date: '2025-01-25', value: 62 },
+      { date: '2025-01-30', value: 58 },
+    ],
+    contacts: [
+      { date: '2024-12-15', value: 98 },
+      { date: '2024-12-20', value: 105 },
+      { date: '2024-12-25', value: 115 },
+      { date: '2024-12-30', value: 120 },
+      { date: '2025-01-01', value: 125 },
+      { date: '2025-01-05', value: 135 },
+      { date: '2025-01-10', value: 145 },
+      { date: '2025-01-15', value: 150 },
+      { date: '2025-01-20', value: 152 },
+      { date: '2025-01-25', value: 156 },
+      { date: '2025-01-30', value: 160 },
+    ],
+    conversion: [
+      { date: '2024-12-15', value: 58 },
+      { date: '2024-12-20', value: 62 },
+      { date: '2024-12-25', value: 65 },
+      { date: '2024-12-30', value: 65 },
+      { date: '2025-01-01', value: 68 },
+      { date: '2025-01-05', value: 62 },
+      { date: '2025-01-10', value: 70 },
+      { date: '2025-01-15', value: 75 },
+      { date: '2025-01-20', value: 72 },
+      { date: '2025-01-25', value: 68 },
+      { date: '2025-01-30', value: 71 },
+    ]
+  };
+
   // Generate random data for the selected period and metric
   const generateRandomData = React.useMemo(() => {
     const diffTime = Math.abs(appliedEndDate.getTime() - appliedStartDate.getTime());
@@ -108,69 +164,69 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-hidden p-4 space-y-3">
+    <div className="h-full overflow-hidden p-3 space-y-2">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
+      <div className="grid grid-cols-12 gap-2 h-[calc(100vh-90px)]">
         {/* Stats Cards - Top Row */}
         <div className="col-span-12 grid grid-cols-4 gap-2">
-          <Card className="p-1.5">
-            <div className="flex items-center justify-between">
+          <Card className="p-1">
+            <div className="flex items-center gap-1">
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground truncate">Conversas</p>
-                <p className="text-base font-bold">12</p>
-                <p className="text-xs text-muted-foreground truncate">+2 ontem</p>
+                <p className="text-sm font-bold">12</p>
               </div>
-              <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
+              <MessageSquare className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             </div>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">+2 ontem</p>
           </Card>
 
-          <Card className="p-1.5">
-            <div className="flex items-center justify-between">
+          <Card className="p-1">
+            <div className="flex items-center gap-1">
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground truncate">Leads</p>
-                <p className="text-base font-bold">23</p>
-                <p className="text-xs text-muted-foreground truncate">+5 semana</p>
+                <p className="text-sm font-bold">23</p>
               </div>
-              <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
+              <TrendingUp className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             </div>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">+5 semana</p>
           </Card>
 
-          <Card className="p-1.5">
-            <div className="flex items-center justify-between">
+          <Card className="p-1">
+            <div className="flex items-center gap-1">
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground truncate">Contatos</p>
-                <p className="text-base font-bold">156</p>
-                <p className="text-xs text-muted-foreground truncate">Total</p>
+                <p className="text-sm font-bold">156</p>
               </div>
-              <Users className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
+              <Users className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             </div>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">Total</p>
           </Card>
 
-          <Card className="p-1.5">
-            <div className="flex items-center justify-between">
+          <Card className="p-1">
+            <div className="flex items-center gap-1">
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground truncate">Conversão</p>
-                <p className="text-base font-bold">68%</p>
-                <p className="text-xs text-muted-foreground truncate">+12% mês</p>
+                <p className="text-xs text-muted-foreground truncate">Taxa</p>
+                <p className="text-sm font-bold">68%</p>
               </div>
-              <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
+              <BarChart3 className="h-3 w-3 text-muted-foreground flex-shrink-0" />
             </div>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">+12% mês</p>
           </Card>
         </div>
 
         {/* Chart Section - Left Side */}
-        <div className="col-span-9 space-y-2">
+        <div className="col-span-9 space-y-1">
           {/* Chart Filters */}
-          <Card className="p-2">
+          <Card className="p-1.5">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Filter className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs font-medium">Período do gráfico:</span>
+                <span className="text-xs font-medium">Período:</span>
               </div>
               
               <Popover>
@@ -179,7 +235,7 @@ export const DashboardPage: React.FC = () => {
                     variant="outline"
                     size="sm"
                     className={cn(
-                      "w-[80px] h-7 justify-start text-left font-normal text-xs",
+                      "w-[70px] h-6 justify-start text-left font-normal text-xs",
                       !startDate && "text-muted-foreground"
                     )}
                   >
@@ -211,7 +267,7 @@ export const DashboardPage: React.FC = () => {
                     variant="outline"
                     size="sm"
                     className={cn(
-                      "w-[80px] h-7 justify-start text-left font-normal text-xs",
+                      "w-[70px] h-6 justify-start text-left font-normal text-xs",
                       !endDate && "text-muted-foreground"
                     )}
                   >
@@ -238,36 +294,36 @@ export const DashboardPage: React.FC = () => {
               <Button 
                 onClick={handleApplyFilters} 
                 size="sm"
-                className="h-7 text-xs px-3"
+                className="h-6 text-xs px-2"
               >
                 Aplicar
               </Button>
             </div>
           </Card>
 
-          <Card className="h-[calc(100%-60px)]">
-            <CardHeader className="pb-2 pt-3 px-3">
+          <Card className="h-[calc(100%-40px)]">
+            <CardHeader className="pb-1 pt-2 px-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
+                  <CardTitle className="text-sm">{getMetricLabel(chartMetric)}</CardTitle>
                   <CardDescription className="text-xs">
-                    {format(appliedStartDate, 'dd/MM/yyyy')} - {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos)
+                    {format(appliedStartDate, 'dd/MM')} - {format(appliedEndDate, 'dd/MM')} ({generateRandomData.length} pts)
                   </CardDescription>
                 </div>
                 <Select value={chartMetric} onValueChange={setChartMetric}>
-                  <SelectTrigger className="w-[120px] h-7 text-xs">
-                    <SelectValue placeholder="Métrica" />
+                  <SelectTrigger className="w-[100px] h-6 text-xs">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="conversations">Conversas</SelectItem>
                     <SelectItem value="leads">Leads</SelectItem>
                     <SelectItem value="contacts">Contatos</SelectItem>
-                    <SelectItem value="conversion">Taxa de Conversão</SelectItem>
+                    <SelectItem value="conversion">Taxa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-70px)]">
+            <CardContent className="px-2 pb-2 h-[calc(100%-50px)]">
               {hasData ? (
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -309,8 +365,8 @@ export const DashboardPage: React.FC = () => {
               ) : (
                 <div className="h-full flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
-                    <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-xs">Nenhum dado encontrado</p>
+                    <BarChart3 className="h-6 w-6 mx-auto mb-1 opacity-50" />
+                    <p className="text-xs">Sem dados</p>
                   </div>
                 </div>
               )}
@@ -319,51 +375,44 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Performance Section - Right Side */}
-        <div className="col-span-3 space-y-2">
-          <Card className="h-[calc(50%-4px)]">
-            <CardHeader className="pb-1 pt-2 px-2">
+        <div className="col-span-3 space-y-1">
+          <Card className="h-[calc(50%-2px)]">
+            <CardHeader className="pb-1 pt-1.5 px-1.5">
               <CardTitle className="text-xs">Atividades</CardTitle>
             </CardHeader>
-            <CardContent className="px-2 pb-2 h-[calc(100%-35px)]">
-              <div className="space-y-1.5 h-full overflow-y-auto">
-                <div className="flex items-center space-x-1.5">
+            <CardContent className="px-1.5 pb-1.5 h-[calc(100%-25px)]">
+              <div className="space-y-1 h-full overflow-y-auto">
+                <div className="flex items-center gap-1">
                   <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">Conversa iniciada</p>
-                    <p className="text-xs text-muted-foreground">2 min</p>
+                    <p className="text-xs text-muted-foreground">2min</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center gap-1">
                   <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">Lead qualificado</p>
-                    <p className="text-xs text-muted-foreground">15 min</p>
+                    <p className="text-xs text-muted-foreground">15min</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center gap-1">
                   <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Contato adicionado</p>
+                    <p className="text-xs font-medium truncate">Contato add</p>
                     <p className="text-xs text-muted-foreground">1h</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1.5">
-                  <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Msg respondida</p>
-                    <p className="text-xs text-muted-foreground">2h</p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="h-[calc(50%-4px)]">
-            <CardHeader className="pb-1 pt-2 px-2">
+          <Card className="h-[calc(50%-2px)]">
+            <CardHeader className="pb-1 pt-1.5 px-1.5">
               <CardTitle className="text-xs">Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-2 pb-2 h-[calc(100%-35px)]">
-              <div className="space-y-2 h-full">
+            <CardContent className="px-1.5 pb-1.5 h-[calc(100%-25px)]">
+              <div className="space-y-1.5 h-full">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium truncate">Resposta</span>
