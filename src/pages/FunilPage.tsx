@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Deal, Lead, Company } from '../types/crm';
 import { Button } from '../components/ui/button';
 import { BarChart3, ExternalLink, User, Building2, TrendingUp, Calendar, DollarSign, Plus } from 'lucide-react';
@@ -7,7 +7,7 @@ import { Badge } from '../components/ui/badge';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useCrmDataStore, DealStage } from '../stores/crmDataStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DealStageManager } from '../components/crm/DealStageManager';
 import { DealStageModal } from '../components/crm/DealStageModal';
 import { DealFunnelStage } from '../components/crm/DealFunnelStage';
@@ -18,6 +18,7 @@ export const FunilPage: React.FC = () => {
     dealStages, 
     getLeadById, 
     getCompanyById, 
+    getDealById,
     moveDeal, 
     addDealStage, 
     updateDealStage, 
@@ -25,9 +26,27 @@ export const FunilPage: React.FC = () => {
     reorderDealStages 
   } = useCrmDataStore();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<DealStage | undefined>();
+
+  // Check for highlight parameter and open deal modal
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (highlightId) {
+      const deal = getDealById(highlightId);
+      if (deal) {
+        setSelectedDeal(deal);
+      }
+      // Remove the highlight parameter from URL
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('highlight');
+        return newParams;
+      });
+    }
+  }, [searchParams, getDealById, setSearchParams]);
 
   const getDealsByStage = (stageId: string) => {
     return deals.filter(deal => deal.stage === stageId);

@@ -41,7 +41,7 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
   onClose,
   company
 }) => {
-  const { deals } = useCrmDataStore();
+  const { deals, dealStages } = useCrmDataStore();
   const navigate = useNavigate();
 
   if (!company) return null;
@@ -237,22 +237,30 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
                 <div className="space-y-3">
                   {companyDeals.map((deal) => (
                     <div key={deal.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-sm">{deal.title}</p>
                         <p className="text-xs text-muted-foreground">
                           {formatCurrency(deal.value)} • {deal.probability}% de probabilidade
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          onClose();
-                          navigate('/funil');
-                        }}
-                      >
-                        Ver no funil
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {(() => {
+                            const stage = dealStages.find(s => s.id === deal.stage);
+                            return stage?.name || 'N/A';
+                          })()}
+                        </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            onClose();
+                            navigate(`/funil?highlight=${deal.id}`);
+                          }}
+                        >
+                          Ver no funil
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
