@@ -6,125 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
-import { Search, Plus, Building2, Users, Globe, Phone, Calendar, MapPin } from 'lucide-react';
+import { Search, Plus, Building2, Users, Globe, Phone, Calendar, MapPin, ExternalLink, TrendingUp } from 'lucide-react';
 import { Company, Lead, Person } from '../types/crm';
 import { format } from 'date-fns';
-
-// Mock data
-const mockCompanies: Company[] = [
-  {
-    id: '1',
-    name: 'Tech Solutions Ltda',
-    industry: 'Tecnologia',
-    size: 'medium',
-    website: 'https://techsolutions.com',
-    phone: '+55 11 3333-3333',
-    address: 'São Paulo, SP',
-    leadId: '1',
-    lead: {
-      id: '1',
-      name: 'João Silva',
-      email: 'joao@techsolutions.com',
-      source: 'Website',
-      status: 'qualified',
-      createdAt: '2025-01-15T10:00:00Z',
-      updatedAt: '2025-01-15T10:00:00Z'
-    },
-    assignedPersons: [
-      {
-        id: 'p1',
-        name: 'Ana Costa',
-        email: 'ana@empresa.com',
-        role: 'Gerente Comercial',
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-01T00:00:00Z'
-      },
-      {
-        id: 'p2',
-        name: 'Carlos Lima',
-        email: 'carlos@empresa.com',
-        role: 'Consultor',
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-01T00:00:00Z'
-      }
-    ],
-    createdAt: '2025-01-15T10:00:00Z',
-    updatedAt: '2025-01-15T10:00:00Z',
-    notes: 'Cliente potencial para soluções corporativas'
-  },
-  {
-    id: '2',
-    name: 'Startup Inovação',
-    industry: 'Software',
-    size: 'small',
-    website: 'https://startup.com',
-    phone: '+55 11 4444-4444',
-    address: 'Rio de Janeiro, RJ',
-    leadId: '2',
-    lead: {
-      id: '2',
-      name: 'Maria Santos',
-      email: 'maria@startup.com',
-      source: 'LinkedIn',
-      status: 'contacted',
-      createdAt: '2025-01-14T14:30:00Z',
-      updatedAt: '2025-01-15T09:15:00Z'
-    },
-    assignedPersons: [
-      {
-        id: 'p3',
-        name: 'Paula Ferreira',
-        email: 'paula@empresa.com',
-        role: 'Account Manager',
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-01T00:00:00Z'
-      }
-    ],
-    createdAt: '2025-01-14T14:30:00Z',
-    updatedAt: '2025-01-15T09:15:00Z',
-    notes: 'Startup em crescimento, boa oportunidade'
-  },
-  {
-    id: '3',
-    name: 'Corporação Global',
-    industry: 'Financeiro',
-    size: 'enterprise',
-    website: 'https://global.com',
-    phone: '+55 11 5555-5555',
-    address: 'Brasília, DF',
-    leadId: '3',
-    lead: {
-      id: '3',
-      name: 'Pedro Oliveira',
-      email: 'pedro@global.com',
-      source: 'Referência',
-      status: 'qualified',
-      createdAt: '2025-01-13T16:45:00Z',
-      updatedAt: '2025-01-15T11:20:00Z'
-    },
-    assignedPersons: [
-      {
-        id: 'p1',
-        name: 'Ana Costa',
-        email: 'ana@empresa.com',
-        role: 'Gerente Comercial',
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-01T00:00:00Z'
-      },
-      {
-        id: 'p4',
-        name: 'Roberto Santos',
-        email: 'roberto@empresa.com',
-        role: 'Diretor',
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-01T00:00:00Z'
-      }
-    ],
-    createdAt: '2025-01-13T16:45:00Z',
-    updatedAt: '2025-01-15T11:20:00Z',
-    notes: 'Grande corporação, processo longo mas alto valor'
-  }
-];
+import { useCrmDataStore } from '../stores/crmDataStore';
+import { useNavigate } from 'react-router-dom';
 
 const getSizeColor = (size: Company['size']) => {
   const colors = {
@@ -147,7 +33,8 @@ const getSizeLabel = (size: Company['size']) => {
 };
 
 export const EmpresasPage: React.FC = () => {
-  const [companies, setCompanies] = useState(mockCompanies);
+  const { companies, deals } = useCrmDataStore();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [sizeFilter, setSizeFilter] = useState('all');
   const [industryFilter, setIndustryFilter] = useState('all');
@@ -171,6 +58,10 @@ export const EmpresasPage: React.FC = () => {
 
   const getPersonInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  const getCompanyDeals = (companyId: string) => {
+    return deals.filter(deal => deal.companyId === companyId);
   };
 
   return (
@@ -309,6 +200,7 @@ export const EmpresasPage: React.FC = () => {
                 <TableHead>Lead Origem</TableHead>
                 <TableHead>Porte</TableHead>
                 <TableHead>Responsáveis</TableHead>
+                <TableHead>Negócios</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -359,7 +251,14 @@ export const EmpresasPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium">{company.lead.name}</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-0 text-sm font-medium text-primary hover:underline"
+                        onClick={() => navigate('/leads')}
+                      >
+                        {company.lead.name}
+                      </Button>
                       <p className="text-xs text-muted-foreground">{company.lead.email}</p>
                       <Badge variant="outline" className="text-xs">
                         {company.lead.source}
@@ -396,6 +295,37 @@ export const EmpresasPage: React.FC = () => {
                         {company.assignedPersons.length}
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const companyDeals = getCompanyDeals(company.id);
+                      return (
+                        <div className="space-y-1">
+                          {companyDeals.length > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {companyDeals.length} negócio{companyDeals.length > 1 ? 's' : ''}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-0 text-xs text-primary"
+                                onClick={() => navigate('/funil')}
+                              >
+                                <TrendingUp className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Nenhum negócio</span>
+                          )}
+                          {companyDeals.length > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                              Total: R$ {companyDeals.reduce((sum, deal) => sum + deal.value, 0).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center text-sm text-muted-foreground">

@@ -5,63 +5,11 @@ import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { Search, Plus, Filter, User, Mail, Phone, Calendar, Target, Star } from 'lucide-react';
+import { Search, Plus, Filter, User, Mail, Phone, Calendar, Target, Star, ExternalLink } from 'lucide-react';
 import { Lead, Person } from '../types/crm';
 import { format } from 'date-fns';
-
-// Mock data
-const mockLeads: Lead[] = [
-  {
-    id: '1',
-    name: 'João Silva',
-    email: 'joao@empresa.com',
-    phone: '+55 11 99999-9999',
-    source: 'Website',
-    status: 'new',
-    createdAt: '2025-01-15T10:00:00Z',
-    updatedAt: '2025-01-15T10:00:00Z',
-    notes: 'Interessado em soluções corporativas',
-    tags: ['corporativo', 'urgente'],
-    assignedTo: {
-      id: 'p1',
-      name: 'Ana Costa',
-      email: 'ana@empresa.com',
-      createdAt: '2025-01-01T00:00:00Z',
-      updatedAt: '2025-01-01T00:00:00Z'
-    }
-  },
-  {
-    id: '2',
-    name: 'Maria Santos',
-    email: 'maria@startup.com',
-    phone: '+55 11 88888-8888',
-    source: 'LinkedIn',
-    status: 'contacted',
-    createdAt: '2025-01-14T14:30:00Z',
-    updatedAt: '2025-01-15T09:15:00Z',
-    notes: 'Precisa de solução para equipe pequena',
-    tags: ['startup']
-  },
-  {
-    id: '3',
-    name: 'Pedro Oliveira',
-    email: 'pedro@tech.com',
-    phone: '+55 11 77777-7777',
-    source: 'Referência',
-    status: 'qualified',
-    createdAt: '2025-01-13T16:45:00Z',
-    updatedAt: '2025-01-15T11:20:00Z',
-    notes: 'Orçamento aprovado, aguardando proposta',
-    tags: ['tech', 'qualificado'],
-    assignedTo: {
-      id: 'p2',
-      name: 'Carlos Lima',
-      email: 'carlos@empresa.com',
-      createdAt: '2025-01-01T00:00:00Z',
-      updatedAt: '2025-01-01T00:00:00Z'
-    }
-  }
-];
+import { useCrmDataStore } from '../stores/crmDataStore';
+import { useNavigate } from 'react-router-dom';
 
 const getStatusColor = (status: Lead['status']) => {
   const colors = {
@@ -86,7 +34,8 @@ const getStatusLabel = (status: Lead['status']) => {
 };
 
 export const LeadsPage: React.FC = () => {
-  const [leads, setLeads] = useState(mockLeads);
+  const { leads, companies, deals } = useCrmDataStore();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
@@ -105,6 +54,12 @@ export const LeadsPage: React.FC = () => {
     new: leads.filter(l => l.status === 'new').length,
     qualified: leads.filter(l => l.status === 'qualified').length,
     converted: leads.filter(l => l.status === 'converted').length
+  };
+
+  const getRelatedInfo = (leadId: string) => {
+    const relatedCompanies = companies.filter(c => c.leadId === leadId);
+    const relatedDeals = deals.filter(d => d.leadId === leadId);
+    return { companies: relatedCompanies, deals: relatedDeals };
   };
 
   return (
@@ -232,6 +187,7 @@ export const LeadsPage: React.FC = () => {
                 <TableHead>Status</TableHead>
                 <TableHead>Responsável</TableHead>
                 <TableHead>Criado em</TableHead>
+                <TableHead>Relacionamentos</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -294,6 +250,48 @@ export const LeadsPage: React.FC = () => {
                       <Calendar className="h-3 w-3 mr-1" />
                       {format(new Date(lead.createdAt), 'dd/MM/yyyy')}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const related = getRelatedInfo(lead.id);
+                      return (
+                        <div className="space-y-1">
+                          {related.companies.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {related.companies.length} empresa{related.companies.length > 1 ? 's' : ''}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-0 text-xs text-primary"
+                                onClick={() => navigate('/empresas')}
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                          {related.deals.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Badge variant="secondary" className="text-xs">
+                                {related.deals.length} negócio{related.deals.length > 1 ? 's' : ''}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-auto p-0 text-xs text-primary"
+                                onClick={() => navigate('/funil')}
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                          {related.companies.length === 0 && related.deals.length === 0 && (
+                            <span className="text-xs text-muted-foreground">Nenhum</span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm">
