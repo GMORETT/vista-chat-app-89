@@ -117,7 +117,7 @@ export const FunilPage: React.FC = () => {
 
       {/* Funnel Stages */}
       <div className="flex-1 min-h-0">
-        <div className="flex gap-4 overflow-x-auto pb-4 h-full">
+        <div className="flex gap-3 overflow-x-auto pb-4 h-full">
           {sortedStages.length === 0 ? (
             <Card className="w-full p-6">
               <div className="text-center">

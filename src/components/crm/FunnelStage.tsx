@@ -44,7 +44,7 @@ export const FunnelStage: React.FC<FunnelStageProps> = ({
 
 
   return (
-    <Card className="w-80 flex-shrink-0 h-fit shadow-sm border-l-4" style={{ borderLeftColor: stage.color }}>
+    <Card className="w-64 flex-shrink-0 h-fit shadow-sm border-l-4" style={{ borderLeftColor: stage.color }}>
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
