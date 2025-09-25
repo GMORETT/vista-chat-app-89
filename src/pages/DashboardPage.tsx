@@ -144,7 +144,12 @@ export const DashboardPage: React.FC = () => {
                 <Calendar
                   mode="single"
                   selected={startDate}
-                  onSelect={(date) => date && setStartDate(date)}
+                  onSelect={(date) => {
+                    if (date) {
+                      setStartDate(date);
+                      console.log('Start date selected:', date);
+                    }
+                  }}
                   initialFocus
                   className="p-3 pointer-events-auto"
                 />
@@ -173,7 +178,12 @@ export const DashboardPage: React.FC = () => {
                 <Calendar
                   mode="single"
                   selected={endDate}
-                  onSelect={(date) => date && setEndDate(date)}
+                  onSelect={(date) => {
+                    if (date) {
+                      setEndDate(date);
+                      console.log('End date selected:', date);
+                    }
+                  }}
                   initialFocus
                   className="p-3 pointer-events-auto"
                 />

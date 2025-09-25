@@ -31,11 +31,11 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-secondary/50 focus-within:relative focus-within:z-20",
         day: cn(
           buttonVariants({ variant: "ghost" }), 
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-secondary/80 focus:bg-secondary"
+          "h-9 w-9 p-0 font-normal hover:bg-secondary/80 focus:bg-secondary [&[aria-selected=true]]:bg-primary [&[aria-selected=true]]:text-primary-foreground [&[aria-selected=true]]:hover:bg-primary"
         ),
         day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground [&[aria-selected=true]]:bg-primary [&[aria-selected=true]]:text-primary-foreground",
         day_today: "bg-secondary text-foreground border border-primary/20",
         day_outside:
           "day-outside text-muted-foreground/40 opacity-50 hover:bg-transparent hover:text-muted-foreground/40",
