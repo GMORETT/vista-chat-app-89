@@ -108,167 +108,157 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-hidden p-4">
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <Card className="p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Conversas Ativas</p>
-              <p className="text-xl font-bold mt-1">12</p>
-              <p className="text-xs text-muted-foreground mt-1">+2 desde ontem</p>
+    <div className="h-full overflow-hidden p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
+        </div>
+        
+        {/* Filters inline with header */}
+        <Card className="p-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Filter className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs font-medium">Período:</span>
             </div>
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <MessageSquare className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Leads</p>
-              <p className="text-xl font-bold mt-1">23</p>
-              <p className="text-xs text-muted-foreground mt-1">+5 esta semana</p>
-            </div>
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <TrendingUp className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Contatos</p>
-              <p className="text-xl font-bold mt-1">156</p>
-              <p className="text-xs text-muted-foreground mt-1">Total de contatos</p>
-            </div>
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Users className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Taxa de Conversão</p>
-              <p className="text-xl font-bold mt-1">68%</p>
-              <p className="text-xs text-muted-foreground mt-1">+12% este mês</p>
-            </div>
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <BarChart3 className="h-4 w-4 text-primary" />
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Chart and Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-280px)]">
-        {/* Chart Section */}
-        <div className="lg:col-span-2 space-y-3">
-          {/* Chart Filters */}
-          <Card className="p-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Filtro do gráfico:</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-[110px] justify-start text-left font-normal",
-                        !startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "dd/MM/yy") : "Data inicial"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          setStartDate(date);
-                          console.log('Start date selected:', date);
-                        }
-                      }}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <span className="text-sm text-muted-foreground">até</span>
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-[110px] justify-start text-left font-normal",
-                        !endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "dd/MM/yy") : "Data final"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          setEndDate(date);
-                          console.log('End date selected:', date);
-                        }
-                      }}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <Button 
-                  onClick={handleApplyFilters} 
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
                   size="sm"
-                  className="ml-2"
+                  className={cn(
+                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
+                    !startDate && "text-muted-foreground"
+                  )}
                 >
-                  Aplicar Filtro
+                  <CalendarIcon className="mr-1 h-3 w-3" />
+                  {startDate ? format(startDate, "dd/MM") : "Início"}
                 </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setStartDate(date);
+                      console.log('Start date selected:', date);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+
+            <span className="text-xs text-muted-foreground">até</span>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-1 h-3 w-3" />
+                  {endDate ? format(endDate, "dd/MM") : "Fim"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setEndDate(date);
+                      console.log('End date selected:', date);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Button 
+              onClick={handleApplyFilters} 
+              size="sm"
+              className="h-7 text-xs px-3"
+            >
+              Aplicar
+            </Button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
+        {/* Stats Cards - Top Row */}
+        <div className="col-span-12 grid grid-cols-4 gap-3">
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Conversas Ativas</p>
+                <p className="text-lg font-bold">12</p>
+                <p className="text-xs text-muted-foreground">+2 desde ontem</p>
               </div>
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
             </div>
           </Card>
 
-          {/* Chart */}
-          <Card className="h-[calc(100%-75px)]">
-            <CardHeader className="pb-3 pt-4 px-4">
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Leads</p>
+                <p className="text-lg font-bold">23</p>
+                <p className="text-xs text-muted-foreground">+5 esta semana</p>
+              </div>
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Card>
+
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Contatos</p>
+                <p className="text-lg font-bold">156</p>
+                <p className="text-xs text-muted-foreground">Total de contatos</p>
+              </div>
+              <Users className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Card>
+
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Taxa de Conversão</p>
+                <p className="text-lg font-bold">68%</p>
+                <p className="text-xs text-muted-foreground">+12% este mês</p>
+              </div>
+              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Chart Section - Left Side */}
+        <div className="col-span-8">
+          <Card className="h-full">
+            <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
-                  <CardDescription className="text-sm mt-1">
-                    Período de {format(appliedStartDate, 'dd/MM/yyyy')} a {format(appliedEndDate, 'dd/MM/yyyy')}
+                  <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
+                  <CardDescription className="text-xs">
+                    {format(appliedStartDate, 'dd/MM/yyyy')} - {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos)
                   </CardDescription>
                 </div>
                 <Select value={chartMetric} onValueChange={setChartMetric}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Selecionar métrica" />
+                  <SelectTrigger className="w-[120px] h-7 text-xs">
+                    <SelectValue placeholder="Métrica" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="conversations">Conversas</SelectItem>
@@ -279,7 +269,7 @@ export const DashboardPage: React.FC = () => {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="h-[calc(100%-100px)] px-4 pb-4">
+            <CardContent className="px-3 pb-3 h-[calc(100%-80px)]">
               {hasData ? (
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -295,14 +285,14 @@ export const DashboardPage: React.FC = () => {
                         dataKey="date" 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                         tickFormatter={(value) => format(new Date(value), 'dd/MM')}
                         domain={['dataMin', 'dataMax']}
                       />
                       <YAxis 
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                         domain={['dataMin', 'dataMax']}
                       />
                       <ChartTooltip
@@ -321,9 +311,8 @@ export const DashboardPage: React.FC = () => {
               ) : (
                 <div className="h-full flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
-                    <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                    <p className="text-sm">Nenhum dado encontrado para o período selecionado</p>
-                    <p className="text-xs mt-1">Tente selecionar um período diferente</p>
+                    <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs">Nenhum dado encontrado</p>
                   </div>
                 </div>
               )}
@@ -331,76 +320,78 @@ export const DashboardPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-3">
-          {/* Activities */}
+        {/* Performance Section - Right Side */}
+        <div className="col-span-4 space-y-3">
           <Card className="h-[calc(50%-6px)]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Atividades Recentes</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-2">
-              <div className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Nova conversa iniciada</p>
-                  <p className="text-xs text-muted-foreground">há 2 minutos</p>
+            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
+              <div className="space-y-2 h-full overflow-y-auto">
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Nova conversa iniciada</p>
+                    <p className="text-xs text-muted-foreground">há 2 minutos</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Lead qualificado</p>
-                  <p className="text-xs text-muted-foreground">há 15 minutos</p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Lead qualificado</p>
+                    <p className="text-xs text-muted-foreground">há 15 minutos</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Contato adicionado</p>
-                  <p className="text-xs text-muted-foreground">há 1 hora</p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Contato adicionado</p>
+                    <p className="text-xs text-muted-foreground">há 1 hora</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Mensagem respondida</p>
-                  <p className="text-xs text-muted-foreground">há 2 horas</p>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Mensagem respondida</p>
+                    <p className="text-xs text-muted-foreground">há 2 horas</p>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Performance */}
           <Card className="h-[calc(50%-6px)]">
             <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm">Indicadores de Performance</CardTitle>
+              <CardTitle className="text-sm">Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-3">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">Tempo de resposta médio</span>
-                  <span className="text-sm text-muted-foreground">2m 30s</span>
+            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
+              <div className="space-y-3 h-full">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Tempo de resposta</span>
+                    <span className="text-xs text-muted-foreground">2m 30s</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
                 </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '85%' }}></div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Satisfação</span>
+                    <span className="text-xs text-muted-foreground">94%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '94%' }}></div>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">Satisfação do cliente</span>
-                  <span className="text-sm text-muted-foreground">94%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '94%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium">Taxa de resolução</span>
-                  <span className="text-sm text-muted-foreground">87%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: '87%' }}></div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Resolução</span>
+                    <span className="text-xs text-muted-foreground">87%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '87%' }}></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
