@@ -89,6 +89,13 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             </Badge>
           </div>
 
+          {contact.annualRevenue && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Building className="h-3 w-3" />
+              <span>Faturamento: {formatCurrency(contact.annualRevenue)}</span>
+            </div>
+          )}
+
           {contact.notes && (
             <p className="text-xs text-muted-foreground line-clamp-2 mt-1.5">
               {contact.notes}
