@@ -293,7 +293,7 @@ export const FunilPage: React.FC = () => {
                     size="sm"
                     onClick={() => {
                       setSelectedDeal(null);
-                      navigate('/leads');
+                      navigate(`/leads?highlight=${selectedDeal.leadId}`);
                     }}
                   >
                     <User className="h-4 w-4 mr-2" />
@@ -312,7 +312,7 @@ export const FunilPage: React.FC = () => {
                       size="sm"
                       onClick={() => {
                         setSelectedDeal(null);
-                        navigate('/empresas');
+                        navigate(`/empresas?highlight=${selectedDeal.companyId}`);
                       }}
                     >
                       <Building2 className="h-4 w-4 mr-2" />

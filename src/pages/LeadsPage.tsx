@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,7 +9,8 @@ import { Search, Plus, Filter, User, Mail, Phone, Calendar, Target, Star, Extern
 import { Lead, Person } from '../types/crm';
 import { format } from 'date-fns';
 import { useCrmDataStore } from '../stores/crmDataStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LeadDetailsModal } from '../components/crm/LeadDetailsModal';
 
 const getStatusColor = (status: Lead['status']) => {
   const colors = {
@@ -34,11 +35,30 @@ const getStatusLabel = (status: Lead['status']) => {
 };
 
 export const LeadsPage: React.FC = () => {
-  const { leads, companies, deals } = useCrmDataStore();
+  const { leads, companies, deals, getLeadById } = useCrmDataStore();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  // Check for highlight parameter and open modal
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (highlightId) {
+      const lead = getLeadById(highlightId);
+      if (lead) {
+        setSelectedLead(lead);
+      }
+      // Remove the highlight parameter from URL
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('highlight');
+        return newParams;
+      });
+    }
+  }, [searchParams, getLeadById, setSearchParams]);
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -294,7 +314,7 @@ export const LeadsPage: React.FC = () => {
                     })()}
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedLead(lead)}>
                       Ver detalhes
                     </Button>
                   </TableCell>
@@ -304,6 +324,13 @@ export const LeadsPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Lead Details Modal */}
+      <LeadDetailsModal 
+        isOpen={!!selectedLead}
+        onClose={() => setSelectedLead(null)}
+        lead={selectedLead}
+      />
     </div>
   );
 };

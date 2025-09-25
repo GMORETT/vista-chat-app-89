@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -10,7 +10,8 @@ import { Search, Plus, Building2, Users, Globe, Phone, Calendar, MapPin, Externa
 import { Company, Lead, Person } from '../types/crm';
 import { format } from 'date-fns';
 import { useCrmDataStore } from '../stores/crmDataStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CompanyDetailsModal } from '../components/crm/CompanyDetailsModal';
 
 const getSizeColor = (size: Company['size']) => {
   const colors = {
@@ -33,11 +34,30 @@ const getSizeLabel = (size: Company['size']) => {
 };
 
 export const EmpresasPage: React.FC = () => {
-  const { companies, deals } = useCrmDataStore();
+  const { companies, deals, getCompanyById } = useCrmDataStore();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [sizeFilter, setSizeFilter] = useState('all');
   const [industryFilter, setIndustryFilter] = useState('all');
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+
+  // Check for highlight parameter and open modal
+  useEffect(() => {
+    const highlightId = searchParams.get('highlight');
+    if (highlightId) {
+      const company = getCompanyById(highlightId);
+      if (company) {
+        setSelectedCompany(company);
+      }
+      // Remove the highlight parameter from URL
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('highlight');
+        return newParams;
+      });
+    }
+  }, [searchParams, getCompanyById, setSearchParams]);
 
   const filteredCompanies = companies.filter(company => {
     const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -334,7 +354,7 @@ export const EmpresasPage: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedCompany(company)}>
                       Ver detalhes
                     </Button>
                   </TableCell>
@@ -344,6 +364,13 @@ export const EmpresasPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Company Details Modal */}
+      <CompanyDetailsModal 
+        isOpen={!!selectedCompany}
+        onClose={() => setSelectedCompany(null)}
+        company={selectedCompany}
+      />
     </div>
   );
 };
