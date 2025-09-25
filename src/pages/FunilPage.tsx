@@ -98,14 +98,14 @@ export const FunilPage: React.FC = () => {
             
             <div className="flex items-center gap-4">
               {/* Stats Card */}
-              <Card className="px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <BarChart3 className="h-5 w-5 text-primary" />
+              <Card className="px-3 py-2 shadow-sm h-10">
+                <div className="flex items-center gap-2 h-full">
+                  <div className="p-1 bg-primary/10 rounded">
+                    <BarChart3 className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-lg font-semibold text-foreground">{totalContacts}</span>
-                    <span className="text-sm text-muted-foreground">leads totais</span>
+                    <span className="text-sm font-semibold text-foreground">{totalContacts}</span>
+                    <span className="text-xs text-muted-foreground">leads totais</span>
                   </div>
                 </div>
               </Card>
