@@ -158,9 +158,10 @@ export const DashboardPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* Filter Section */}
-        <div className="col-span-8">
-          <Card className="p-2 mb-4">
+        {/* Chart Section with Filter - Left Side */}
+        <div className="col-span-8 space-y-2">
+          {/* Filter Section */}
+          <Card className="p-2">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Filter className="h-3 w-3 text-muted-foreground" />
@@ -238,10 +239,8 @@ export const DashboardPage: React.FC = () => {
               </Button>
             </div>
           </Card>
-        </div>
 
-        {/* Chart Section - Left Side */}
-        <div className="col-span-8">
+          {/* Chart */}
           <Card className="min-h-[400px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
