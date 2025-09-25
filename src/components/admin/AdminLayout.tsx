@@ -57,7 +57,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 bg-muted/30">
+          <main className="flex-1 p-6 bg-muted/30 ml-4">
             <Outlet />
           </main>
         </div>
