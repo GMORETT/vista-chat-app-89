@@ -45,14 +45,14 @@ export const ContactCard: React.FC<ContactCardProps> = ({
       onDragStart={handleDragStart}
       onClick={handleClick}
     >
-      <CardContent className="p-3">
-        <div className="flex items-start justify-between mb-2">
+      <CardContent className="p-2">
+        <div className="flex items-start justify-between mb-1.5">
           <div className="flex-1">
-            <h4 className="font-semibold text-xs text-foreground mb-1">
+            <h4 className="font-semibold text-xs text-foreground mb-0.5">
               {contact.name}
             </h4>
             {contact.company && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-0.5">
                 <Building className="h-3 w-3" />
                 <span>{contact.company}</span>
               </div>
@@ -60,7 +60,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {contact.email && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Mail className="h-3 w-3" />
