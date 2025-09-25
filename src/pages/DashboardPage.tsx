@@ -109,10 +109,6 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="h-full overflow-hidden p-4 space-y-3">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-      </div>
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
         {/* Stats Cards - Top Row */}
