@@ -1,5 +1,6 @@
 import React from 'react';
 import { Contact, Stage } from '../../types/crm';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -7,12 +8,14 @@ import {
   DialogTitle,
 } from '../ui/dialog';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { 
   Building, 
   Mail, 
   Phone, 
-  DollarSign
+  DollarSign,
+  MessageCircle
 } from 'lucide-react';
 
 interface ContactDetailsModalProps {
@@ -28,6 +31,8 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   contact,
   stage,
 }) => {
+  const navigate = useNavigate();
+
   if (!contact) return null;
 
   const formatCurrency = (value: number) => {
@@ -35,6 +40,11 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
       style: 'currency',
       currency: 'BRL',
     }).format(value);
+  };
+
+  const handleViewMessages = () => {
+    navigate('/mensageria');
+    onClose();
   };
 
   return (
@@ -98,11 +108,23 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
                       {formatCurrency(contact.annualRevenue)}
                     </div>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                 )}
+               </div>
+             </CardContent>
+           </Card>
+
+           {/* Botão Ver Mensagens */}
+           <div className="flex justify-center pt-2">
+             <Button 
+               onClick={handleViewMessages}
+               className="flex items-center gap-2"
+               size="lg"
+             >
+               <MessageCircle className="h-4 w-4" />
+               Ver Mensagens
+             </Button>
+           </div>
+         </div>
       </DialogContent>
     </Dialog>
   );
