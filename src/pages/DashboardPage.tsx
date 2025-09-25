@@ -356,7 +356,7 @@ export const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="flex-1 min-h-[200px]">
+          <Card className="flex-1 min-h-[140px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Performance</CardTitle>
             </CardHeader>
