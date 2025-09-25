@@ -441,7 +441,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Dynamic Statistics - Bottom Section */}
-        <div className="col-span-12 mt-4">
+        <div className="col-span-12 mt-2">
           <div className="grid grid-cols-5 gap-3">
             <Card className="px-2 py-2">
               <div className="text-center">
