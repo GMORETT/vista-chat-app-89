@@ -164,10 +164,90 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Chart Section - Left Side */}
-        <div className="col-span-8">
-          <Card className="h-full">
+        <div className="col-span-8 space-y-2">
+          {/* Chart Filters */}
+          <Card className="p-2">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Filter className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs font-medium">Período do gráfico:</span>
+              </div>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-[80px] h-7 justify-start text-left font-normal text-xs",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {startDate ? format(startDate, "dd/MM") : "Início"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setStartDate(date);
+                        console.log('Start date selected:', date);
+                      }
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <span className="text-xs text-muted-foreground">até</span>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-[80px] h-7 justify-start text-left font-normal text-xs",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {endDate ? format(endDate, "dd/MM") : "Fim"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setEndDate(date);
+                        console.log('End date selected:', date);
+                      }
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Button 
+                onClick={handleApplyFilters} 
+                size="sm"
+                className="h-7 text-xs px-3"
+              >
+                Aplicar
+              </Button>
+            </div>
+          </Card>
+
+          <Card className="h-[calc(100%-60px)]">
             <CardHeader className="pb-2 pt-3 px-3">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
                   <CardDescription className="text-xs">
@@ -186,86 +266,8 @@ export const DashboardPage: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
-              {/* Filters for the chart */}
-              <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-md">
-                <div className="flex items-center gap-1">
-                  <Filter className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs font-medium">Período:</span>
-                </div>
-                
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-[80px] h-6 justify-start text-left font-normal text-xs",
-                        !startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-1 h-3 w-3" />
-                      {startDate ? format(startDate, "dd/MM") : "Início"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          setStartDate(date);
-                          console.log('Start date selected:', date);
-                        }
-                      }}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <span className="text-xs text-muted-foreground">até</span>
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        "w-[80px] h-6 justify-start text-left font-normal text-xs",
-                        !endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-1 h-3 w-3" />
-                      {endDate ? format(endDate, "dd/MM") : "Fim"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={(date) => {
-                        if (date) {
-                          setEndDate(date);
-                          console.log('End date selected:', date);
-                        }
-                      }}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <Button 
-                  onClick={handleApplyFilters} 
-                  size="sm"
-                  className="h-6 text-xs px-2"
-                >
-                  Aplicar
-                </Button>
-              </div>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-140px)]">
+            <CardContent className="px-3 pb-3 h-[calc(100%-70px)]">
               {hasData ? (
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
