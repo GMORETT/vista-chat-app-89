@@ -395,6 +395,61 @@ export const DashboardPage: React.FC = () => {
           </Card>
           </div>
         </div>
+
+        {/* Dynamic Statistics - Bottom Section */}
+        <div className="col-span-12 mt-4">
+          <div className="grid grid-cols-5 gap-3">
+            <Card className="px-2 py-2">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground leading-tight">Mensagens Recebidas</p>
+                <p className="text-lg font-bold leading-tight text-primary">
+                  {Math.round(generateRandomData.reduce((sum, item) => sum + item.value, 0) * 0.7)}
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">no período</p>
+              </div>
+            </Card>
+
+            <Card className="px-2 py-2">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground leading-tight">Novos Leads</p>
+                <p className="text-lg font-bold leading-tight text-primary">
+                  {Math.round(generateRandomData.reduce((sum, item) => sum + item.value, 0) * 0.4)}
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">captados</p>
+              </div>
+            </Card>
+
+            <Card className="px-2 py-2">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground leading-tight">Leads Qualificados</p>
+                <p className="text-lg font-bold leading-tight text-primary">
+                  {Math.round(generateRandomData.reduce((sum, item) => sum + item.value, 0) * 0.25)}
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">qualificados</p>
+              </div>
+            </Card>
+
+            <Card className="px-2 py-2">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground leading-tight">Conversões</p>
+                <p className="text-lg font-bold leading-tight text-primary">
+                  {Math.round(generateRandomData.reduce((sum, item) => sum + item.value, 0) * 0.15)}
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">finalizadas</p>
+              </div>
+            </Card>
+
+            <Card className="px-2 py-2">
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground leading-tight">Ticket Médio</p>
+                <p className="text-lg font-bold leading-tight text-primary">
+                  R$ {(Math.round(generateRandomData.reduce((sum, item) => sum + item.value, 0) * 0.15) * 450).toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground leading-tight">por conversão</p>
+              </div>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
