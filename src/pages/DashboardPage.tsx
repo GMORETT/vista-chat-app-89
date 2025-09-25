@@ -12,12 +12,12 @@ import { cn } from '../lib/utils';
 
 export const DashboardPage: React.FC = () => {
   // Filter states (what user is selecting)
-  const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>(new Date('2024-12-31'));
+  const [endDate, setEndDate] = useState<Date>(new Date('2025-01-15'));
   
   // Applied filter states (what affects the chart)
-  const [appliedStartDate, setAppliedStartDate] = useState<Date>(subDays(new Date(), 30));
-  const [appliedEndDate, setAppliedEndDate] = useState<Date>(new Date());
+  const [appliedStartDate, setAppliedStartDate] = useState<Date>(new Date('2024-12-31'));
+  const [appliedEndDate, setAppliedEndDate] = useState<Date>(new Date('2025-01-15'));
   
   const [chartMetric, setChartMetric] = useState('conversations');
 
@@ -29,42 +29,75 @@ export const DashboardPage: React.FC = () => {
   // Mock data for charts
   const mockData = {
     conversations: [
-      { date: '2024-01-01', value: 45 },
-      { date: '2024-01-05', value: 52 },
-      { date: '2024-01-10', value: 48 },
-      { date: '2024-01-15', value: 61 },
-      { date: '2024-01-20', value: 75 },
-      { date: '2024-01-25', value: 68 },
-      { date: '2024-01-30', value: 82 },
+      { date: '2024-12-15', value: 32 },
+      { date: '2024-12-20', value: 38 },
+      { date: '2024-12-25', value: 42 },
+      { date: '2024-12-30', value: 45 },
+      { date: '2025-01-01', value: 52 },
+      { date: '2025-01-05', value: 48 },
+      { date: '2025-01-10', value: 61 },
+      { date: '2025-01-15', value: 75 },
+      { date: '2025-01-20', value: 68 },
+      { date: '2025-01-25', value: 82 },
+      { date: '2025-01-30', value: 78 },
     ],
     leads: [
-      { date: '2024-01-01', value: 23 },
-      { date: '2024-01-05', value: 28 },
-      { date: '2024-01-10', value: 35 },
-      { date: '2024-01-15', value: 42 },
-      { date: '2024-01-20', value: 38 },
-      { date: '2024-01-25', value: 55 },
-      { date: '2024-01-30', value: 62 },
+      { date: '2024-12-15', value: 18 },
+      { date: '2024-12-20', value: 21 },
+      { date: '2024-12-25', value: 25 },
+      { date: '2024-12-30', value: 23 },
+      { date: '2025-01-01', value: 28 },
+      { date: '2025-01-05', value: 35 },
+      { date: '2025-01-10', value: 42 },
+      { date: '2025-01-15', value: 38 },
+      { date: '2025-01-20', value: 55 },
+      { date: '2025-01-25', value: 62 },
+      { date: '2025-01-30', value: 58 },
     ],
     contacts: [
-      { date: '2024-01-01', value: 120 },
-      { date: '2024-01-05', value: 125 },
-      { date: '2024-01-10', value: 135 },
-      { date: '2024-01-15', value: 145 },
-      { date: '2024-01-20', value: 150 },
-      { date: '2024-01-25', value: 152 },
-      { date: '2024-01-30', value: 156 },
+      { date: '2024-12-15', value: 98 },
+      { date: '2024-12-20', value: 105 },
+      { date: '2024-12-25', value: 115 },
+      { date: '2024-12-30', value: 120 },
+      { date: '2025-01-01', value: 125 },
+      { date: '2025-01-05', value: 135 },
+      { date: '2025-01-10', value: 145 },
+      { date: '2025-01-15', value: 150 },
+      { date: '2025-01-20', value: 152 },
+      { date: '2025-01-25', value: 156 },
+      { date: '2025-01-30', value: 160 },
     ],
     conversion: [
-      { date: '2024-01-01', value: 65 },
-      { date: '2024-01-05', value: 68 },
-      { date: '2024-01-10', value: 62 },
-      { date: '2024-01-15', value: 70 },
-      { date: '2024-01-20', value: 75 },
-      { date: '2024-01-25', value: 72 },
-      { date: '2024-01-30', value: 68 },
+      { date: '2024-12-15', value: 58 },
+      { date: '2024-12-20', value: 62 },
+      { date: '2024-12-25', value: 65 },
+      { date: '2024-12-30', value: 65 },
+      { date: '2025-01-01', value: 68 },
+      { date: '2025-01-05', value: 62 },
+      { date: '2025-01-10', value: 70 },
+      { date: '2025-01-15', value: 75 },
+      { date: '2025-01-20', value: 72 },
+      { date: '2025-01-25', value: 68 },
+      { date: '2025-01-30', value: 71 },
     ]
   };
+
+  // Filter data based on applied date range
+  const getFilteredData = (data: { date: string; value: number }[]) => {
+    const filtered = data.filter(item => {
+      const itemDate = new Date(item.date);
+      return itemDate >= appliedStartDate && itemDate <= appliedEndDate;
+    });
+    
+    // If no data found, return empty array
+    return filtered.length > 0 ? filtered : [];
+  };
+
+  // Get filtered data for current metric
+  const filteredData = getFilteredData(mockData[chartMetric as keyof typeof mockData]);
+  
+  // Check if we have data to display
+  const hasData = filteredData.length > 0;
 
   const chartConfig = {
     conversations: {
@@ -267,41 +300,51 @@ export const DashboardPage: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockData[chartMetric as keyof typeof mockData]}>
-                  <defs>
-                    <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
-                      <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                    tickFormatter={(value) => format(new Date(value), 'dd/MM')}
-                  />
-                  <YAxis 
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    fill="url(#colorGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            {hasData ? (
+              <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={filteredData}>
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
+                        <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis 
+                      dataKey="date" 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => format(new Date(value), 'dd/MM')}
+                    />
+                    <YAxis 
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <ChartTooltip
+                      content={<ChartTooltipContent />}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      fill="url(#colorGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            ) : (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Nenhum dado encontrado para o período selecionado</p>
+                  <p className="text-xs mt-1">Tente selecionar um período diferente</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
