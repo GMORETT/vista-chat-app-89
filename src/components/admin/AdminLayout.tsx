@@ -30,12 +30,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-col flex-1">
           {/* Header */}
           <header className="h-14 flex items-center justify-between border-b bg-background px-4">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <h1 className="text-lg font-semibold text-foreground">Solabs Admin</h1>
+              
             </div>
             
             <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
               {/* Back to operator mode */}
               <Button variant="outline" size="sm" onClick={() => navigate('/')}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                Início
+                Conversas
               </Button>
               
               {/* Logout button */}
