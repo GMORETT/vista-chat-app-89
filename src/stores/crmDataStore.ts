@@ -1,18 +1,37 @@
 import { create } from 'zustand';
 import { Lead, Company, Deal, Person } from '../types/crm';
 
+// Adicionar interface para Stage dos Deals
+export interface DealStage {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+  isActive: boolean;
+}
+
 interface CrmDataState {
   // Data
   leads: Lead[];
   companies: Company[];
   deals: Deal[];
   persons: Person[];
+  dealStages: DealStage[];
   
   // Actions
   setLeads: (leads: Lead[]) => void;
   setCompanies: (companies: Company[]) => void;
   setDeals: (deals: Deal[]) => void;
   setPersons: (persons: Person[]) => void;
+  
+  // Deal Stages Actions
+  addDealStage: (stage: Omit<DealStage, 'id'>) => void;
+  updateDealStage: (id: string, updates: Partial<DealStage>) => void;
+  deleteDealStage: (id: string) => void;
+  reorderDealStages: (stages: DealStage[]) => void;
+  
+  // Deal Actions
+  moveDeal: (dealId: string, newStage: string) => void;
   
   // Getters
   getLeadById: (id: string) => Lead | undefined;
@@ -171,7 +190,7 @@ const mockDeals: Deal[] = [
     title: 'Sistema CRM Corporativo',
     value: 85000,
     currency: 'BRL',
-    stage: 'proposal',
+    stage: 'stage2', // Mudando para usar IDs de stage customizados
     probability: 75,
     expectedCloseDate: '2025-02-28T00:00:00Z',
     assignedPerson: mockPersons[0], // Ana Costa - uma pessoa por deal
@@ -188,7 +207,7 @@ const mockDeals: Deal[] = [
     title: 'Plataforma de Gestão',
     value: 25000,
     currency: 'BRL',
-    stage: 'negotiation',
+    stage: 'stage3',
     probability: 60,
     expectedCloseDate: '2025-02-15T00:00:00Z',
     assignedPerson: mockPersons[2], // Paula Ferreira
@@ -205,7 +224,7 @@ const mockDeals: Deal[] = [
     title: 'Consultoria Estratégica',
     value: 150000,
     currency: 'BRL',
-    stage: 'prospect',
+    stage: 'stage1',
     probability: 90,
     expectedCloseDate: '2025-03-15T00:00:00Z',
     assignedPerson: mockPersons[0], // Ana Costa
@@ -222,7 +241,7 @@ const mockDeals: Deal[] = [
     title: 'Solução Inicial',
     value: 15000,
     currency: 'BRL',
-    stage: 'prospect',
+    stage: 'stage1',
     probability: 40,
     expectedCloseDate: '2025-02-01T00:00:00Z',
     assignedPerson: mockPersons[1], // Carlos Lima
@@ -234,18 +253,65 @@ const mockDeals: Deal[] = [
   }
 ];
 
+// Etapas customizáveis para deals
+const mockDealStages: DealStage[] = [
+  { id: 'stage1', name: 'Prospecção', color: '#3B82F6', order: 1, isActive: true },
+  { id: 'stage2', name: 'Proposta', color: '#F59E0B', order: 2, isActive: true },
+  { id: 'stage3', name: 'Negociação', color: '#EF4444', order: 3, isActive: true },
+  { id: 'stage4', name: 'Fechado', color: '#10B981', order: 4, isActive: true },
+];
+
 export const useCrmDataStore = create<CrmDataState>((set, get) => ({
   // Initial data
   leads: mockLeads,
   companies: mockCompanies,
   deals: mockDeals,
   persons: mockPersons,
+  dealStages: mockDealStages,
   
   // Actions
   setLeads: (leads) => set({ leads }),
   setCompanies: (companies) => set({ companies }),
   setDeals: (deals) => set({ deals }),
   setPersons: (persons) => set({ persons }),
+  
+  // Deal Stages Actions
+  addDealStage: (stage) => {
+    const newStage: DealStage = {
+      ...stage,
+      id: `stage_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    };
+    set(state => ({
+      dealStages: [...state.dealStages, newStage]
+    }));
+  },
+  
+  updateDealStage: (id, updates) => {
+    set(state => ({
+      dealStages: state.dealStages.map(stage => 
+        stage.id === id ? { ...stage, ...updates } : stage
+      )
+    }));
+  },
+  
+  deleteDealStage: (id) => {
+    set(state => ({
+      dealStages: state.dealStages.filter(stage => stage.id !== id)
+    }));
+  },
+  
+  reorderDealStages: (stages) => {
+    set({ dealStages: stages });
+  },
+  
+  // Deal Actions
+  moveDeal: (dealId, newStage) => {
+    set(state => ({
+      deals: state.deals.map(deal => 
+        deal.id === dealId ? { ...deal, stage: newStage } : deal
+      )
+    }));
+  },
   
   // Getters
   getLeadById: (id) => get().leads.find(lead => lead.id === id),

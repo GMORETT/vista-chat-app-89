@@ -81,7 +81,7 @@ export interface Deal {
   title: string;
   value: number;
   currency: string;
-  stage: 'prospect' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';
+  stage: string; // Mudança para string para permitir etapas customizadas
   probability: number; // 0-100
   expectedCloseDate?: string;
   assignedPerson: Person; // Apenas uma pessoa por negócio

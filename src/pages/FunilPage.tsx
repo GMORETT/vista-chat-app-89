@@ -1,40 +1,81 @@
 import React, { useState } from 'react';
 import { Deal, Lead, Company } from '../types/crm';
 import { Button } from '../components/ui/button';
-import { BarChart3, ExternalLink, User, Building2, TrendingUp, Calendar, DollarSign } from 'lucide-react';
+import { BarChart3, ExternalLink, User, Building2, TrendingUp, Calendar, DollarSign, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { useCrmDataStore } from '../stores/crmDataStore';
+import { useCrmDataStore, DealStage } from '../stores/crmDataStore';
 import { useNavigate } from 'react-router-dom';
-
-const DEAL_STAGES = [
-  { id: 'prospect', name: 'Prospecção', color: '#3B82F6' },
-  { id: 'proposal', name: 'Proposta', color: '#F59E0B' },
-  { id: 'negotiation', name: 'Negociação', color: '#EF4444' },
-  { id: 'closed_won', name: 'Fechado - Ganho', color: '#10B981' },
-  { id: 'closed_lost', name: 'Fechado - Perdido', color: '#6B7280' }
-];
+import { DealStageManager } from '../components/crm/DealStageManager';
+import { DealStageModal } from '../components/crm/DealStageModal';
+import { DealFunnelStage } from '../components/crm/DealFunnelStage';
 
 export const FunilPage: React.FC = () => {
-  const { deals, getLeadById, getCompanyById } = useCrmDataStore();
+  const { 
+    deals, 
+    dealStages, 
+    getLeadById, 
+    getCompanyById, 
+    moveDeal, 
+    addDealStage, 
+    updateDealStage, 
+    deleteDealStage, 
+    reorderDealStages 
+  } = useCrmDataStore();
   const navigate = useNavigate();
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [editingStage, setEditingStage] = useState<DealStage | undefined>();
 
   const getDealsByStage = (stageId: string) => {
     return deals.filter(deal => deal.stage === stageId);
   };
 
-  const getStageStats = (stageId: string) => {
-    const stageDeals = getDealsByStage(stageId);
-    const totalValue = stageDeals.reduce((sum, deal) => sum + deal.value, 0);
-    return {
-      count: stageDeals.length,
-      value: totalValue,
-      probability: stageDeals.length > 0 ? Math.round(stageDeals.reduce((sum, deal) => sum + deal.probability, 0) / stageDeals.length) : 0
-    };
+  const handleAddStage = () => {
+    setEditingStage(undefined);
+    setStageModalOpen(true);
   };
+
+  const handleEditStage = (stage: DealStage) => {
+    setEditingStage(stage);
+    setStageModalOpen(true);
+  };
+
+  const handleSaveStage = (stageData: Omit<DealStage, 'id'>) => {
+    if (editingStage) {
+      updateDealStage(editingStage.id, stageData);
+      toast.success('Etapa atualizada com sucesso!');
+    } else {
+      const newOrder = Math.max(...dealStages.map(s => s.order), 0) + 1;
+      addDealStage({ ...stageData, order: newOrder });
+      toast.success('Etapa criada com sucesso!');
+    }
+    setStageModalOpen(false);
+    setEditingStage(undefined);
+  };
+
+  const handleDeleteStage = (stageId: string) => {
+    const stageDeals = getDealsByStage(stageId);
+    if (stageDeals.length > 0) {
+      toast.error('Não é possível excluir uma etapa que possui negócios. Mova os negócios primeiro.');
+      return;
+    }
+    deleteDealStage(stageId);
+    toast.success('Etapa excluída com sucesso!');
+  };
+
+  const handleDealDrop = (dealId: string, newStageId: string) => {
+    const deal = deals.find(d => d.id === dealId);
+    if (deal && deal.stage !== newStageId) {
+      moveDeal(dealId, newStageId);
+      toast.success('Negócio movido com sucesso!');
+    }
+  };
+
+  // Sort stages by order
+  const sortedStages = [...dealStages].sort((a, b) => a.order - b.order);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -43,11 +84,6 @@ export const FunilPage: React.FC = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
-  };
-
-  const getStageColor = (stageId: string) => {
-    const stage = DEAL_STAGES.find(s => s.id === stageId);
-    return stage?.color || '#6B7280';
   };
 
   const totalDeals = deals.length;
@@ -168,55 +204,48 @@ export const FunilPage: React.FC = () => {
       {/* Main Content */}
       <div className="p-6">
         <div className="flex gap-4 overflow-x-auto pb-4">
-          {DEAL_STAGES.map((stage) => {
-            const stageDeals = getDealsByStage(stage.id);
-            const stats = getStageStats(stage.id);
-            
-            return (
-              <div key={stage.id} className="flex-shrink-0 w-80">
-                <Card className="h-full">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: stage.color }}
-                        />
-                        <CardTitle className="text-base">{stage.name}</CardTitle>
-                      </div>
-                      <Badge variant="outline">
-                        {stats.count}
-                      </Badge>
-                    </div>
-                    {stats.count > 0 && (
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          {formatCurrency(stats.value)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Probabilidade média: {stats.probability}%
-                        </p>
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {stageDeals.map((deal) => (
-                        <DealCard key={deal.id} deal={deal} />
-                      ))}
-                      {stageDeals.length === 0 && (
-                        <p className="text-center text-muted-foreground text-sm py-8">
-                          Nenhum negócio nesta etapa
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+          {sortedStages.length === 0 ? (
+            <Card className="w-full p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold mb-2">Nenhuma etapa criada</h3>
+                <p className="text-muted-foreground mb-4">
+                  Crie sua primeira etapa para começar a organizar seus negócios
+                </p>
+                <Button onClick={handleAddStage}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Primeira Etapa
+                </Button>
               </div>
-            );
-          })}
+            </Card>
+          ) : (
+            sortedStages.map((stage) => {
+              const stageDeals = getDealsByStage(stage.id);
+              return (
+                <DealFunnelStage
+                  key={stage.id}
+                  stage={stage}
+                  deals={stageDeals}
+                  onEditStage={handleEditStage}
+                  onDeleteStage={handleDeleteStage}
+                  onDealClick={setSelectedDeal}
+                  onDealDrop={handleDealDrop}
+                />
+              );
+            })
+          )}
         </div>
       </div>
+
+      {/* Modals */}
+      <DealStageModal
+        isOpen={stageModalOpen}
+        onClose={() => {
+          setStageModalOpen(false);
+          setEditingStage(undefined);
+        }}
+        onSave={handleSaveStage}
+        stage={editingStage}
+      />
 
       {/* Deal Details Modal */}
       {selectedDeal && (
