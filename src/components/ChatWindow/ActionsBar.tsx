@@ -94,7 +94,7 @@ export const ActionsBar: React.FC = () => {
   };
 
   return (
-    <div className="p-4 border-b border-border bg-card">
+    <div className="p-3 border-b border-border bg-card">
       {/* Top row: Navigation controls and avatar */}
       <div className="flex items-center gap-3 mb-3">
         {/* Back button for mobile or expanded desktop view */}
