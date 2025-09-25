@@ -11,9 +11,20 @@ import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { cn } from '../lib/utils';
 
 export const DashboardPage: React.FC = () => {
+  // Filter states (what user is selecting)
   const [startDate, setStartDate] = useState<Date>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date>(new Date());
+  
+  // Applied filter states (what affects the chart)
+  const [appliedStartDate, setAppliedStartDate] = useState<Date>(subDays(new Date(), 30));
+  const [appliedEndDate, setAppliedEndDate] = useState<Date>(new Date());
+  
   const [chartMetric, setChartMetric] = useState('conversations');
+
+  const handleApplyFilters = () => {
+    setAppliedStartDate(startDate);
+    setAppliedEndDate(endDate);
+  };
 
   // Mock data for charts
   const mockData = {
@@ -94,27 +105,27 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center gap-4">
+      <Card className="p-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Filtros:</span>
+            <span className="text-sm font-medium">Período:</span>
           </div>
           
           {/* Date Range */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">De:</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
+                  size="sm"
                   className={cn(
-                    "w-[140px] justify-start text-left font-normal",
+                    "w-[120px] justify-start text-left font-normal",
                     !startDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "dd/MM/yy") : "Selecionar"}
+                  <CalendarIcon className="mr-2 h-3 w-3" />
+                  {startDate ? format(startDate, "dd/MM") : "Início"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -129,19 +140,21 @@ export const DashboardPage: React.FC = () => {
             </Popover>
           </div>
 
+          <span className="text-xs text-muted-foreground">até</span>
+
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Até:</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
+                  size="sm"
                   className={cn(
-                    "w-[140px] justify-start text-left font-normal",
+                    "w-[120px] justify-start text-left font-normal",
                     !endDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "dd/MM/yy") : "Selecionar"}
+                  <CalendarIcon className="mr-2 h-3 w-3" />
+                  {endDate ? format(endDate, "dd/MM") : "Fim"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -155,6 +168,14 @@ export const DashboardPage: React.FC = () => {
               </PopoverContent>
             </Popover>
           </div>
+
+          <Button 
+            onClick={handleApplyFilters} 
+            size="sm"
+            className="ml-2"
+          >
+            Aplicar Filtro
+          </Button>
         </div>
       </Card>
 
@@ -229,7 +250,7 @@ export const DashboardPage: React.FC = () => {
               <div>
                 <CardTitle>{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
                 <CardDescription>
-                  Análise de {getMetricLabel(chartMetric).toLowerCase()} no período selecionado
+                  Análise de {getMetricLabel(chartMetric).toLowerCase()} de {format(appliedStartDate, 'dd/MM/yyyy')} até {format(appliedEndDate, 'dd/MM/yyyy')}
                 </CardDescription>
               </div>
               <Select value={chartMetric} onValueChange={setChartMetric}>
@@ -251,7 +272,8 @@ export const DashboardPage: React.FC = () => {
                 <AreaChart data={mockData[chartMetric as keyof typeof mockData]}>
                   <defs>
                     <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
+                      <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
                     </linearGradient>
                   </defs>
