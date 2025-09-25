@@ -130,21 +130,21 @@ export const AdminSidebar: React.FC = () => {
   );
 
   return (
-    <Sidebar className={collapsed ? "w-16 min-w-16" : "w-56 min-w-56"} collapsible="icon">
+    <Sidebar className={collapsed ? "w-16 min-w-16" : "w-52 min-w-52"} collapsible="icon">
       <SidebarHeader className="border-b border-border/50 p-0 h-14">
         <div className={`flex items-center justify-center h-full ${collapsed ? 'px-3' : 'px-4'}`}>
           {collapsed ? (
             <img 
               src="/assets/logo-solabs-white.png" 
               alt="Solabs" 
-              className="h-6 w-auto object-contain" 
+              className="h-5 w-auto object-contain" 
             />
           ) : (
             <div className="flex items-center gap-3">
               <img 
                 src="/assets/logo-solabs-white.png" 
                 alt="Solabs" 
-                className="h-8 w-auto object-contain" 
+                className="h-7 w-auto object-contain" 
               />
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Admin</p>
