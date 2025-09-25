@@ -109,91 +109,8 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="h-full overflow-hidden p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
-        </div>
-        
-        {/* Filters inline with header */}
-        <Card className="p-2">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Filter className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs font-medium">Período:</span>
-            </div>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
-                    !startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-1 h-3 w-3" />
-                  {startDate ? format(startDate, "dd/MM") : "Início"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setStartDate(date);
-                      console.log('Start date selected:', date);
-                    }
-                  }}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-
-            <span className="text-xs text-muted-foreground">até</span>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
-                    !endDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-1 h-3 w-3" />
-                  {endDate ? format(endDate, "dd/MM") : "Fim"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setEndDate(date);
-                      console.log('End date selected:', date);
-                    }
-                  }}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-
-            <Button 
-              onClick={handleApplyFilters} 
-              size="sm"
-              className="h-7 text-xs px-3"
-            >
-              Aplicar
-            </Button>
-          </div>
-        </Card>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
       </div>
 
       {/* Main Content Grid */}
@@ -241,6 +158,88 @@ export const DashboardPage: React.FC = () => {
                 <p className="text-xs text-muted-foreground">+12% este mês</p>
               </div>
               <BarChart3 className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Filter Section */}
+        <div className="col-span-8 mb-3">
+          <Card className="p-2">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Filter className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs font-medium">Período:</span>
+              </div>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-[90px] h-7 justify-start text-left font-normal text-xs",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {startDate ? format(startDate, "dd/MM") : "Início"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setStartDate(date);
+                        console.log('Start date selected:', date);
+                      }
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <span className="text-xs text-muted-foreground">até</span>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-[90px] h-7 justify-start text-left font-normal text-xs",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-1 h-3 w-3" />
+                    {endDate ? format(endDate, "dd/MM") : "Fim"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setEndDate(date);
+                        console.log('End date selected:', date);
+                      }
+                    }}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Button 
+                onClick={handleApplyFilters} 
+                size="sm"
+                className="h-7 text-xs px-3"
+              >
+                Aplicar
+              </Button>
             </div>
           </Card>
         </div>
