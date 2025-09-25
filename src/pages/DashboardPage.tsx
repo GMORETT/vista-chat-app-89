@@ -108,12 +108,12 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-hidden p-4 space-y-3">
+    <div className="min-h-screen p-4 space-y-4">
       {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
+      <div className="grid grid-cols-12 gap-4 min-h-[calc(100vh-2rem)]">
         {/* Stats Cards - Top Row */}
-        <div className="col-span-12 grid grid-cols-4 gap-3">
-          <Card className="p-2">
+        <div className="col-span-12 grid grid-cols-4 gap-4 h-fit">
+          <Card className="p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Conversas Ativas</p>
@@ -124,7 +124,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Leads</p>
@@ -135,7 +135,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Contatos</p>
@@ -146,7 +146,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Taxa de Conversão</p>
@@ -159,8 +159,8 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Filter Section */}
-        <div className="col-span-8 mb-3">
-          <Card className="p-2">
+        <div className="col-span-8">
+          <Card className="p-2 mb-4">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Filter className="h-3 w-3 text-muted-foreground" />
@@ -242,7 +242,7 @@ export const DashboardPage: React.FC = () => {
 
         {/* Chart Section - Left Side */}
         <div className="col-span-8">
-          <Card className="h-full">
+          <Card className="min-h-[400px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -264,65 +264,67 @@ export const DashboardPage: React.FC = () => {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-80px)]">
-              {hasData ? (
-                <ChartContainer config={chartConfig} className="h-full w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
-                      <defs>
-                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
-                          <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                        </linearGradient>
-                      </defs>
-                      <XAxis 
-                        dataKey="date" 
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                        tickFormatter={(value) => format(new Date(value), 'dd/MM')}
-                        domain={['dataMin', 'dataMax']}
-                      />
-                      <YAxis 
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                        domain={['dataMin', 'dataMax']}
-                      />
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        fill="url(#colorGradient)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-xs">Nenhum dado encontrado</p>
+            <CardContent className="px-3 pb-3">
+              <div className="h-80">
+                {hasData ? (
+                  <ChartContainer config={chartConfig} className="h-full w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
+                        <defs>
+                          <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
+                            <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis 
+                          dataKey="date" 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                          tickFormatter={(value) => format(new Date(value), 'dd/MM')}
+                          domain={['dataMin', 'dataMax']}
+                        />
+                        <YAxis 
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                          domain={['dataMin', 'dataMax']}
+                        />
+                        <ChartTooltip
+                          content={<ChartTooltipContent />}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2}
+                          fill="url(#colorGradient)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-xs">Nenhum dado encontrado</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Performance Section - Right Side */}
-        <div className="col-span-4 space-y-3">
-          <Card className="h-[calc(50%-6px)]">
+        <div className="col-span-4 flex flex-col gap-4">
+          <Card className="flex-1 min-h-[200px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Atividades Recentes</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
-              <div className="space-y-2 h-full overflow-y-auto">
+            <CardContent className="px-3 pb-3 flex-1">
+              <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
@@ -355,12 +357,12 @@ export const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="h-[calc(50%-6px)]">
+          <Card className="flex-1 min-h-[200px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
-              <div className="space-y-3 h-full">
+            <CardContent className="px-3 pb-3 flex-1">
+              <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium">Tempo de resposta</span>
