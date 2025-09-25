@@ -30,7 +30,7 @@ export const MainLayout: React.FC = () => {
           {/* Header */}
           <header className="h-14 flex items-center justify-between border-b bg-background px-4">
             <div className="flex items-center gap-4">
-              <SidebarTrigger />
+              <SidebarTrigger className="ml-5" />
             </div>
             
             <div className="flex items-center gap-2">
