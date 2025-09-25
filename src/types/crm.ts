@@ -5,6 +5,7 @@ export interface Contact {
   phone?: string;
   company?: string;
   value: number;
+  annualRevenue?: number; // Faturamento anual
   probability: number;
   stageId: string;
   createdAt: Date;
