@@ -108,74 +108,74 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-hidden p-6">
+    <div className="h-full overflow-hidden p-4">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Visão geral das suas atividades</p>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Conversas Ativas</p>
-              <p className="text-2xl font-bold mt-1">12</p>
+              <p className="text-xl font-bold mt-1">12</p>
               <p className="text-xs text-muted-foreground mt-1">+2 desde ontem</p>
             </div>
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <MessageSquare className="h-5 w-5 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <MessageSquare className="h-4 w-4 text-primary" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Leads</p>
-              <p className="text-2xl font-bold mt-1">23</p>
+              <p className="text-xl font-bold mt-1">23</p>
               <p className="text-xs text-muted-foreground mt-1">+5 esta semana</p>
             </div>
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-primary" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Contatos</p>
-              <p className="text-2xl font-bold mt-1">156</p>
+              <p className="text-xl font-bold mt-1">156</p>
               <p className="text-xs text-muted-foreground mt-1">Total de contatos</p>
             </div>
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Users className="h-5 w-5 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Users className="h-4 w-4 text-primary" />
             </div>
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-3">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Taxa de Conversão</p>
-              <p className="text-2xl font-bold mt-1">68%</p>
+              <p className="text-xl font-bold mt-1">68%</p>
               <p className="text-xs text-muted-foreground mt-1">+12% este mês</p>
             </div>
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <BarChart3 className="h-5 w-5 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <BarChart3 className="h-4 w-4 text-primary" />
             </div>
           </div>
         </Card>
       </div>
 
       {/* Chart and Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-320px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-280px)]">
         {/* Chart Section */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-3">
           {/* Chart Filters */}
-          <Card className="p-4">
+          <Card className="p-3">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
@@ -257,17 +257,17 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Chart */}
-          <Card className="h-[calc(100%-80px)]">
-            <CardHeader className="pb-4">
+          <Card className="h-[calc(100%-75px)]">
+            <CardHeader className="pb-3 pt-4 px-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-lg">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
-                  <CardDescription className="mt-1">
+                  <CardTitle className="text-base">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
+                  <CardDescription className="text-sm mt-1">
                     Período de {format(appliedStartDate, 'dd/MM/yyyy')} a {format(appliedEndDate, 'dd/MM/yyyy')}
                   </CardDescription>
                 </div>
                 <Select value={chartMetric} onValueChange={setChartMetric}>
-                  <SelectTrigger className="w-[160px]">
+                  <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Selecionar métrica" />
                   </SelectTrigger>
                   <SelectContent>
@@ -279,7 +279,7 @@ export const DashboardPage: React.FC = () => {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="h-[calc(100%-120px)]">
+            <CardContent className="h-[calc(100%-100px)] px-4 pb-4">
               {hasData ? (
                 <ChartContainer config={chartConfig} className="h-full w-full">
                   <ResponsiveContainer width="100%" height="100%">
@@ -321,7 +321,7 @@ export const DashboardPage: React.FC = () => {
               ) : (
                 <div className="h-full flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <BarChart3 className="h-10 w-10 mx-auto mb-3 opacity-50" />
                     <p className="text-sm">Nenhum dado encontrado para o período selecionado</p>
                     <p className="text-xs mt-1">Tente selecionar um período diferente</p>
                   </div>
@@ -332,36 +332,36 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Activities */}
-          <Card className="h-[calc(50%-8px)]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Atividades Recentes</CardTitle>
+          <Card className="h-[calc(50%-6px)]">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <CardTitle className="text-sm">Atividades Recentes</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+            <CardContent className="px-3 pb-3 space-y-2">
+              <div className="flex items-start space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">Nova conversa iniciada</p>
                   <p className="text-xs text-muted-foreground">há 2 minutos</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <div className="flex items-start space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">Lead qualificado</p>
                   <p className="text-xs text-muted-foreground">há 15 minutos</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <div className="flex items-start space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">Contato adicionado</p>
                   <p className="text-xs text-muted-foreground">há 1 hora</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <div className="flex items-start space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">Mensagem respondida</p>
                   <p className="text-xs text-muted-foreground">há 2 horas</p>
@@ -371,13 +371,13 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Performance */}
-          <Card className="h-[calc(50%-8px)]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Indicadores de Performance</CardTitle>
+          <Card className="h-[calc(50%-6px)]">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <CardTitle className="text-sm">Indicadores de Performance</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-3 pb-3 space-y-3">
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">Tempo de resposta médio</span>
                   <span className="text-sm text-muted-foreground">2m 30s</span>
                 </div>
@@ -386,7 +386,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">Satisfação do cliente</span>
                   <span className="text-sm text-muted-foreground">94%</span>
                 </div>
@@ -395,7 +395,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium">Taxa de resolução</span>
                   <span className="text-sm text-muted-foreground">87%</span>
                 </div>
