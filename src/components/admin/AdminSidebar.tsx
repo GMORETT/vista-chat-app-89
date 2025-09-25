@@ -100,7 +100,7 @@ export const AdminSidebar: React.FC = () => {
   };
 
   const getNavClassName = (isActiveRoute: boolean) =>
-    `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+    `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${
       isActiveRoute 
         ? "bg-primary text-primary-foreground font-medium shadow-sm" 
         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -147,7 +147,7 @@ export const AdminSidebar: React.FC = () => {
                 className="h-8 w-auto object-contain" 
               />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Administration</p>
+                <p className="text-xs font-medium text-muted-foreground">Administration</p>
               </div>
             </div>
           )}
