@@ -117,54 +117,54 @@ export const DashboardPage: React.FC = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
         {/* Stats Cards - Top Row */}
-        <div className="col-span-12 grid grid-cols-4 gap-3">
-          <Card className="p-2">
+        <div className="col-span-12 grid grid-cols-4 gap-2">
+          <Card className="p-1.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Conversas Ativas</p>
-                <p className="text-lg font-bold">12</p>
-                <p className="text-xs text-muted-foreground">+2 desde ontem</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground truncate">Conversas</p>
+                <p className="text-base font-bold">12</p>
+                <p className="text-xs text-muted-foreground truncate">+2 ontem</p>
               </div>
-              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+              <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-1.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Leads</p>
-                <p className="text-lg font-bold">23</p>
-                <p className="text-xs text-muted-foreground">+5 esta semana</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground truncate">Leads</p>
+                <p className="text-base font-bold">23</p>
+                <p className="text-xs text-muted-foreground truncate">+5 semana</p>
               </div>
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-1.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Contatos</p>
-                <p className="text-lg font-bold">156</p>
-                <p className="text-xs text-muted-foreground">Total de contatos</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground truncate">Contatos</p>
+                <p className="text-base font-bold">156</p>
+                <p className="text-xs text-muted-foreground truncate">Total</p>
               </div>
-              <Users className="h-5 w-5 text-muted-foreground" />
+              <Users className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
             </div>
           </Card>
 
-          <Card className="p-2">
+          <Card className="p-1.5">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Taxa de Conversão</p>
-                <p className="text-lg font-bold">68%</p>
-                <p className="text-xs text-muted-foreground">+12% este mês</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground truncate">Conversão</p>
+                <p className="text-base font-bold">68%</p>
+                <p className="text-xs text-muted-foreground truncate">+12% mês</p>
               </div>
-              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+              <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
             </div>
           </Card>
         </div>
 
         {/* Chart Section - Left Side */}
-        <div className="col-span-8 space-y-2">
+        <div className="col-span-9 space-y-2">
           {/* Chart Filters */}
           <Card className="p-2">
             <div className="flex items-center gap-2">
@@ -319,76 +319,76 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Performance Section - Right Side */}
-        <div className="col-span-4 space-y-3">
-          <Card className="h-[calc(50%-6px)]">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm">Atividades Recentes</CardTitle>
+        <div className="col-span-3 space-y-2">
+          <Card className="h-[calc(50%-4px)]">
+            <CardHeader className="pb-1 pt-2 px-2">
+              <CardTitle className="text-xs">Atividades</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
-              <div className="space-y-2 h-full overflow-y-auto">
-                <div className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+            <CardContent className="px-2 pb-2 h-[calc(100%-35px)]">
+              <div className="space-y-1.5 h-full overflow-y-auto">
+                <div className="flex items-center space-x-1.5">
+                  <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Nova conversa iniciada</p>
-                    <p className="text-xs text-muted-foreground">há 2 minutos</p>
+                    <p className="text-xs font-medium truncate">Conversa iniciada</p>
+                    <p className="text-xs text-muted-foreground">2 min</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                <div className="flex items-center space-x-1.5">
+                  <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">Lead qualificado</p>
-                    <p className="text-xs text-muted-foreground">há 15 minutos</p>
+                    <p className="text-xs text-muted-foreground">15 min</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                <div className="flex items-center space-x-1.5">
+                  <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">Contato adicionado</p>
-                    <p className="text-xs text-muted-foreground">há 1 hora</p>
+                    <p className="text-xs text-muted-foreground">1h</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                <div className="flex items-center space-x-1.5">
+                  <div className="w-1 h-1 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Mensagem respondida</p>
-                    <p className="text-xs text-muted-foreground">há 2 horas</p>
+                    <p className="text-xs font-medium truncate">Msg respondida</p>
+                    <p className="text-xs text-muted-foreground">2h</p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="h-[calc(50%-6px)]">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm">Performance</CardTitle>
+          <Card className="h-[calc(50%-4px)]">
+            <CardHeader className="pb-1 pt-2 px-2">
+              <CardTitle className="text-xs">Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
-              <div className="space-y-3 h-full">
+            <CardContent className="px-2 pb-2 h-[calc(100%-35px)]">
+              <div className="space-y-2 h-full">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Tempo de resposta</span>
-                    <span className="text-xs text-muted-foreground">2m 30s</span>
+                    <span className="text-xs font-medium truncate">Resposta</span>
+                    <span className="text-xs text-muted-foreground">2m30s</span>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
-                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                  <div className="w-full bg-secondary rounded-full h-1 mt-0.5">
+                    <div className="bg-primary h-1 rounded-full" style={{ width: '85%' }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Satisfação</span>
+                    <span className="text-xs font-medium truncate">Satisfação</span>
                     <span className="text-xs text-muted-foreground">94%</span>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
-                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '94%' }}></div>
+                  <div className="w-full bg-secondary rounded-full h-1 mt-0.5">
+                    <div className="bg-primary h-1 rounded-full" style={{ width: '94%' }}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium">Resolução</span>
+                    <span className="text-xs font-medium truncate">Resolução</span>
                     <span className="text-xs text-muted-foreground">87%</span>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
-                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '87%' }}></div>
+                  <div className="w-full bg-secondary rounded-full h-1 mt-0.5">
+                    <div className="bg-primary h-1 rounded-full" style={{ width: '87%' }}></div>
                   </div>
                 </div>
               </div>
