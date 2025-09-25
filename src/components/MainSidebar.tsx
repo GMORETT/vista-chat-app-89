@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { ConfirmLogoutDialog } from './ConfirmLogoutDialog';
 import { useLogoutConfirmation } from '@/hooks/useLogoutConfirmation';
+
 const menuItems = [{
   title: 'Dashboard',
   url: '/dashboard',
@@ -23,6 +24,7 @@ const menuItems = [{
   url: '/fale-conosco',
   icon: HeadphonesIcon
 }];
+
 export const MainSidebar: React.FC = () => {
   const { state } = useSidebar();
   const location = useLocation();
@@ -38,6 +40,7 @@ export const MainSidebar: React.FC = () => {
   
   const collapsed = state === 'collapsed';
   const isAdmin = user?.role === 'super_admin' || user?.role === 'admin';
+
   const isActive = (path: string) => {
     // Handle root path as dashboard
     if (path === '/dashboard' && location.pathname === '/') {
@@ -45,37 +48,34 @@ export const MainSidebar: React.FC = () => {
     }
     return location.pathname.startsWith(path);
   };
-  const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center w-full' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
+
+  const getNavClassName = (isActiveRoute: boolean) => `flex items-center ${collapsed ? 'justify-center w-full px-0' : 'gap-3 px-3'} rounded-lg py-2 transition-all ${isActiveRoute ? "bg-primary text-primary-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`;
+
   return (
     <>
       <Sidebar collapsible="icon" className="">
         <SidebarHeader className="border-b border-border/20 p-0 h-14">
-          <div className="flex items-center justify-between h-full px-4">
-            <div className={`flex items-center ${collapsed ? 'w-full justify-center' : ''}`}>
-              {collapsed ? (
-                <span className="text-lg font-bold text-primary">S</span>
-              ) : (
-                <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain" />
-              )}
+          {collapsed ? (
+            <div className="flex items-center justify-center h-full">
+              <SidebarTrigger />
             </div>
-            {!collapsed && <SidebarTrigger />}
-          </div>
-          {collapsed && (
-            <div className="absolute top-2 right-2">
+          ) : (
+            <div className="flex items-center justify-between h-full px-4">
+              <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain" />
               <SidebarTrigger />
             </div>
           )}
         </SidebarHeader>
         
-        <SidebarContent className={collapsed ? "px-1 py-6" : "px-3 py-6"}>
+        <SidebarContent className={collapsed ? "px-2 py-6" : "px-3 py-6"}>
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu className={collapsed ? "space-y-2" : "space-y-3"}>
                 {menuItems.map(item => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild size="lg">
+                    <SidebarMenuButton asChild size="lg" className={collapsed ? "w-full justify-center" : ""}>
                       <NavLink to={item.url} className={getNavClassName(isActive(item.url))} title={collapsed ? item.title : undefined}>
-                        <item.icon className={`${collapsed ? 'h-6 w-6' : 'h-7 w-7'} flex-shrink-0`} />
+                        <item.icon className={`${collapsed ? 'h-5 w-5' : 'h-7 w-7'} flex-shrink-0`} />
                         {!collapsed && <span className="text-base font-medium">
                             {item.title}
                           </span>}
@@ -98,7 +98,7 @@ export const MainSidebar: React.FC = () => {
               </div>
             )}
             
-            <div className={`flex ${collapsed ? 'flex-col items-center' : 'flex-row'} gap-${collapsed ? '1' : '2'}`}>
+            <div className={`flex ${collapsed ? 'flex-col items-center gap-1' : 'flex-row gap-2'}`}>
               {isAdmin && (
                 <Button 
                   variant="ghost" 
