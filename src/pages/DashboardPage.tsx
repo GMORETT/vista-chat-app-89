@@ -27,81 +27,56 @@ export const DashboardPage: React.FC = () => {
     setAppliedEndDate(new Date(endDate));
   };
 
-  // Mock data for charts
-  const mockData = {
-    conversations: [
-      { date: '2024-12-15', value: 32 },
-      { date: '2024-12-20', value: 38 },
-      { date: '2024-12-25', value: 42 },
-      { date: '2024-12-30', value: 45 },
-      { date: '2025-01-01', value: 52 },
-      { date: '2025-01-05', value: 48 },
-      { date: '2025-01-10', value: 61 },
-      { date: '2025-01-15', value: 75 },
-      { date: '2025-01-20', value: 68 },
-      { date: '2025-01-25', value: 82 },
-      { date: '2025-01-30', value: 78 },
-    ],
-    leads: [
-      { date: '2024-12-15', value: 18 },
-      { date: '2024-12-20', value: 21 },
-      { date: '2024-12-25', value: 25 },
-      { date: '2024-12-30', value: 23 },
-      { date: '2025-01-01', value: 28 },
-      { date: '2025-01-05', value: 35 },
-      { date: '2025-01-10', value: 42 },
-      { date: '2025-01-15', value: 38 },
-      { date: '2025-01-20', value: 55 },
-      { date: '2025-01-25', value: 62 },
-      { date: '2025-01-30', value: 58 },
-    ],
-    contacts: [
-      { date: '2024-12-15', value: 98 },
-      { date: '2024-12-20', value: 105 },
-      { date: '2024-12-25', value: 115 },
-      { date: '2024-12-30', value: 120 },
-      { date: '2025-01-01', value: 125 },
-      { date: '2025-01-05', value: 135 },
-      { date: '2025-01-10', value: 145 },
-      { date: '2025-01-15', value: 150 },
-      { date: '2025-01-20', value: 152 },
-      { date: '2025-01-25', value: 156 },
-      { date: '2025-01-30', value: 160 },
-    ],
-    conversion: [
-      { date: '2024-12-15', value: 58 },
-      { date: '2024-12-20', value: 62 },
-      { date: '2024-12-25', value: 65 },
-      { date: '2024-12-30', value: 65 },
-      { date: '2025-01-01', value: 68 },
-      { date: '2025-01-05', value: 62 },
-      { date: '2025-01-10', value: 70 },
-      { date: '2025-01-15', value: 75 },
-      { date: '2025-01-20', value: 72 },
-      { date: '2025-01-25', value: 68 },
-      { date: '2025-01-30', value: 71 },
-    ]
-  };
-
-  // Filter data based on applied date range
-  const getFilteredData = React.useMemo(() => {
-    const data = mockData[chartMetric as keyof typeof mockData];
-    console.log('Filtering data for period:', appliedStartDate, 'to', appliedEndDate);
+  // Generate random data for the selected period and metric
+  const generateRandomData = React.useMemo(() => {
+    const diffTime = Math.abs(appliedEndDate.getTime() - appliedStartDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    const filtered = data.filter(item => {
-      const itemDate = new Date(item.date);
-      const isWithinRange = itemDate >= appliedStartDate && itemDate <= appliedEndDate;
-      return isWithinRange;
-    });
+    // Determine data points frequency - minimum 3 points, maximum 15 points
+    const pointsCount = Math.min(Math.max(Math.floor(diffDays / 2), 3), 15);
+    const interval = Math.floor(diffDays / pointsCount);
     
-    console.log('Filtered data points:', filtered.length, filtered);
+    const data = [];
     
-    // If no data found, return empty array
-    return filtered.length > 0 ? filtered : [];
+    // Base values and ranges for each metric
+    const metricConfig = {
+      conversations: { base: 45, range: 40, growth: 1.02 },
+      leads: { base: 25, range: 25, growth: 1.05 },
+      contacts: { base: 120, range: 60, growth: 1.01 },
+      conversion: { base: 65, range: 20, growth: 1.001 }
+    };
+    
+    const config = metricConfig[chartMetric as keyof typeof metricConfig];
+    let currentValue = config.base;
+    
+    for (let i = 0; i <= pointsCount; i++) {
+      const currentDate = new Date(appliedStartDate);
+      currentDate.setDate(currentDate.getDate() + (i * interval));
+      
+      // Don't exceed end date
+      if (currentDate > appliedEndDate) {
+        currentDate.setTime(appliedEndDate.getTime());
+      }
+      
+      // Generate realistic random variation with slight upward trend
+      const randomVariation = (Math.random() - 0.5) * config.range;
+      currentValue = Math.max(1, currentValue * config.growth + randomVariation);
+      
+      data.push({
+        date: currentDate.toISOString().split('T')[0],
+        value: Math.round(currentValue)
+      });
+      
+      // Break if we've reached the end date
+      if (currentDate.getTime() >= appliedEndDate.getTime()) break;
+    }
+    
+    console.log('Generated data points:', data.length, data);
+    return data;
   }, [appliedStartDate, appliedEndDate, chartMetric]);
 
   // Check if we have data to display
-  const hasData = getFilteredData.length > 0;
+  const hasData = generateRandomData.length > 0;
 
   const chartConfig = {
     conversations: {
@@ -287,7 +262,7 @@ export const DashboardPage: React.FC = () => {
               <div>
                 <CardTitle>{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
                 <CardDescription>
-                  Análise de {getMetricLabel(chartMetric).toLowerCase()} de {format(appliedStartDate, 'dd/MM/yyyy')} até {format(appliedEndDate, 'dd/MM/yyyy')}
+                  Análise de {getMetricLabel(chartMetric).toLowerCase()} de {format(appliedStartDate, 'dd/MM/yyyy')} até {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos de dados)
                 </CardDescription>
               </div>
               <Select value={chartMetric} onValueChange={setChartMetric}>
@@ -307,7 +282,7 @@ export const DashboardPage: React.FC = () => {
             {hasData ? (
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={getFilteredData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
+                  <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
                     <defs>
                       <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
