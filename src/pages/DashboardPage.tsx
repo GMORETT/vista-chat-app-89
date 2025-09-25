@@ -317,12 +317,12 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Performance Section - Right Side */}
-        <div className="col-span-4 flex flex-col gap-4">
-          <Card className="flex-1 min-h-[200px]">
+        <div className="col-span-4 space-y-4">
+          <Card className="min-h-[200px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Atividades Recentes</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 flex-1">
+            <CardContent className="px-3 pb-3">
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
@@ -356,11 +356,11 @@ export const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="flex-1 min-h-[80px]">
+          <Card className="min-h-[80px]">
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 flex-1">
+            <CardContent className="px-3 pb-3">
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
