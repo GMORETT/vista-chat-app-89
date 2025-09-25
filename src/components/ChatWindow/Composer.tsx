@@ -255,7 +255,7 @@ export const Composer: React.FC = () => {
           <div className="flex-1">
             <Textarea
               ref={textareaRef}
-              placeholder={isPrivate ? "Digite sua nota privada..." : "Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"}
+              placeholder={isPrivate ? "Digite sua nota privada..." : "Digite sua mensagem..."}
               value={message}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyPress}
