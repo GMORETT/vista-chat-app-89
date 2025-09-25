@@ -110,7 +110,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen p-4 space-y-4">
       {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-4 min-h-[calc(100vh-2rem)]">
+      <div className="grid grid-cols-12 gap-4">
         {/* Stats Cards - Top Row */}
         <div className="col-span-12 grid grid-cols-4 gap-3 h-fit">
           <Card className="p-2">
@@ -241,7 +241,7 @@ export const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Chart */}
-          <Card className="min-h-[400px]">
+          <Card>
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -318,7 +318,7 @@ export const DashboardPage: React.FC = () => {
 
         {/* Performance Section - Right Side */}
         <div className="col-span-4 space-y-4">
-          <Card className="min-h-[200px]">
+          <Card>
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm">Atividades Recentes</CardTitle>
             </CardHeader>
