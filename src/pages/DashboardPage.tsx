@@ -108,31 +108,28 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-hidden p-4 space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
-          Visão geral das suas atividades
-        </p>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1">
-            <Filter className="h-3 w-3 text-muted-foreground" />
-            <span className="text-xs font-medium">Período:</span>
-          </div>
-          
-          {/* Date Range */}
-          <div className="flex items-center gap-1">
+    <div className="h-full overflow-hidden p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">Visão geral das suas atividades</p>
+        </div>
+        
+        {/* Filters inline with header */}
+        <Card className="p-2">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Filter className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs font-medium">Período:</span>
+            </div>
+            
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "w-[100px] h-7 justify-start text-left font-normal text-xs",
+                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
                     !startDate && "text-muted-foreground"
                   )}
                 >
@@ -155,18 +152,16 @@ export const DashboardPage: React.FC = () => {
                 />
               </PopoverContent>
             </Popover>
-          </div>
 
-          <span className="text-xs text-muted-foreground">até</span>
+            <span className="text-xs text-muted-foreground">até</span>
 
-          <div className="flex items-center gap-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "w-[100px] h-7 justify-start text-left font-normal text-xs",
+                    "w-[90px] h-7 justify-start text-left font-normal text-xs",
                     !endDate && "text-muted-foreground"
                   )}
                 >
@@ -189,217 +184,219 @@ export const DashboardPage: React.FC = () => {
                 />
               </PopoverContent>
             </Popover>
+
+            <Button 
+              onClick={handleApplyFilters} 
+              size="sm"
+              className="h-7 text-xs px-3"
+            >
+              Aplicar
+            </Button>
           </div>
-
-          <Button 
-            onClick={handleApplyFilters} 
-            size="sm"
-            className="ml-1 h-7 text-xs"
-          >
-            Aplicar
-          </Button>
-        </div>
-      </Card>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium">
-              Conversas Ativas
-            </CardTitle>
-            <MessageSquare className="h-3 w-3 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              +2 desde ontem
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium">
-              Leads
-            </CardTitle>
-            <TrendingUp className="h-3 w-3 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold">23</div>
-            <p className="text-xs text-muted-foreground">
-              +5 esta semana
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium">
-              Contatos
-            </CardTitle>
-            <Users className="h-3 w-3 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold">156</div>
-            <p className="text-xs text-muted-foreground">
-              Total de contatos
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
-            <CardTitle className="text-xs font-medium">
-              Taxa de Conversão
-            </CardTitle>
-            <BarChart3 className="h-3 w-3 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold">68%</div>
-            <p className="text-xs text-muted-foreground">
-              +12% este mês
-            </p>
-          </CardContent>
         </Card>
       </div>
 
-      {/* Chart Section */}
-      <div className="grid grid-cols-1 gap-3">
-        <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-12 gap-3 h-[calc(100vh-140px)]">
+        {/* Stats Cards - Top Row */}
+        <div className="col-span-12 grid grid-cols-4 gap-3">
+          <Card className="p-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
-                <CardDescription className="text-xs">
-                  Análise de {getMetricLabel(chartMetric).toLowerCase()} de {format(appliedStartDate, 'dd/MM/yyyy')} até {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos de dados)
-                </CardDescription>
+                <p className="text-xs text-muted-foreground">Conversas Ativas</p>
+                <p className="text-lg font-bold">12</p>
+                <p className="text-xs text-muted-foreground">+2 desde ontem</p>
               </div>
-              <Select value={chartMetric} onValueChange={setChartMetric}>
-                <SelectTrigger className="w-[140px] h-8 text-xs">
-                  <SelectValue placeholder="Métrica" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="conversations">Conversas</SelectItem>
-                  <SelectItem value="leads">Leads</SelectItem>
-                  <SelectItem value="contacts">Contatos</SelectItem>
-                  <SelectItem value="conversion">Taxa de Conversão</SelectItem>
-                </SelectContent>
-              </Select>
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
             </div>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            {hasData ? (
-              <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
-                    <defs>
-                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
-                        <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis 
-                      dataKey="date" 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                      tickFormatter={(value) => format(new Date(value), 'dd/MM')}
-                      domain={['dataMin', 'dataMax']}
-                    />
-                    <YAxis 
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
-                      domain={['dataMin', 'dataMax']}
-                    />
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      fill="url(#colorGradient)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-xs">Nenhum dado encontrado para o período selecionado</p>
-                  <p className="text-xs mt-1">Tente selecionar um período diferente</p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+          </Card>
 
-      {/* Performance Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
-            <CardTitle className="text-sm">Atividades Recentes</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium">Nova conversa iniciada</p>
-                  <p className="text-xs text-muted-foreground">há 2 minutos</p>
-                </div>
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Leads</p>
+                <p className="text-lg font-bold">23</p>
+                <p className="text-xs text-muted-foreground">+5 esta semana</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium">Lead qualificado</p>
-                  <p className="text-xs text-muted-foreground">há 15 minutos</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-xs font-medium">Contato adicionado</p>
-                  <p className="text-xs text-muted-foreground">há 1 hora</p>
-                </div>
-              </div>
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
             </div>
-          </CardContent>
-        </Card>
+          </Card>
 
-        <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
-            <CardTitle className="text-sm">Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="space-y-2">
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Tempo de resposta médio</span>
-                  <span className="text-xs text-muted-foreground">2m 30s</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
-                  <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
-                </div>
+                <p className="text-xs text-muted-foreground">Contatos</p>
+                <p className="text-lg font-bold">156</p>
+                <p className="text-xs text-muted-foreground">Total de contatos</p>
               </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Satisfação do cliente</span>
-                  <span className="text-xs text-muted-foreground">94%</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
-                  <div className="bg-primary h-1.5 rounded-full" style={{ width: '94%' }}></div>
-                </div>
-              </div>
+              <Users className="h-5 w-5 text-muted-foreground" />
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+
+          <Card className="p-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Taxa de Conversão</p>
+                <p className="text-lg font-bold">68%</p>
+                <p className="text-xs text-muted-foreground">+12% este mês</p>
+              </div>
+              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Chart Section - Left Side */}
+        <div className="col-span-8">
+          <Card className="h-full">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
+                  <CardDescription className="text-xs">
+                    {format(appliedStartDate, 'dd/MM/yyyy')} - {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos)
+                  </CardDescription>
+                </div>
+                <Select value={chartMetric} onValueChange={setChartMetric}>
+                  <SelectTrigger className="w-[120px] h-7 text-xs">
+                    <SelectValue placeholder="Métrica" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="conversations">Conversas</SelectItem>
+                    <SelectItem value="leads">Leads</SelectItem>
+                    <SelectItem value="contacts">Contatos</SelectItem>
+                    <SelectItem value="conversion">Taxa de Conversão</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent className="px-3 pb-3 h-[calc(100%-80px)]">
+              {hasData ? (
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
+                      <defs>
+                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
+                          <stop offset="30%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="date" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                        tickFormatter={(value) => format(new Date(value), 'dd/MM')}
+                        domain={['dataMin', 'dataMax']}
+                      />
+                      <YAxis 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                        domain={['dataMin', 'dataMax']}
+                      />
+                      <ChartTooltip
+                        content={<ChartTooltipContent />}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        fill="url(#colorGradient)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs">Nenhum dado encontrado</p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Performance Section - Right Side */}
+        <div className="col-span-4 space-y-3">
+          <Card className="h-[calc(50%-6px)]">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <CardTitle className="text-sm">Atividades Recentes</CardTitle>
+            </CardHeader>
+            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
+              <div className="space-y-2 h-full overflow-y-auto">
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Nova conversa iniciada</p>
+                    <p className="text-xs text-muted-foreground">há 2 minutos</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Lead qualificado</p>
+                    <p className="text-xs text-muted-foreground">há 15 minutos</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Contato adicionado</p>
+                    <p className="text-xs text-muted-foreground">há 1 hora</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">Mensagem respondida</p>
+                    <p className="text-xs text-muted-foreground">há 2 horas</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="h-[calc(50%-6px)]">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <CardTitle className="text-sm">Performance</CardTitle>
+            </CardHeader>
+            <CardContent className="px-3 pb-3 h-[calc(100%-50px)]">
+              <div className="space-y-3 h-full">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Tempo de resposta</span>
+                    <span className="text-xs text-muted-foreground">2m 30s</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Satisfação</span>
+                    <span className="text-xs text-muted-foreground">94%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '94%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Resolução</span>
+                    <span className="text-xs text-muted-foreground">87%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                    <div className="bg-primary h-1.5 rounded-full" style={{ width: '87%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
