@@ -113,47 +113,47 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-12 gap-4">
         {/* Stats Cards - Top Row */}
         <div className="col-span-12 grid grid-cols-4 gap-3 h-fit mb-4">
-          <Card className="p-2">
-            <div className="flex items-center justify-between">
-              <div>
+          <Card className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Conversas Ativas</p>
                 <p className="text-base font-bold">12</p>
                 <p className="text-xs text-muted-foreground">+2 desde ontem</p>
               </div>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
           </Card>
 
-          <Card className="p-2">
-            <div className="flex items-center justify-between">
-              <div>
+          <Card className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Leads</p>
                 <p className="text-base font-bold">23</p>
                 <p className="text-xs text-muted-foreground">+5 esta semana</p>
               </div>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
           </Card>
 
-          <Card className="p-2">
-            <div className="flex items-center justify-between">
-              <div>
+          <Card className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Contatos</p>
                 <p className="text-base font-bold">156</p>
                 <p className="text-xs text-muted-foreground">Total de contatos</p>
               </div>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
           </Card>
 
-          <Card className="p-2">
-            <div className="flex items-center justify-between">
-              <div>
+          <Card className="p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Taxa de Conversão</p>
                 <p className="text-base font-bold">68%</p>
                 <p className="text-xs text-muted-foreground">+12% este mês</p>
               </div>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
           </Card>
         </div>
