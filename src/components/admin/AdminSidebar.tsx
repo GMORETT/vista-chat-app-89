@@ -147,7 +147,7 @@ export const AdminSidebar: React.FC = () => {
                 className="h-8 w-auto object-contain" 
               />
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Administration</p>
+                <p className="text-xs font-medium text-muted-foreground">Admin</p>
               </div>
             </div>
           )}

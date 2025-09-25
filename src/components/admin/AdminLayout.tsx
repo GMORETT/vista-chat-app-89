@@ -30,7 +30,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 min-w-0">
           {/* Header */}
           <header className="h-14 flex items-center justify-between border-b bg-background px-4">
             <div className="flex items-center gap-4">
