@@ -22,8 +22,9 @@ export const DashboardPage: React.FC = () => {
   const [chartMetric, setChartMetric] = useState('conversations');
 
   const handleApplyFilters = () => {
-    setAppliedStartDate(startDate);
-    setAppliedEndDate(endDate);
+    console.log('Applying filters:', { startDate, endDate });
+    setAppliedStartDate(new Date(startDate));
+    setAppliedEndDate(new Date(endDate));
   };
 
   // Mock data for charts
@@ -83,21 +84,24 @@ export const DashboardPage: React.FC = () => {
   };
 
   // Filter data based on applied date range
-  const getFilteredData = (data: { date: string; value: number }[]) => {
+  const getFilteredData = React.useMemo(() => {
+    const data = mockData[chartMetric as keyof typeof mockData];
+    console.log('Filtering data for period:', appliedStartDate, 'to', appliedEndDate);
+    
     const filtered = data.filter(item => {
       const itemDate = new Date(item.date);
-      return itemDate >= appliedStartDate && itemDate <= appliedEndDate;
+      const isWithinRange = itemDate >= appliedStartDate && itemDate <= appliedEndDate;
+      return isWithinRange;
     });
+    
+    console.log('Filtered data points:', filtered.length, filtered);
     
     // If no data found, return empty array
     return filtered.length > 0 ? filtered : [];
-  };
+  }, [appliedStartDate, appliedEndDate, chartMetric]);
 
-  // Get filtered data for current metric
-  const filteredData = getFilteredData(mockData[chartMetric as keyof typeof mockData]);
-  
   // Check if we have data to display
-  const hasData = filteredData.length > 0;
+  const hasData = getFilteredData.length > 0;
 
   const chartConfig = {
     conversations: {
@@ -303,7 +307,7 @@ export const DashboardPage: React.FC = () => {
             {hasData ? (
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={filteredData}>
+                  <AreaChart data={getFilteredData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
                     <defs>
                       <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="#7D19F3" stopOpacity={0.6}/>
@@ -317,11 +321,13 @@ export const DashboardPage: React.FC = () => {
                       tickLine={false}
                       tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
                       tickFormatter={(value) => format(new Date(value), 'dd/MM')}
+                      domain={['dataMin', 'dataMax']}
                     />
                     <YAxis 
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      domain={['dataMin', 'dataMax']}
                     />
                     <ChartTooltip
                       content={<ChartTooltipContent />}
