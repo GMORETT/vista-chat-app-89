@@ -130,7 +130,7 @@ export const AdminSidebar: React.FC = () => {
   );
 
   return (
-    <Sidebar className={collapsed ? "w-16 min-w-16" : "w-64 min-w-64"} collapsible="icon">
+    <Sidebar className={collapsed ? "w-16 min-w-16" : "w-56 min-w-56"} collapsible="icon">
       <SidebarHeader className="border-b border-border/50 p-0 h-14">
         <div className={`flex items-center justify-center h-full ${collapsed ? 'px-3' : 'px-4'}`}>
           {collapsed ? (
