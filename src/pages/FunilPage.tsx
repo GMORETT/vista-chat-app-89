@@ -84,40 +84,49 @@ export const FunilPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Funil de Vendas</h1>
-          <p className="text-sm text-muted-foreground">
-            Visualize e gerencie seu pipeline de vendas
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          {/* Stats next to manage button */}
-          <Card className="px-3 py-2 h-10 flex items-center">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-primary" />
-              <div className="flex items-center gap-1">
-                <span className="text-sm font-medium">{totalContacts}</span>
-                <span className="text-xs text-muted-foreground">leads</span>
-              </div>
+    <div className="h-full overflow-y-auto">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-background via-background/95 to-background border-b border-border/40">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
+              <p className="text-base text-muted-foreground">
+                Visualize e gerencie seu pipeline de vendas
+              </p>
             </div>
-          </Card>
-          
-          <StageManager
-            stages={sortedStages}
-            onAddStage={handleAddStage}
-            onEditStage={handleEditStage}
-            onDeleteStage={handleDeleteStage}
-            onReorderStages={reorderStages}
-          />
+            
+            <div className="flex items-center gap-4">
+              {/* Stats Card */}
+              <Card className="px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg font-semibold text-foreground">{totalContacts}</span>
+                    <span className="text-sm text-muted-foreground">leads totais</span>
+                  </div>
+                </div>
+              </Card>
+              
+              <StageManager
+                stages={sortedStages}
+                onAddStage={handleAddStage}
+                onEditStage={handleEditStage}
+                onDeleteStage={handleDeleteStage}
+                onReorderStages={reorderStages}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Funnel Stages */}
-      <div className="flex-1 min-h-0">
-        <div className="flex gap-3 overflow-x-auto pb-4 h-full">
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Funnel Stages */}
+        <div className="flex-1 min-h-0">
+          <div className="flex gap-4 overflow-x-auto pb-4 h-full">
           {sortedStages.length === 0 ? (
             <Card className="w-full p-6">
               <div className="text-center">
@@ -145,7 +154,8 @@ export const FunilPage: React.FC = () => {
                 />
               );
             })
-          )}
+           )}
+          </div>
         </div>
       </div>
 
