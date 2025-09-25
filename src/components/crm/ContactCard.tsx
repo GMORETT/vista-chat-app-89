@@ -75,24 +75,10 @@ export const ContactCard: React.FC<ContactCardProps> = ({
             </div>
           )}
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-xs font-medium">
-              <DollarSign className="h-3 w-3" />
-              <span>{formatCurrency(contact.value)}</span>
-            </div>
-            
-            <Badge 
-              variant="secondary" 
-              className={`text-xs ${getProbabilityColor(contact.probability)} text-white`}
-            >
-              {contact.probability}%
-            </Badge>
-          </div>
-
           {contact.annualRevenue && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Building className="h-3 w-3" />
-              <span>Faturamento: {formatCurrency(contact.annualRevenue)}</span>
+            <div className="flex items-center gap-1 text-xs font-medium text-primary">
+              <DollarSign className="h-3 w-3" />
+              <span>{formatCurrency(contact.annualRevenue)}</span>
             </div>
           )}
 
