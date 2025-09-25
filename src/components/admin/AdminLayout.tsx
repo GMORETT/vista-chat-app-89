@@ -34,7 +34,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           {/* Header */}
           <header className="h-14 flex items-center justify-between border-b bg-background px-4">
             <div className="flex items-center gap-4">
-              <SidebarTrigger />
+              <SidebarTrigger className="mx-[10px]" />
               
             </div>
             
