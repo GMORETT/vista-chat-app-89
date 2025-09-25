@@ -108,35 +108,35 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-6 space-y-6">
+    <div className="h-full overflow-hidden p-4 space-y-4">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm">
           Visão geral das suas atividades
         </p>
       </div>
 
       {/* Filters */}
-      <Card className="p-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Período:</span>
+      <Card className="p-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Filter className="h-3 w-3 text-muted-foreground" />
+            <span className="text-xs font-medium">Período:</span>
           </div>
           
           {/* Date Range */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "w-[120px] justify-start text-left font-normal",
+                    "w-[100px] h-7 justify-start text-left font-normal text-xs",
                     !startDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-3 w-3" />
+                  <CalendarIcon className="mr-1 h-3 w-3" />
                   {startDate ? format(startDate, "dd/MM") : "Início"}
                 </Button>
               </PopoverTrigger>
@@ -159,18 +159,18 @@ export const DashboardPage: React.FC = () => {
 
           <span className="text-xs text-muted-foreground">até</span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "w-[120px] justify-start text-left font-normal",
+                    "w-[100px] h-7 justify-start text-left font-normal text-xs",
                     !endDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-3 w-3" />
+                  <CalendarIcon className="mr-1 h-3 w-3" />
                   {endDate ? format(endDate, "dd/MM") : "Fim"}
                 </Button>
               </PopoverTrigger>
@@ -194,24 +194,24 @@ export const DashboardPage: React.FC = () => {
           <Button 
             onClick={handleApplyFilters} 
             size="sm"
-            className="ml-2"
+            className="ml-1 h-7 text-xs"
           >
-            Aplicar Filtro
+            Aplicar
           </Button>
         </div>
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+            <CardTitle className="text-xs font-medium">
               Conversas Ativas
             </CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <MessageSquare className="h-3 w-3 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold">12</div>
             <p className="text-xs text-muted-foreground">
               +2 desde ontem
             </p>
@@ -219,14 +219,14 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+            <CardTitle className="text-xs font-medium">
               Leads
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-3 w-3 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold">23</div>
             <p className="text-xs text-muted-foreground">
               +5 esta semana
             </p>
@@ -234,14 +234,14 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+            <CardTitle className="text-xs font-medium">
               Contatos
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-3 w-3 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">156</div>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold">156</div>
             <p className="text-xs text-muted-foreground">
               Total de contatos
             </p>
@@ -249,14 +249,14 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 pt-3 px-3">
+            <CardTitle className="text-xs font-medium">
               Taxa de Conversão
             </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <BarChart3 className="h-3 w-3 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">68%</div>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold">68%</div>
             <p className="text-xs text-muted-foreground">
               +12% este mês
             </p>
@@ -265,19 +265,19 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Chart Section */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-3">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2 pt-3 px-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-sm">{getMetricLabel(chartMetric)} ao Longo do Tempo</CardTitle>
+                <CardDescription className="text-xs">
                   Análise de {getMetricLabel(chartMetric).toLowerCase()} de {format(appliedStartDate, 'dd/MM/yyyy')} até {format(appliedEndDate, 'dd/MM/yyyy')} ({generateRandomData.length} pontos de dados)
                 </CardDescription>
               </div>
               <Select value={chartMetric} onValueChange={setChartMetric}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Selecionar métrica" />
+                <SelectTrigger className="w-[140px] h-8 text-xs">
+                  <SelectValue placeholder="Métrica" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="conversations">Conversas</SelectItem>
@@ -288,9 +288,9 @@ export const DashboardPage: React.FC = () => {
               </Select>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3">
             {hasData ? (
-              <ChartContainer config={chartConfig} className="h-[300px] w-full">
+              <ChartContainer config={chartConfig} className="h-[200px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={generateRandomData} key={`${appliedStartDate.getTime()}-${appliedEndDate.getTime()}-${chartMetric}`}>
                     <defs>
@@ -304,14 +304,14 @@ export const DashboardPage: React.FC = () => {
                       dataKey="date" 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                       tickFormatter={(value) => format(new Date(value), 'dd/MM')}
                       domain={['dataMin', 'dataMax']}
                     />
                     <YAxis 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                       domain={['dataMin', 'dataMax']}
                     />
                     <ChartTooltip
@@ -328,10 +328,10 @@ export const DashboardPage: React.FC = () => {
                 </ResponsiveContainer>
               </ChartContainer>
             ) : (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[200px] flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Nenhum dado encontrado para o período selecionado</p>
+                  <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">Nenhum dado encontrado para o período selecionado</p>
                   <p className="text-xs mt-1">Tente selecionar um período diferente</p>
                 </div>
               </div>
@@ -341,31 +341,31 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Performance Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Atividades Recentes</CardTitle>
+          <CardHeader className="pb-2 pt-3 px-3">
+            <CardTitle className="text-sm">Atividades Recentes</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Nova conversa iniciada</p>
+                  <p className="text-xs font-medium">Nova conversa iniciada</p>
                   <p className="text-xs text-muted-foreground">há 2 minutos</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Lead qualificado</p>
+                  <p className="text-xs font-medium">Lead qualificado</p>
                   <p className="text-xs text-muted-foreground">há 15 minutos</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <div className="flex items-center space-x-2">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">Contato adicionado</p>
+                  <p className="text-xs font-medium">Contato adicionado</p>
                   <p className="text-xs text-muted-foreground">há 1 hora</p>
                 </div>
               </div>
@@ -374,27 +374,27 @@ export const DashboardPage: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Performance</CardTitle>
+          <CardHeader className="pb-2 pt-3 px-3">
+            <CardTitle className="text-sm">Performance</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-2">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Tempo de resposta médio</span>
-                  <span className="text-sm text-muted-foreground">2m 30s</span>
+                  <span className="text-xs font-medium">Tempo de resposta médio</span>
+                  <span className="text-xs text-muted-foreground">2m 30s</span>
                 </div>
-                <div className="w-full bg-secondary rounded-full h-2 mt-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
+                <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                  <div className="bg-primary h-1.5 rounded-full" style={{ width: '85%' }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Satisfação do cliente</span>
-                  <span className="text-sm text-muted-foreground">94%</span>
+                  <span className="text-xs font-medium">Satisfação do cliente</span>
+                  <span className="text-xs text-muted-foreground">94%</span>
                 </div>
-                <div className="w-full bg-secondary rounded-full h-2 mt-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '94%' }}></div>
+                <div className="w-full bg-secondary rounded-full h-1.5 mt-1">
+                  <div className="bg-primary h-1.5 rounded-full" style={{ width: '94%' }}></div>
                 </div>
               </div>
             </div>
