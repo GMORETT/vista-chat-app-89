@@ -100,7 +100,7 @@ export const AdminSidebar: React.FC = () => {
   };
 
   const getNavClassName = (isActiveRoute: boolean) =>
-    `flex items-center ${collapsed ? 'justify-center' : 'gap-3'} rounded-lg px-3 py-2 transition-all ${
+    `flex items-center ${collapsed ? 'justify-center w-full' : 'gap-3'} rounded-lg ${collapsed ? 'px-2 py-2' : 'px-3 py-2'} transition-all ${
       isActiveRoute 
         ? "bg-primary text-primary-foreground font-medium shadow-sm" 
         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -130,14 +130,14 @@ export const AdminSidebar: React.FC = () => {
   );
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
+    <Sidebar className={collapsed ? "w-20 min-w-20" : "w-64 min-w-64"} collapsible="icon">
       <SidebarHeader className="border-b border-border/50 p-0 h-14">
-        <div className={`flex items-center justify-center h-full ${collapsed ? 'px-2' : 'px-4'}`}>
+        <div className={`flex items-center justify-center h-full ${collapsed ? 'px-3' : 'px-4'}`}>
           {collapsed ? (
             <img 
               src="/assets/logo-solabs-white.png" 
               alt="Solabs" 
-              className="h-7 w-auto object-contain" 
+              className="h-6 w-auto object-contain" 
             />
           ) : (
             <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export const AdminSidebar: React.FC = () => {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-3">
+      <SidebarContent className={collapsed ? "px-2 py-3" : "px-3 py-3"}>
         {/* Main Section */}
         <SidebarGroup>
           <SidebarGroupLabel className={`text-xs font-semibold text-muted-foreground mb-1 ${collapsed ? 'sr-only' : ''}`}>
