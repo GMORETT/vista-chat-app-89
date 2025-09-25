@@ -134,17 +134,20 @@ export const AdminSidebar: React.FC = () => {
       <SidebarHeader className="border-b border-border/50 p-0 h-14">
         <div className={`flex items-center justify-center h-full ${collapsed ? 'px-2' : 'px-4'}`}>
           {collapsed ? (
-            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-xs font-bold text-primary-foreground">SA</span>
-            </div>
+            <img 
+              src="/assets/logo-solabs-white.png" 
+              alt="Solabs" 
+              className="h-7 w-auto object-contain" 
+            />
           ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">SA</span>
-              </div>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/assets/logo-solabs-white.png" 
+                alt="Solabs" 
+                className="h-8 w-auto object-contain" 
+              />
               <div>
-                <h2 className="text-sm font-bold text-foreground">Solabs</h2>
-                <p className="text-xs text-muted-foreground">Administration</p>
+                <p className="text-sm font-medium text-muted-foreground">Administration</p>
               </div>
             </div>
           )}
