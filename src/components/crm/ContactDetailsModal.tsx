@@ -68,6 +68,11 @@ export const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
             <CardContent className="pt-4 space-y-3">
               <div className="space-y-3">
                 <div className="bg-muted/30 p-3 rounded-lg">
+                  <div className="text-sm font-medium text-muted-foreground mb-1">Nome Completo</div>
+                  <div className="text-sm font-medium">{contact.name}</div>
+                </div>
+
+                <div className="bg-muted/30 p-3 rounded-lg">
                   <div className="text-sm font-medium text-muted-foreground mb-1">Email</div>
                   <div className="text-sm font-medium">{contact.email}</div>
                 </div>
