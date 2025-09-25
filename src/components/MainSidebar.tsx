@@ -50,13 +50,15 @@ export const MainSidebar: React.FC = () => {
     <>
       <Sidebar collapsible="icon" className="">
         <SidebarHeader className="border-b border-border/20 p-0 h-14">
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'} h-full ${collapsed ? 'px-2' : 'px-4'}`}>
-            {collapsed ? (
-              <span className="text-xs font-bold text-primary">SOL</span>
-            ) : (
-              <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain" />
-            )}
-            {!collapsed && <SidebarTrigger />}
+          <div className={`flex items-center justify-between h-full ${collapsed ? 'px-2' : 'px-4'}`}>
+            <div className="flex items-center">
+              {collapsed ? (
+                <span className="text-xs font-bold text-primary">SOL</span>
+              ) : (
+                <img src="/assets/logo-solabs-white.png" alt="Solabs" className="h-8 w-auto object-contain" />
+              )}
+            </div>
+            <SidebarTrigger />
           </div>
         </SidebarHeader>
         
@@ -94,7 +96,7 @@ export const MainSidebar: React.FC = () => {
             <div className={`flex ${collapsed ? 'flex-col' : 'flex-row'} gap-2`}>
               {isAdmin && (
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size={collapsed ? "icon" : "sm"}
                   onClick={() => navigate('/admin')}
                   title="Admin"
@@ -116,10 +118,6 @@ export const MainSidebar: React.FC = () => {
                 {!collapsed && <span className="ml-1">Sair</span>}
               </Button>
             </div>
-            
-            {collapsed && (
-              <SidebarTrigger className="w-full" />
-            )}
           </div>
         </SidebarFooter>
       </Sidebar>
