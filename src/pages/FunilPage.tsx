@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Deal, Lead, Company } from '../types/crm';
 import { Button } from '../components/ui/button';
 import { BarChart3, ExternalLink, User, Building2, TrendingUp, Calendar, DollarSign, Plus } from 'lucide-react';
@@ -11,6 +11,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DealStageManager } from '../components/crm/DealStageManager';
 import { DealStageModal } from '../components/crm/DealStageModal';
 import { DealFunnelStage } from '../components/crm/DealFunnelStage';
+import { DealsFilter, DealFilters } from '../components/DealsFilter';
 
 export const FunilPage: React.FC = () => {
   const { 
@@ -30,6 +31,16 @@ export const FunilPage: React.FC = () => {
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<DealStage | undefined>();
+  const [filters, setFilters] = useState<DealFilters>({
+    search: '',
+    minValue: '',
+    maxValue: '',
+    minProbability: '',
+    maxProbability: '',
+    assignedPerson: '',
+    leadId: '',
+    companyId: ''
+  });
 
   // Check for highlight parameter and open deal modal
   useEffect(() => {
@@ -48,8 +59,61 @@ export const FunilPage: React.FC = () => {
     }
   }, [searchParams, getDealById, setSearchParams]);
 
+  // Filter deals based on criteria
+  const filteredDeals = useMemo(() => {
+    return deals.filter(deal => {
+      const lead = getLeadById(deal.leadId);
+      const company = deal.companyId ? getCompanyById(deal.companyId) : null;
+
+      // Search filter
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const titleMatch = deal.title.toLowerCase().includes(searchLower);
+        const leadMatch = lead?.name.toLowerCase().includes(searchLower);
+        const companyMatch = company?.name.toLowerCase().includes(searchLower);
+        
+        if (!titleMatch && !leadMatch && !companyMatch) {
+          return false;
+        }
+      }
+
+      // Value range filter
+      if (filters.minValue && deal.value < Number(filters.minValue)) {
+        return false;
+      }
+      if (filters.maxValue && deal.value > Number(filters.maxValue)) {
+        return false;
+      }
+
+      // Probability range filter
+      if (filters.minProbability && deal.probability < Number(filters.minProbability)) {
+        return false;
+      }
+      if (filters.maxProbability && deal.probability > Number(filters.maxProbability)) {
+        return false;
+      }
+
+      // Assigned person filter
+      if (filters.assignedPerson && deal.assignedPerson.name !== filters.assignedPerson) {
+        return false;
+      }
+
+      // Lead filter
+      if (filters.leadId && deal.leadId !== filters.leadId) {
+        return false;
+      }
+
+      // Company filter
+      if (filters.companyId && deal.companyId !== filters.companyId) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [deals, filters, getLeadById, getCompanyById]);
+
   const getDealsByStage = (stageId: string) => {
-    return deals.filter(deal => deal.stage === stageId);
+    return filteredDeals.filter(deal => deal.stage === stageId);
   };
 
   const handleAddStage = () => {
@@ -105,8 +169,8 @@ export const FunilPage: React.FC = () => {
     }).format(value);
   };
 
-  const totalDeals = deals.length;
-  const totalValue = deals.reduce((sum, deal) => sum + deal.value, 0);
+  const totalDeals = filteredDeals.length;
+  const totalValue = filteredDeals.reduce((sum, deal) => sum + deal.value, 0);
 
   const DealCard: React.FC<{ deal: Deal }> = ({ deal }) => {
     const lead = getLeadById(deal.leadId);
@@ -181,7 +245,7 @@ export const FunilPage: React.FC = () => {
     <div className="h-full overflow-y-auto">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-background via-background/95 to-background border-b border-border/40">
-        <div className="p-6">
+        <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
@@ -224,6 +288,16 @@ export const FunilPage: React.FC = () => {
                 onReorderStages={reorderDealStages}
               />
             </div>
+          </div>
+
+          {/* Filters Section */}
+          <div className="flex items-center justify-end">
+            <DealsFilter
+              filters={filters}
+              onFiltersChange={setFilters}
+              filteredCount={totalDeals}
+              totalCount={deals.length}
+            />
           </div>
         </div>
       </div>
