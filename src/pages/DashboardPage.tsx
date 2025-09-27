@@ -135,7 +135,7 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-2 px-4 pb-4 space-y-2">
+    <div className="pt-2 px-4 pb-4 space-y-2">
       {/* Main Content Grid */}
       <div className="grid grid-cols-12 gap-4">
         {/* Stats Cards - Top Row */}
