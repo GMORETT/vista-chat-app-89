@@ -372,29 +372,36 @@ export const DashboardPage: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Nova conversa iniciada</p>
-                    <p className="text-xs text-muted-foreground">há 2 minutos</p>
+                    <p className="text-xs font-medium">Nova conversa iniciada com cliente interessado em produtos premium</p>
+                    <p className="text-xs text-muted-foreground">há 2 minutos • WhatsApp</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Lead qualificado</p>
-                    <p className="text-xs text-muted-foreground">há 15 minutos</p>
+                    <p className="text-xs font-medium">Lead qualificado através do funil de vendas principal</p>
+                    <p className="text-xs text-muted-foreground">há 15 minutos • Sistema</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Contato adicionado</p>
-                    <p className="text-xs text-muted-foreground">há 1 hora</p>
+                    <p className="text-xs font-medium">Contato adicionado via formulário de landing page</p>
+                    <p className="text-xs text-muted-foreground">há 1 hora • Website</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">Mensagem respondida</p>
-                    <p className="text-xs text-muted-foreground">há 2 horas</p>
+                    <p className="text-xs font-medium">Mensagem respondida automaticamente pelo chatbot</p>
+                    <p className="text-xs text-muted-foreground">há 2 horas • Instagram</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium">Agente Maria Silva transferiu conversa para setor técnico</p>
+                    <p className="text-xs text-muted-foreground">há 3 horas • Transfer</p>
                   </div>
                 </div>
               </div>
