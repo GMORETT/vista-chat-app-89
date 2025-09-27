@@ -37,9 +37,9 @@ export const FunilPage: React.FC = () => {
     maxValue: '',
     minProbability: '',
     maxProbability: '',
-    assignedPerson: '',
-    leadId: '',
-    companyId: ''
+    assignedPerson: 'all',
+    leadId: 'all',
+    companyId: 'all'
   });
 
   // Check for highlight parameter and open deal modal
@@ -94,17 +94,17 @@ export const FunilPage: React.FC = () => {
       }
 
       // Assigned person filter
-      if (filters.assignedPerson && deal.assignedPerson.name !== filters.assignedPerson) {
+      if (filters.assignedPerson && filters.assignedPerson !== 'all' && deal.assignedPerson.name !== filters.assignedPerson) {
         return false;
       }
 
       // Lead filter
-      if (filters.leadId && deal.leadId !== filters.leadId) {
+      if (filters.leadId && filters.leadId !== 'all' && deal.leadId !== filters.leadId) {
         return false;
       }
 
       // Company filter
-      if (filters.companyId && deal.companyId !== filters.companyId) {
+      if (filters.companyId && filters.companyId !== 'all' && deal.companyId !== filters.companyId) {
         return false;
       }
 
@@ -245,7 +245,7 @@ export const FunilPage: React.FC = () => {
     <div className="h-full overflow-y-auto">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-background via-background/95 to-background border-b border-border/40">
-        <div className="p-6 space-y-4">
+        <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h1 className="text-3xl font-bold text-foreground">Funil de Vendas</h1>
@@ -280,6 +280,13 @@ export const FunilPage: React.FC = () => {
                 </div>
               </Card>
 
+              <DealsFilter
+                filters={filters}
+                onFiltersChange={setFilters}
+                filteredCount={totalDeals}
+                totalCount={deals.length}
+              />
+
               <DealStageManager
                 stages={sortedStages}
                 onAddStage={handleAddStage}
@@ -288,16 +295,6 @@ export const FunilPage: React.FC = () => {
                 onReorderStages={reorderDealStages}
               />
             </div>
-          </div>
-
-          {/* Filters Section */}
-          <div className="flex items-center justify-end">
-            <DealsFilter
-              filters={filters}
-              onFiltersChange={setFilters}
-              filteredCount={totalDeals}
-              totalCount={deals.length}
-            />
           </div>
         </div>
       </div>

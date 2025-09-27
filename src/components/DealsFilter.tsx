@@ -34,9 +34,9 @@ const initialFilters: DealFilters = {
   maxValue: '',
   minProbability: '',
   maxProbability: '',
-  assignedPerson: '',
-  leadId: '',
-  companyId: ''
+  assignedPerson: 'all',
+  leadId: 'all',
+  companyId: 'all'
 };
 
 export const DealsFilter: React.FC<DealsFilterProps> = ({
@@ -53,8 +53,19 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
     new Set(deals.map(deal => deal.assignedPerson.name))
   ).sort();
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== '');
-  const activeFiltersCount = Object.values(filters).filter(value => value !== '').length;
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'assignedPerson' || key === 'leadId' || key === 'companyId') {
+      return value !== 'all' && value !== '';
+    }
+    return value !== '';
+  });
+  
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (key === 'assignedPerson' || key === 'leadId' || key === 'companyId') {
+      return value !== 'all' && value !== '';
+    }
+    return value !== '';
+  }).length;
 
   const handleFilterChange = (key: keyof DealFilters, value: string) => {
     onFiltersChange({
@@ -68,7 +79,8 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
   };
 
   const clearSingleFilter = (key: keyof DealFilters) => {
-    handleFilterChange(key, '');
+    const defaultValue = (key === 'assignedPerson' || key === 'leadId' || key === 'companyId') ? 'all' : '';
+    handleFilterChange(key, defaultValue);
   };
 
   return (
@@ -138,7 +150,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
             </Badge>
           )}
 
-          {filters.assignedPerson && (
+          {filters.assignedPerson && filters.assignedPerson !== 'all' && (
             <Badge variant="secondary" className="gap-1">
               <User className="h-3 w-3" />
               {filters.assignedPerson}
@@ -153,7 +165,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
             </Badge>
           )}
 
-          {filters.leadId && (
+          {filters.leadId && filters.leadId !== 'all' && (
             <Badge variant="secondary" className="gap-1">
               <User className="h-3 w-3" />
               {leads.find(l => l.id === filters.leadId)?.name}
@@ -168,7 +180,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
             </Badge>
           )}
 
-          {filters.companyId && (
+          {filters.companyId && filters.companyId !== 'all' && (
             <Badge variant="secondary" className="gap-1">
               <Building2 className="h-3 w-3" />
               {companies.find(c => c.id === filters.companyId)?.name}
@@ -278,7 +290,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
                   <SelectValue placeholder="Todos os responsáveis" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os responsáveis</SelectItem>
+                  <SelectItem value="all">Todos os responsáveis</SelectItem>
                   {uniqueAssignedPersons.map((person) => (
                     <SelectItem key={person} value={person}>
                       {person}
@@ -299,7 +311,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
                   <SelectValue placeholder="Todos os leads" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os leads</SelectItem>
+                  <SelectItem value="all">Todos os leads</SelectItem>
                   {leads.map((lead) => (
                     <SelectItem key={lead.id} value={lead.id}>
                       {lead.name}
@@ -320,7 +332,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
                   <SelectValue placeholder="Todas as empresas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as empresas</SelectItem>
+                  <SelectItem value="all">Todas as empresas</SelectItem>
                   {companies.map((company) => (
                     <SelectItem key={company.id} value={company.id}>
                       {company.name}
