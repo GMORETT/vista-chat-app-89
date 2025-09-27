@@ -135,11 +135,11 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 space-y-4">
+    <div className="min-h-screen pt-2 px-4 pb-4 space-y-2">
       {/* Main Content Grid */}
       <div className="grid grid-cols-12 gap-4">
         {/* Stats Cards - Top Row */}
-        <div className="col-span-12 grid grid-flow-col auto-cols-max gap-3 h-fit mb-4 justify-start">
+        <div className="col-span-12 grid grid-flow-col auto-cols-max gap-3 h-fit mb-2 justify-start">
           <Card className="w-fit px-2 py-2 justify-self-start">
             <div className="inline-flex items-center gap-3">
               <div>
