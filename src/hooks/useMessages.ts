@@ -154,65 +154,45 @@ export const useMessages = (conversationId: number | null, filters?: MessageFilt
   });
 
   const loadMoreMessages = async () => {
-    console.log('🔄 loadMoreMessages called');
-    console.log('🔄 Conditions:', { conversationId, hasBuffer: !!buffer, isLoadingOlder: buffer?.isLoadingOlder, hasOlderMessages: buffer?.hasOlderMessages });
-    
     if (!conversationId || !buffer || buffer.isLoadingOlder || !buffer.hasOlderMessages) {
-      console.log('❌ loadMoreMessages early return due to conditions');
       return;
     }
     
-    console.log('✅ loadMoreMessages proceeding with fetch');
     setLoadingState(conversationId, 'older', true);
     
     try {
-      const oldestMessage = buffer.messages[0];
+      // Find the actual oldest message (lowest created_at timestamp)
+      const sortedMessages = [...buffer.messages].sort((a, b) => a.created_at - b.created_at);
+      const oldestMessage = sortedMessages[0];
+      
       if (!oldestMessage) {
-        console.log('❌ No oldest message found');
         return;
       }
       
-      console.log('📨 Fetching messages before:', oldestMessage.created_at);
+      // Use the message ID of the oldest message for pagination
+      const beforeMessageId = oldestMessage.id;
       
       const olderQuery: MessageQuery = {
-        before: oldestMessage.created_at.toString(),
+        before: beforeMessageId.toString(),
         limit: 50,
       };
       
-      console.log('📨 Query being sent:', olderQuery);
-      
-      console.log('📨 Making API call to getMessages...');
       const response = await chatService.getMessages(conversationId, olderQuery);
-      console.log('📨 API response received:', response);
       
       if (response.error || !response.data) {
-        console.log('❌ Error fetching older messages:', response.error);
-        console.log('❌ Full response object:', response);
         return;
       }
       
-      console.log('📨 Response data structure:', response.data);
       const olderMessages = response.data.payload;
-      console.log('📨 Fetched', olderMessages ? olderMessages.length : 0, 'older messages');
       
       if (olderMessages.length > 0) {
-        console.log('✅ Adding', olderMessages.length, 'older messages to buffer');
         addOlderMessages(conversationId, olderMessages);
-        console.log('✅ Added older messages to buffer');
-        
-        // Log the updated buffer state
-        const updatedBuffer = getBuffer(conversationId);
-        console.log('📊 Updated buffer state after adding older messages:');
-        console.log('📊 Total messages:', updatedBuffer.messages.length);
-        console.log('📊 hasOlderMessages:', updatedBuffer.hasOlderMessages);
       } else {
-        console.log('ℹ️ No more older messages available - setting hasOlderMessages to false');
         // When we get 0 messages, there are no more older messages
         updateHasOlderMessages(conversationId, false);
       }
     } finally {
       setLoadingState(conversationId, 'older', false);
-      console.log('🔄 loadMoreMessages finished');
     }
   };
 

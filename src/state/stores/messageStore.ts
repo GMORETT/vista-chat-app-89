@@ -33,7 +33,7 @@ interface MessageState {
   updateHasOlderMessages: (conversationId: number, hasOlder: boolean) => void;
 }
 
-const MESSAGE_BUFFER_SIZE = 100;
+const MESSAGE_BUFFER_SIZE = 200; // Increased buffer size
 const SCROLL_LOAD_SIZE = 50;
 
 export const useMessageStore = create<MessageState>()(
@@ -126,13 +126,9 @@ export const useMessageStore = create<MessageState>()(
             ? allMessages.slice(-MESSAGE_BUFFER_SIZE)
             : allMessages;
 
-          const newHasOlderMessages = oldMessages.length === SCROLL_LOAD_SIZE;
-          
-          console.log('📊 addOlderMessages debug:');
-          console.log('📊 Fetched older messages:', oldMessages.length);
-          console.log('📊 SCROLL_LOAD_SIZE:', SCROLL_LOAD_SIZE);
-          console.log('📊 Setting hasOlderMessages to:', newHasOlderMessages);
-          console.log('📊 Previous hasOlderMessages was:', buffer.hasOlderMessages);
+          // If we got fewer messages than requested, there are no more older messages
+          // The API consistently returns 20 messages max, so if we get 20, there might be more
+          const newHasOlderMessages = oldMessages.length >= 20;
 
           return {
             buffers: {
@@ -174,7 +170,6 @@ export const useMessageStore = create<MessageState>()(
           // Check if message already exists to prevent duplicates
           const messageExists = buffer.messages.some(existingMessage => existingMessage.id === message.id);
           if (messageExists) {
-            console.log('📨 Message', message.id, 'already exists in buffer, skipping duplicate');
             return state; // Return unchanged state
           }
 
