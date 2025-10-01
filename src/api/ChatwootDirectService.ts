@@ -294,6 +294,7 @@ export class ChatwootDirectService implements IChatService {
     return this.uploadRequest<Message>(`/conversations/${conversationId}/messages`, request.files, {
       content: request.content || '',
       message_type: 'outgoing',
+      content_attributes: request.content_attributes || {},
     });
   }
   

@@ -170,6 +170,7 @@ export const MessageList: React.FC<MessageListProps> = () => {
               </Badge>
             )}
 
+
             {/* Reply preview */}
             {message.content_attributes?.in_reply_to && (
               <div className={`
