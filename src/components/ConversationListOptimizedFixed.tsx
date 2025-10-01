@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useConversationStore } from '../state/stores/conversationStore';
 import { useFilterStore } from '../state/stores/filterStore';
 import { useUiStore } from '../state/uiStore';
+import { useConversations } from '../hooks/useConversations';
 import { ConversationItem } from './ConversationItem';
 import { Virtuoso } from 'react-virtuoso';
 import { Skeleton } from './ui/skeleton';
@@ -160,10 +161,22 @@ const filterConversations = (
 };
 
 export const ConversationListOptimized: React.FC<ConversationListOptimizedProps> = React.memo(({ height }) => {
-  const { conversations, selectedConversationId, setSelectedConversationId, isLoading } = useConversationStore();
+  const { selectedConversationId, setSelectedConversationId } = useConversationStore();
   const { filters, searchQuery } = useFilterStore();
   const { isMobile, setActivePane } = useUiStore();
   const { user } = useAuth();
+  
+  // Fetch conversations from API
+  const { conversations, isLoading, error } = useConversations(filters);
+  
+  // Debug logging
+  console.log('📋 ConversationList received:', {
+    conversations: conversations,
+    conversationsCount: conversations.length,
+    isLoading: isLoading,
+    error: error,
+    filters: filters
+  });
 
   // Memoized filtered conversations with proper user ID for "mine" filter
   const filteredConversations = useMemo(() => {
@@ -185,7 +198,9 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
 
   // Optimized callback
   const handleConversationSelect = React.useCallback((id: number) => {
+    console.log('🖱️ Conversation clicked, setting selected ID to:', id);
     setSelectedConversationId(id);
+    console.log('✅ setSelectedConversationId called with:', id);
     // On mobile, switch to conversation pane when a conversation is selected
     if (isMobile) {
       setActivePane('conversation');
@@ -195,6 +210,23 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
   // Loading state
   if (isLoading) {
     return <LoadingSkeleton />;
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+          <div className="text-2xl">⚠️</div>
+        </div>
+        <div className="text-lg font-heading text-destructive mb-2">
+          Erro ao carregar conversas
+        </div>
+        <div className="text-sm text-muted-foreground max-w-md">
+          {error.message || 'Não foi possível conectar com o Chatwoot'}
+        </div>
+      </div>
+    );
   }
 
   // Empty state

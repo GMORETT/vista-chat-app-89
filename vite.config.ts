@@ -26,12 +26,34 @@ export default defineConfig(({ mode, command }) => {
   return {
     server: {
       host: "::",
-      port: 8080,
+      port: 8082,
+      cors: {
+        origin: ['http://localhost:8080', 'http://localhost:8082', 'https://chat.nucleodeperformance.com.br'],
+        credentials: true,
+      },
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
+          target: 'https://chat.nucleodeperformance.com.br',
           changeOrigin: true,
-          secure: false,
+          secure: true,
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              console.log('🔄 Proxying Chatwoot API request:', req.url);
+            });
+          },
+        },
+        // Proxy Chatwoot WebSocket connections
+        '/chatwoot-ws': {
+          target: 'wss://chat.nucleodeperformance.com.br',
+          changeOrigin: true,
+          secure: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/chatwoot-ws/, '/cable'),
+          configure: (proxy, options) => {
+            proxy.on('proxyReqWs', (proxyReq, req, socket) => {
+              console.log('🔄 Proxying Chatwoot WebSocket:', req.url);
+            });
+          },
         },
       },
     },

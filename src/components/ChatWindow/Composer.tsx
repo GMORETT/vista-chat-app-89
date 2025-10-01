@@ -1,85 +1,54 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useConversationStore } from '../../state/stores/conversationStore';
+import { useMessages } from '../../hooks/useMessages';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { Send, Paperclip, X, Image, FileText } from 'lucide-react';
+import { Send, Paperclip, X, Image, FileText, Mic } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import { mockMessages } from '../../data/mockData';
 
 export const Composer: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const [isSending, setIsSending] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  const { selectedConversationId } = useConversationStore();
+  const { selectedConversationId, replyToMessage, setReplyToMessage } = useConversationStore();
+  const { sendMessage, sendFiles, isSending } = useMessages(selectedConversationId);
 
-  const handleSendMessage = useCallback(() => {
+  const handleSendMessage = useCallback(async () => {
     if (!selectedConversationId) return;
     
     const content = message.trim();
     if (!content && files.length === 0) return;
 
-    setIsSending(true);
-
-    // Simulate sending message
-    setTimeout(() => {
-      // Add message to mock data
-      const newMessage = {
-        id: Date.now(),
-        content,
-        inbox_id: 1,
-        conversation_id: selectedConversationId,
-        message_type: 1, // outgoing
-        created_at: Math.floor(Date.now() / 1000),
-        updated_at: Math.floor(Date.now() / 1000),
-        private: isPrivate,
-        status: 'sent' as const,
-        source_id: `msg_${selectedConversationId}_${Date.now()}`,
-        content_type: isPrivate ? 'note' as const : 'text' as const,
-        content_attributes: {},
-        sender_type: 'agent' as const,
-        sender_id: 1,
-        external_source_ids: {},
-        additional_attributes: {},
-        processed_message_content: null,
-        sentiment: {},
-        conversation: {} as any,
-        attachments: files.length > 0 ? files.map((file, index) => ({
-          id: Date.now() + index,
-          file_type: file.type.startsWith('image/') ? 'image' : 'file',
-          extension: file.name.split('.').pop() || '',
-          data_url: URL.createObjectURL(file),
-          thumb_url: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
-          file_url: URL.createObjectURL(file),
-          file_size: file.size,
-          fallback_title: file.name,
-          coordinates_lat: null,
-          coordinates_long: null,
-        })) : [],
-      };
-
-      if (!mockMessages[selectedConversationId]) {
-        mockMessages[selectedConversationId] = [];
+    try {
+      if (files.length > 0) {
+        // Send files with optional message
+        sendFiles(files, content || undefined, replyToMessage?.id);
+      } else {
+        // Send text message
+        sendMessage(content, isPrivate, replyToMessage?.id);
       }
-      mockMessages[selectedConversationId].push(newMessage);
 
+      // Clear form on success
       setMessage('');
       setFiles([]);
       setIsPrivate(false);
-      setIsSending(false);
+      setReplyToMessage(null);
       
       // Auto-resize textarea
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
-    }, 500);
-  }, [selectedConversationId, message, files, isPrivate]);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      // Could add toast notification here
+    }
+  }, [selectedConversationId, message, files, isPrivate, sendMessage, sendFiles]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && !isSending) {
@@ -157,6 +126,7 @@ export const Composer: React.FC = () => {
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) return <Image className="h-4 w-4" />;
+    if (file.type.startsWith('audio/')) return <Mic className="h-4 w-4" />;
     return <FileText className="h-4 w-4" />;
   };
 
@@ -190,6 +160,28 @@ export const Composer: React.FC = () => {
       )}
 
       <div className="p-4">
+        {/* Reply preview */}
+        {replyToMessage && (
+          <div className="mb-4 bg-accent/20 border border-border rounded-lg p-3">
+            <div className="flex items-start justify-between mb-2">
+              <div className="text-xs font-medium text-muted-foreground">
+                Respondendo a {replyToMessage.sender?.name || (replyToMessage.message_type === 1 ? 'Você' : 'Cliente')}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setReplyToMessage(null)}
+                className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+            <div className="text-sm text-foreground/80 truncate border-l-2 border-primary pl-3">
+              {replyToMessage.content || 'Arquivo enviado'}
+            </div>
+          </div>
+        )}
+
         {/* File attachments preview */}
         {files.length > 0 && (
           <div className="mb-4">
@@ -220,6 +212,11 @@ export const Composer: React.FC = () => {
                     {file.type.startsWith('image/') && (
                       <Badge variant="outline" className="text-xs">
                         Imagem
+                      </Badge>
+                    )}
+                    {file.type.startsWith('audio/') && (
+                      <Badge variant="outline" className="text-xs">
+                        Áudio
                       </Badge>
                     )}
                   </div>
@@ -274,7 +271,7 @@ export const Composer: React.FC = () => {
               multiple
               onChange={handleInputChange}
               className="hidden"
-              accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx"
+              accept="image/*,audio/*,.pdf,.doc,.docx,.txt,.csv,.xlsx,.mp3,.wav,.ogg,.m4a"
             />
             <Button
               variant="outline"

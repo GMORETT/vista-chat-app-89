@@ -3,7 +3,6 @@ import { useFilterStore } from '../state/stores/filterStore';
 import { useConversationsMeta } from '../hooks/useConversations';
 import { AssignType } from '../models';
 import { Badge } from './ui/badge';
-import { mockConversationMeta } from '../data/mockData';
 
 export const TabsCounts: React.FC = () => {
   const { filters, activeTab, setActiveTab } = useFilterStore();
@@ -17,7 +16,7 @@ export const TabsCounts: React.FC = () => {
   const { data: metaData, isLoading } = useConversationsMeta(tabCountsFilters);
 
   // Use real data or fallback to mock
-  const counts = metaData || mockConversationMeta;
+  const counts = metaData || { mine_count: 0, unassigned_count: 0, assigned_count: 0, all_count: 0 };
 
   const tabs: { value: AssignType; label: string; shortLabel: string; countKey: keyof typeof counts }[] = [
     { value: 'me', label: 'Minhas', shortLabel: 'Minhas', countKey: 'mine_count' },

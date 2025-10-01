@@ -3,7 +3,6 @@ import { useFilterStore } from '../state/stores/filterStore';
 import { useConversationsMeta } from '../hooks/useConversations';
 import { AssignType } from '../models';
 import { Badge } from './ui/badge';
-import { mockConversationMeta } from '../data/mockData';
 import { useAuth } from '../contexts/AuthContext';
 import { useCurrentClient } from '../hooks/useCurrentClient';
 
@@ -22,7 +21,7 @@ export const RoleBasedTabsCounts: React.FC = () => {
   const { data: metaData, isLoading } = useConversationsMeta(tabCountsFilters);
 
   // Use real data or fallback to mock
-  const counts = metaData || mockConversationMeta;
+  const counts = metaData || { mine_count: 0, unassigned_count: 0, assigned_count: 0, all_count: 0 };
 
   // Define tabs based on user role
   const getAllTabs = () => [

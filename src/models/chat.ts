@@ -234,6 +234,7 @@ export interface SendMessageRequest {
 export interface SendFileRequest {
   files: File[];
   content?: string;
+  content_attributes?: Record<string, any>;
 }
 
 export interface UpdateStatusRequest {

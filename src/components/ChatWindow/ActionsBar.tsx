@@ -23,14 +23,15 @@ import {
   Tags,
   X
 } from 'lucide-react';
-import { mockLabels } from '../../data/mockData';
 import { Label } from '../../models/chat';
+import { useLabels } from '../../hooks/useLabels';
 
 export const ActionsBar: React.FC = () => {
   const { selectedConversation } = useConversationStore();
   const { filters } = useFilterStore();
   const { toggleStatus, togglePriority, updateLabels, isStatusLoading, isPriorityLoading, isLabelsLoading } = useConversations(filters);
   const { isMobile, isExpanded, setActivePane, setIsExpanded } = useUiStore();
+  const { data: labels = [] } = useLabels();
   const [isLabelPopoverOpen, setIsLabelPopoverOpen] = useState(false);
 
   if (!selectedConversation) {
@@ -246,7 +247,7 @@ export const ActionsBar: React.FC = () => {
               </p>
             </div>
             <div className="p-2 max-h-64 overflow-y-auto">
-              {mockLabels.map((label) => {
+              {labels.map((label) => {
                 const isSelected = selectedConversation.labels?.some(l => l.id === label.id) || false;
                 return (
                   <button
