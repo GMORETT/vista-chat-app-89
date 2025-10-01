@@ -147,9 +147,14 @@ export const useMessageStore = create<MessageState>()(
       },
 
       addNewMessage: (conversationId, message) => {
+        console.log('📨 addNewMessage called:', { conversationId, messageId: message.id, content: message.content?.substring(0, 50) });
+        
         set((state) => {
           const buffer = state.buffers[conversationId];
+          console.log('📨 Current buffer for conversation', conversationId, ':', buffer ? `${buffer.messages.length} messages` : 'no buffer');
+          
           if (!buffer) {
+            console.log('📨 Creating new buffer with single message');
             // Initialize buffer with single message if it doesn't exist
             return {
               buffers: {
@@ -170,6 +175,7 @@ export const useMessageStore = create<MessageState>()(
           // Check if message already exists to prevent duplicates
           const messageExists = buffer.messages.some(existingMessage => existingMessage.id === message.id);
           if (messageExists) {
+            console.log('📨 Message', message.id, 'already exists, skipping');
             return state; // Return unchanged state
           }
 
@@ -178,6 +184,12 @@ export const useMessageStore = create<MessageState>()(
           const trimmedMessages = allMessages.length > MESSAGE_BUFFER_SIZE 
             ? allMessages.slice(-MESSAGE_BUFFER_SIZE)
             : allMessages;
+
+          console.log('📨 Adding message to buffer:', {
+            previousCount: buffer.messages.length,
+            newCount: trimmedMessages.length,
+            messageId: message.id
+          });
 
           return {
             buffers: {

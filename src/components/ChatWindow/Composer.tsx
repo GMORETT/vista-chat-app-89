@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useConversationStore } from '../../state/stores/conversationStore';
 import { useMessages } from '../../hooks/useMessages';
 import { Button } from '../ui/button';
@@ -13,11 +13,20 @@ export const Composer: React.FC = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [shouldRestoreFocus, setShouldRestoreFocus] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { selectedConversationId, replyToMessage, setReplyToMessage } = useConversationStore();
   const { sendMessage, sendFiles, isSending } = useMessages(selectedConversationId);
+
+  // Restore focus after message is cleared
+  useEffect(() => {
+    if (shouldRestoreFocus && message === '' && textareaRef.current) {
+      textareaRef.current.focus();
+      setShouldRestoreFocus(false);
+    }
+  }, [message, shouldRestoreFocus]);
 
   const handleSendMessage = useCallback(async () => {
     if (!selectedConversationId) return;
@@ -34,6 +43,9 @@ export const Composer: React.FC = () => {
         sendMessage(content, isPrivate, replyToMessage?.id);
       }
 
+      // Set flag to restore focus after clearing message
+      setShouldRestoreFocus(true);
+      
       // Clear form on success
       setMessage('');
       setFiles([]);

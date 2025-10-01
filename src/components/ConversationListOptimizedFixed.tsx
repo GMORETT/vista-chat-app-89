@@ -175,12 +175,27 @@ export const ConversationListOptimized: React.FC<ConversationListOptimizedProps>
     conversationsCount: conversations.length,
     isLoading: isLoading,
     error: error,
-    filters: filters
+    filters: filters,
+    searchQuery: searchQuery
   });
 
   // Memoized filtered conversations with proper user ID for "mine" filter
   const filteredConversations = useMemo(() => {
+    console.log('🔍 Starting filtering with:', {
+      totalConversations: conversations.length,
+      searchQuery,
+      filters,
+      userId: user?.id
+    });
+    
     const result = filterConversations(conversations, searchQuery, filters, user?.id);
+    
+    console.log('🔍 Filtering result:', {
+      originalCount: conversations.length,
+      filteredCount: result.length,
+      searchQuery,
+      assigneeType: filters.assignee_type
+    });
     
     // Debug logging - remove in production
     if (filters.assignee_type === 'me') {

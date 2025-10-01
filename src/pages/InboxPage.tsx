@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useUiStore } from '../state/uiStore';
 import { useFilterStore } from '../state/stores/filterStore';
 import { useConversationStore } from '../state/stores/conversationStore';
@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCurrentClient } from '../hooks/useCurrentClient';
 import { useRealTimeMessages } from '../hooks/useRealTimeMessages';
+import { useMarkAsRead } from '../hooks/useMarkAsRead';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -27,7 +28,24 @@ export const InboxPage: React.FC = () => {
     setIsExpanded
   } = useUiStore();
   
-  const { selectedConversationId } = useConversationStore();
+  const { selectedConversationId, setMarkAsReadCallback } = useConversationStore();
+  
+  // Initialize mark as read functionality
+  const { markAsRead } = useMarkAsRead();
+  
+  // Set up mark as read callback with useCallback to prevent infinite loops
+  const handleMarkAsRead = useCallback((conversationId: number) => {
+    markAsRead(conversationId);
+  }, [markAsRead]);
+
+  useEffect(() => {
+    setMarkAsReadCallback(handleMarkAsRead);
+    
+    // Clean up callback on unmount
+    return () => {
+      setMarkAsReadCallback(null);
+    };
+  }, [handleMarkAsRead, setMarkAsReadCallback]);
   
   // Debug selected conversation changes
   useEffect(() => {

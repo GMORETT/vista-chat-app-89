@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useConversationStore } from '../../state/stores/conversationStore';
 import { useMessages } from '../../hooks/useMessages';
 import { Message } from '../../models';
@@ -11,6 +11,8 @@ import { Skeleton } from '../ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { MoreHorizontal, Reply } from 'lucide-react';
 import { LoadNewerMessagesButton } from './LoadNewerMessagesButton';
+import { AudioPlayer } from './AudioPlayer';
+import { ImageModal } from './ImageModal';
 
 interface MessageListProps {}
 
@@ -30,6 +32,19 @@ export const MessageList: React.FC<MessageListProps> = () => {
   const scrollAnchorMessageId = useRef<number | null>(null);
   const isLoadingOlderRef = useRef(false);
   const listRef = useRef<VirtuosoHandle>(null);
+  
+  // Image modal state
+  const [imageModal, setImageModal] = useState<{
+    isOpen: boolean;
+    src: string;
+    alt: string;
+    fileName?: string;
+  }>({
+    isOpen: false,
+    src: '',
+    alt: '',
+    fileName: ''
+  });
 
   // Use messages from buffer (no more mock data generation)
   const displayMessages = messages;
@@ -82,6 +97,27 @@ export const MessageList: React.FC<MessageListProps> = () => {
       scrollAnchorMessageId.current = null;
     }
   }, [isLoadingOlder, displayMessages]);
+
+  // Functions for image modal
+  const openImageModal = (src: string, alt: string, fileName?: string) => {
+    console.log('🔧 openImageModal called with:', { src, alt, fileName });
+    setImageModal({
+      isOpen: true,
+      src,
+      alt,
+      fileName
+    });
+    console.log('🔧 Modal state set to open');
+  };
+
+  const closeImageModal = () => {
+    setImageModal({
+      isOpen: false,
+      src: '',
+      alt: '',
+      fileName: ''
+    });
+  };
 
   // Show API errors instead of falling back to mock data
   if (error) {
@@ -423,24 +459,75 @@ export const MessageList: React.FC<MessageListProps> = () => {
             {/* Attachments */}
             {message.attachments && message.attachments.length > 0 && (
               <div className="mt-3 space-y-2">
-                {message.attachments.map((attachment) => (
-                  <div 
-                    key={attachment.id} 
-                    className={`
-                      border rounded-lg p-3 transition-colors hover:bg-accent/10
-                      ${isOutgoing ? 'border-primary-foreground/20' : 'border-border'}
-                    `}
-                  >
+                {message.attachments.map((attachment) => {
+                  console.log('📎 Rendering attachment for message', message.id, ':', attachment);
+                  return (
+                    <div 
+                      key={attachment.id} 
+                      className={`
+                        border rounded-lg p-3 transition-colors hover:bg-accent/10
+                        ${isOutgoing ? 'border-primary-foreground/20' : 'border-border'}
+                      `}
+                    >
                     {attachment.file_type === 'image' ? (
                       <div className="space-y-2">
-                        <img 
-                          src={attachment.data_url} 
-                          alt={attachment.fallback_title}
-                          className="max-w-full rounded-md shadow-sm"
-                          loading="lazy"
-                        />
+                        <div 
+                          className="relative group cursor-pointer"
+                          onClick={(e) => {
+                            console.log('🖼️ Image container clicked!');
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('🖼️ Image clicked:', { 
+                              data_url: attachment.data_url, 
+                              file_url: attachment.file_url,
+                              fallback_title: attachment.fallback_title 
+                            });
+                            openImageModal(
+                              attachment.data_url || attachment.file_url || '', 
+                              attachment.fallback_title,
+                              attachment.fallback_title
+                            );
+                          }}
+                        >
+                          <img 
+                            src={attachment.data_url || attachment.file_url} 
+                            alt={attachment.fallback_title}
+                            className="max-w-full max-h-64 rounded-md shadow-sm hover:opacity-90 transition-opacity pointer-events-none"
+                            loading="lazy"
+                            onLoad={() => console.log('🖼️ Image loaded successfully')}
+                            onError={() => console.log('❌ Image failed to load')}
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 rounded-md transition-all duration-200 flex items-center justify-center pointer-events-none">
+                            <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                              🔍 Clique para ampliar
+                            </span>
+                          </div>
+                        </div>
                         <div className={`text-xs ${isOutgoing ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                          {attachment.fallback_title}
+                          📷 {attachment.fallback_title}
+                        </div>
+                      </div>
+                    ) : attachment.file_type === 'audio' ? (
+                      <AudioPlayer 
+                        src={attachment.data_url || attachment.file_url || ''}
+                        fileName={attachment.fallback_title}
+                        fileSize={attachment.file_size}
+                        isOutgoing={isOutgoing}
+                      />
+                    ) : attachment.file_type === 'video' ? (
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <video 
+                            controls 
+                            className="max-w-full max-h-64 rounded-md shadow-sm"
+                            preload="metadata"
+                          >
+                            <source src={attachment.data_url} type={`video/${attachment.extension || 'mp4'}`} />
+                            Seu navegador não suporta vídeo.
+                          </video>
+                        </div>
+                        <div className={`text-xs ${isOutgoing ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                          🎬 {attachment.fallback_title} ({(attachment.file_size / 1024).toFixed(1)} KB)
                         </div>
                       </div>
                     ) : (
@@ -449,8 +536,8 @@ export const MessageList: React.FC<MessageListProps> = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`
-                          flex items-center gap-2 text-xs hover:underline
-                          ${isOutgoing ? 'text-primary-foreground' : 'text-primary'}
+                          flex items-center gap-2 text-xs hover:underline transition-colors
+                          ${isOutgoing ? 'text-primary-foreground hover:text-primary-foreground/80' : 'text-primary hover:text-primary/80'}
                         `}
                       >
                         📎 {attachment.fallback_title}
@@ -461,8 +548,9 @@ export const MessageList: React.FC<MessageListProps> = () => {
                         </span>
                       </a>
                     )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -554,6 +642,15 @@ export const MessageList: React.FC<MessageListProps> = () => {
           }}
         />
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={imageModal.isOpen}
+        onClose={closeImageModal}
+        src={imageModal.src}
+        alt={imageModal.alt}
+        fileName={imageModal.fileName}
+      />
     </div>
   );
 };
