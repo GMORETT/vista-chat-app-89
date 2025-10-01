@@ -166,4 +166,13 @@ export interface IChatService {
    * Get conversations for a specific contact
    */
   getContactConversations(contactId: number, query?: ConversationQuery): Promise<ApiResponse<ConversationsResponse>>;
+  
+  // ============================================================================
+  // PROFILE OPERATIONS
+  // ============================================================================
+  
+  /**
+   * Get current user profile (includes PubSub token)
+   */
+  getProfile(): Promise<ApiResponse<any>>;
 }

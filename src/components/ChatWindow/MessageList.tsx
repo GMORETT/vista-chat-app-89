@@ -4,105 +4,32 @@ import { useMessages } from '../../hooks/useMessages';
 import { Message } from '../../models';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { mockMessages } from '../../data/mockData';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { MoreHorizontal, Reply } from 'lucide-react';
 import { LoadNewerMessagesButton } from './LoadNewerMessagesButton';
 
 interface MessageListProps {}
 
 export const MessageList: React.FC<MessageListProps> = () => {
   const { selectedConversationId } = useConversationStore();
-  const { messages, isLoading, loadMoreMessages, loadNewerMessages } = useMessages(selectedConversationId);
+  const { 
+    messages, 
+    isLoading, 
+    isLoadingOlder,
+    hasOlderMessages,
+    isPolling,
+    error,
+    loadMoreMessages, 
+    loadNewerMessages 
+  } = useMessages(selectedConversationId);
   const listRef = useRef<VirtuosoHandle>(null);
 
-  // Use messages from the hook or fallback to mock data for demo
-  const displayMessages = useMemo(() => {
-    if (messages.length > 0) return messages;
-    
-    if (!selectedConversationId) return [];
-    
-    // Generate messages if not already generated (for demo purposes)
-    if (!mockMessages[selectedConversationId]) {
-      const messageCount = Math.floor(Math.random() * 15) + 5;
-      const messageTypes = [
-        'Olá! Preciso de ajuda com minha conta.',
-        'Não consigo acessar o sistema.',
-        'Quando será lançada a nova funcionalidade?',
-        'Obrigado pelo excelente atendimento!',
-        'Há quanto tempo vocês estão no mercado?',
-        'Qual é o valor do plano premium?',
-        'Posso cancelar a qualquer momento?',
-        'Vocês oferecem suporte 24/7?',
-        'Como faço para alterar minha senha?',
-        'Estou interessado nos seus serviços.',
-      ];
-      
-      const responses = [
-        'Olá! Claro, posso ajudá-lo. Qual é o problema específico?',
-        'Vou verificar isso para você. Um momento, por favor.',
-        'Entendo sua situação. Vamos resolver isso juntos.',
-        'Muito obrigado pelo feedback! Ficamos felizes em ajudar.',
-        'Deixe-me encaminhar sua solicitação para o setor responsável.',
-        'Sim, posso fornecer essas informações para você.',
-        'Perfeito! Vou processar sua solicitação agora.',
-        'Claro! Vou explicar o processo passo a passo.',
-        'Obrigado por entrar em contato conosco.',
-        'Fico à disposição para mais esclarecimentos.',
-      ];
-
-      mockMessages[selectedConversationId] = Array.from({ length: messageCount }, (_, i) => {
-        const isOutgoing = i % 3 === 0;
-        const isPrivate = i % 10 === 9;
-        const hasAttachment = i % 15 === 14;
-        
-        const baseMessage: Message = {
-          id: (selectedConversationId * 1000) + i + 1,
-          content: isOutgoing 
-            ? responses[i % responses.length]
-            : messageTypes[i % messageTypes.length],
-          inbox_id: 1,
-          conversation_id: selectedConversationId,
-          message_type: isOutgoing ? 1 : 0,
-          created_at: Math.floor(Date.now() / 1000) - ((messageCount - i) * 60 * 5),
-          updated_at: Math.floor(Date.now() / 1000) - ((messageCount - i) * 60 * 5),
-          private: isPrivate,
-          status: 'sent' as const,
-          source_id: `msg_${selectedConversationId}_${i}`,
-          content_type: 'text' as const,
-          content_attributes: {},
-          sender_type: isOutgoing ? 'agent' : 'contact',
-          sender_id: isOutgoing ? 1 : selectedConversationId,
-          external_source_ids: {},
-          additional_attributes: {},
-          processed_message_content: null,
-          sentiment: {},
-          conversation: {} as any,
-          attachments: [],
-        };
-
-        if (hasAttachment) {
-          baseMessage.attachments = [{
-            id: i + 1,
-            file_type: 'image',
-            extension: 'jpg',
-            data_url: `https://picsum.photos/200/200?random=${i}`,
-            thumb_url: `https://picsum.photos/100/100?random=${i}`,
-            file_url: `https://picsum.photos/200/200?random=${i}`,
-            file_size: Math.floor(Math.random() * 1000000) + 50000,
-            fallback_title: `imagem_${i + 1}.jpg`,
-            coordinates_lat: null,
-            coordinates_long: null,
-          }];
-        }
-
-        return baseMessage;
-      });
-    }
-    
-    return mockMessages[selectedConversationId] || [];
-  }, [selectedConversationId, messages]);
+  // Use messages from buffer (no more mock data generation)
+  const displayMessages = messages;
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -110,6 +37,26 @@ export const MessageList: React.FC<MessageListProps> = () => {
       listRef.current.scrollToIndex({ index: displayMessages.length - 1, align: 'end' });
     }
   }, [displayMessages.length]);
+
+  // Show API errors instead of falling back to mock data
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center max-w-md p-6">
+          <div className="text-6xl mb-4">⚠️</div>
+          <div className="text-lg font-medium text-destructive mb-2">
+            Erro ao conectar com Chatwoot
+          </div>
+          <div className="text-sm text-muted-foreground mb-4">
+            {error.message || 'Falha na comunicação com o servidor'}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Verifique sua conexão e credenciais do Chatwoot
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedConversationId) {
     return (
@@ -148,9 +95,15 @@ export const MessageList: React.FC<MessageListProps> = () => {
   }
 
   const MessageItem: React.FC<{ message: Message; index: number }> = ({ message, index }) => {
+    const { setReplyToMessage } = useConversationStore();
     const isOutgoing = message.message_type === 1;
     const isPrivate = message.private;
     const isNote = message.private;
+
+    const handleReply = () => {
+      // Set this message as the reply target
+      setReplyToMessage(message);
+    };
 
     const formattedTime = React.useMemo(() => {
       try {
@@ -181,7 +134,7 @@ export const MessageList: React.FC<MessageListProps> = () => {
         <div className={`flex ${isOutgoing ? 'justify-end' : 'justify-start'} mb-2`}>
           <div
             className={`
-              group max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-sm
+              group relative max-w-[70%] rounded-2xl px-4 py-3 text-sm shadow-sm
               transition-all duration-200 hover:shadow-md
               ${isOutgoing
                 ? 'bg-primary text-primary-foreground ml-12 rounded-br-md'
@@ -190,11 +143,66 @@ export const MessageList: React.FC<MessageListProps> = () => {
               ${isPrivate || isNote ? 'border-l-4 border-l-warning bg-warning/5' : ''}
             `}
           >
+            {/* Message actions dropdown */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-6 w-6 p-0 rounded-full ${isOutgoing ? 'text-primary-foreground hover:bg-primary-foreground/20' : 'text-muted-foreground hover:bg-accent'}`}
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuItem onClick={handleReply} className="flex items-center gap-2">
+                    <Reply className="h-3 w-3" />
+                    Responder
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             {/* Private message or note indicator */}
             {(isPrivate || isNote) && (
               <Badge variant="outline" className="text-xs mb-2 border-warning text-warning">
                 {isNote ? '📋 Nota interna' : '🔒 Nota privada'}
               </Badge>
+            )}
+
+            {/* Reply preview */}
+            {message.content_attributes?.in_reply_to && (
+              <div className={`
+                mb-3 p-2 rounded-lg border-l-2 text-xs
+                ${isOutgoing 
+                  ? 'bg-primary-foreground/10 border-l-primary-foreground/30 text-primary-foreground/80' 
+                  : 'bg-muted/50 border-l-muted-foreground/30 text-muted-foreground'
+                }
+              `}>
+                {(() => {
+                  // Find the replied-to message in the current message list
+                  const repliedMessage = displayMessages.find(m => m.id === message.content_attributes?.in_reply_to);
+                  if (repliedMessage) {
+                    return (
+                      <div>
+                        <div className="font-medium mb-1">
+                          {repliedMessage.sender?.name || (repliedMessage.message_type === 1 ? 'Você' : 'Cliente')}
+                        </div>
+                        <div className="truncate">
+                          {repliedMessage.content || 'Arquivo enviado'}
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div>
+                        <div className="font-medium mb-1">Mensagem respondida</div>
+                        <div className="text-xs opacity-70">Mensagem não encontrada no histórico atual</div>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
             )}
 
             {/* Message content */}
@@ -248,14 +256,23 @@ export const MessageList: React.FC<MessageListProps> = () => {
               </div>
             )}
 
-            {/* Message status for outgoing messages */}
-            {isOutgoing && (
-              <div className="flex items-center justify-end mt-2 gap-1">
+            {/* Message metadata: timestamp and status */}
+            <div className="flex items-center justify-between mt-2 gap-2">
+              {/* Individual message timestamp */}
+              <div className={`text-xs ${isOutgoing ? 'text-primary-foreground/50' : 'text-muted-foreground/70'}`}>
+                {new Date(message.created_at * 1000).toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </div>
+              
+              {/* Message status for outgoing messages */}
+              {isOutgoing && (
                 <div className="text-xs text-primary-foreground/70">
                   {message.status === 'sent' ? '✓' : '✓✓'}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -280,8 +297,37 @@ export const MessageList: React.FC<MessageListProps> = () => {
           )}
           followOutput="smooth"
           className="message-list h-full"
-          startReached={loadMoreMessages}
+          atTopThreshold={100}
+          startReached={(atTop) => {
+            console.log('🔄 Start reached - infinite scroll triggered, atTop:', atTop);
+            console.log('🔄 hasOlderMessages:', hasOlderMessages);
+            console.log('🔄 isLoadingOlder:', isLoadingOlder);
+            console.log('🔄 displayMessages length:', displayMessages.length);
+            
+            if (hasOlderMessages && !isLoadingOlder) {
+              console.log('✅ Loading more messages...');
+              loadMoreMessages();
+            } else {
+              console.log('❌ Not loading messages:', { hasOlderMessages, isLoadingOlder });
+            }
+          }}
           components={{
+            Header: () => (
+              hasOlderMessages ? (
+                <div className="flex justify-center py-4">
+                  {isLoadingOlder ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      Carregando mensagens antigas...
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full">
+                      Role para cima para ver mensagens antigas
+                    </div>
+                  )}
+                </div>
+              ) : null
+            ),
             EmptyPlaceholder: () => (
               <div className="flex items-center justify-center h-full text-center p-8">
                 <div>

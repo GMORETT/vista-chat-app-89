@@ -9,6 +9,7 @@ export interface User {
   roles: string[];
   assigned_inboxes?: number[];
   account_id?: number | null; // null for super_admin, number for admin/user
+  chatwoot_token?: string; // JWT token for Chatwoot API authentication
 }
 
 interface AuthContextType {
@@ -16,6 +17,15 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  getChatwootConfig: () => ChatwootConfig | null;
+}
+
+interface ChatwootConfig {
+  baseUrl: string;
+  websocketUrl: string;
+  token: string;
+  pubsubToken?: string;
+  accountId: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +39,8 @@ const FAKE_USERS: User[] = [
     role: 'super_admin',
     roles: ['super_admin', 'admin', 'user'],
     assigned_inboxes: [], // Super admin has access to all inboxes
-    account_id: null // Super admin is not tied to any account
+    account_id: null, // Super admin is not tied to any account
+    chatwoot_token: 'kwPgULQj9LuGPBYaP5FRVza5'
   },
   {
     id: 2,
@@ -38,7 +49,8 @@ const FAKE_USERS: User[] = [
     role: 'admin',
     roles: ['admin', 'user'],
     assigned_inboxes: [1], // Admin assigned to specific inboxes
-    account_id: 1 // Tied to Account ID 1 (SoLabs)
+    account_id: 1, // Tied to Account ID 1 (SoLabs)
+    chatwoot_token: 'kwPgULQj9LuGPBYaP5FRVza5'
   },
   {
     id: 3,
@@ -47,7 +59,8 @@ const FAKE_USERS: User[] = [
     role: 'user',
     roles: ['user'],
     assigned_inboxes: [1], // User assigned to specific inboxes
-    account_id: 1 // Tied to Account ID 1 (SoLabs)
+    account_id: 1, // Tied to Account ID 1 (SoLabs)
+    chatwoot_token: 'kwPgULQj9LuGPBYaP5FRVza5'
   },
   {
     id: 4,
@@ -56,7 +69,8 @@ const FAKE_USERS: User[] = [
     role: 'admin',
     roles: ['admin', 'user'],
     assigned_inboxes: [2],
-    account_id: 2 // Tied to Account ID 2 (Beta Corp)
+    account_id: 2, // Tied to Account ID 2 (Beta Corp)
+    chatwoot_token: 'kwPgULQj9LuGPBYaP5FRVza5'
   },
   {
     id: 5,
@@ -65,7 +79,8 @@ const FAKE_USERS: User[] = [
     role: 'user',
     roles: ['user'],
     assigned_inboxes: [2],
-    account_id: 2 // Tied to Account ID 2 (Beta Corp)
+    account_id: 2, // Tied to Account ID 2 (Beta Corp)
+    chatwoot_token: 'kwPgULQj9LuGPBYaP5FRVza5'
   }
 ];
 
@@ -131,11 +146,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearSelection(); // Clear conversation selection on logout
   };
 
+  const getChatwootConfig = (): ChatwootConfig | null => {
+    console.log('🔧 AuthContext getChatwootConfig Debug:');
+    console.log('- user:', user);
+    console.log('- user.chatwoot_token:', user?.chatwoot_token);
+    console.log('- VITE_CHATWOOT_BASE_URL:', import.meta.env.VITE_CHATWOOT_BASE_URL);
+    console.log('- VITE_CHATWOOT_WEBSOCKET_URL:', import.meta.env.VITE_CHATWOOT_WEBSOCKET_URL);
+    
+    if (!user?.chatwoot_token) {
+      console.warn('❌ No user or chatwoot_token found');
+      return null;
+    }
+
+    const baseUrl = import.meta.env.VITE_CHATWOOT_BASE_URL;
+    const websocketUrl = import.meta.env.VITE_CHATWOOT_WEBSOCKET_URL;
+    const accountId = user.account_id || parseInt(import.meta.env.VITE_CHATWOOT_ACCOUNT_ID || '1');
+
+    if (!baseUrl || !websocketUrl) {
+      console.warn('❌ Chatwoot configuration incomplete. Check environment variables.');
+      console.warn('baseUrl:', baseUrl);
+      console.warn('websocketUrl:', websocketUrl);
+      return null;
+    }
+
+    const config = {
+      baseUrl,
+      websocketUrl,
+      token: user.chatwoot_token,
+      // Note: pubsubToken will be fetched separately when needed
+      accountId,
+    };
+    
+    console.log('✅ Chatwoot config created:', config);
+    return config;
+  };
+
   const value = {
     user,
     login,
     logout,
-    isLoading
+    isLoading,
+    getChatwootConfig
   };
 
   return (

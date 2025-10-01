@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Conversation, ConversationMeta } from '../../models';
-import { getConversations, mockConversationMeta } from '../../data/mockDataLazy';
+import { Conversation, ConversationMeta, Message } from '../../models';
 
 interface ConversationState {
   conversations: Conversation[];
@@ -10,6 +9,7 @@ interface ConversationState {
   selectedConversation: Conversation | null;
   isLoading: boolean;
   error: string | null;
+  replyToMessage: Message | null;
 
   // Actions
   setConversations: (conversations: Conversation[]) => void;
@@ -19,6 +19,7 @@ interface ConversationState {
   setMeta: (meta: ConversationMeta) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setReplyToMessage: (message: Message | null) => void;
   clearSelection: () => void;
   reset: () => void;
 }
@@ -26,12 +27,13 @@ interface ConversationState {
 export const useConversationStore = create<ConversationState>()(
   persist(
     (set, get) => ({
-      conversations: getConversations(15),
-      meta: mockConversationMeta,
+      conversations: [],
+      meta: null,
       selectedConversationId: null,
       selectedConversation: null,
       isLoading: false,
       error: null,
+      replyToMessage: null,
 
       setConversations: (conversations) => set({ conversations }),
       
@@ -63,15 +65,17 @@ export const useConversationStore = create<ConversationState>()(
       setMeta: (meta) => set({ meta }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      setReplyToMessage: (message) => set({ replyToMessage: message }),
 
       clearSelection: () => set({
         selectedConversationId: null,
         selectedConversation: null,
+        replyToMessage: null,
       }),
 
       reset: () => set({
-        conversations: getConversations(15),
-        meta: mockConversationMeta,
+        conversations: [],
+        meta: null,
         selectedConversationId: null,
         selectedConversation: null,
         isLoading: false,

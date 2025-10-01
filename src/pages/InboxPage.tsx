@@ -15,6 +15,7 @@ import { ArrowLeft, Search, X, Settings, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCurrentClient } from '../hooks/useCurrentClient';
+import { useRealTimeMessages } from '../hooks/useRealTimeMessages';
 
 export const InboxPage: React.FC = () => {
   const { 
@@ -27,12 +28,48 @@ export const InboxPage: React.FC = () => {
   } = useUiStore();
   
   const { selectedConversationId } = useConversationStore();
+  
+  // Debug selected conversation changes
+  useEffect(() => {
+    console.log('🔄 Selected conversation ID changed to:', selectedConversationId);
+  }, [selectedConversationId]);
   const { searchQuery, setSearchQuery } = useFilterStore();
-  const { user } = useAuth();
+  const { user, getChatwootConfig } = useAuth();
   // Initialize current client context for proper RBAC
   useCurrentClient();
   const navigate = useNavigate();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
+  // Real-time WebSocket connection for all conversations
+  const chatwootConfig = getChatwootConfig();
+  const isRealTimeEnabled = import.meta.env.VITE_ENABLE_REALTIME === 'true';
+  
+  const getWebSocketUrl = () => {
+    if (!chatwootConfig) return '';
+    const isDevelopment = import.meta.env.DEV;
+    
+    let wsUrl;
+    if (isDevelopment) {
+      wsUrl = `ws://localhost:8082/chatwoot-ws`;
+    } else {
+      wsUrl = chatwootConfig.websocketUrl;
+    }
+    
+    console.log('🔗 Global WebSocket URL:', wsUrl, '(isDevelopment:', isDevelopment, ')');
+    return wsUrl;
+  };
+
+  // Single WebSocket that handles both global and conversation-specific events
+  console.log('🔧 InboxPage selectedConversationId for WebSocket:', selectedConversationId);
+  const { isConnected, reconnectAttempts } = useRealTimeMessages(
+    selectedConversationId, // Pass the selected conversation ID (null for global, ID for specific)
+    isRealTimeEnabled && chatwootConfig ? {
+      url: getWebSocketUrl(),
+      token: chatwootConfig.token,
+      accountId: chatwootConfig.accountId,
+      userId: import.meta.env.VITE_USER_ID || user?.id, // Use env variable for user ID
+    } : undefined
+  );
 
   // Debounce search
   useEffect(() => {

@@ -1,21 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Conversation, ConversationMeta, ConversationQuery, ConversationFilters, UpdateStatusRequest, UpdatePriorityRequest, AssignAgentRequest, AssignTeamRequest, StatusType, PriorityType, Label } from '../models/chat';
-import { MockChatService } from '../api/MockChatService';
-import { BffChatService } from '../api/BffChatService';
 import { useConversationStore } from '../state/stores/conversationStore';
 import { useToast } from '../hooks/use-toast';
 import { useCurrentClient } from '../hooks/useCurrentClient';
 import { useAuth } from '../contexts/AuthContext';
-import { getConversations } from '../data/mockDataLazy';
+import { createChatService } from '../utils/chatServiceFactory';
 
 export const useConversations = (filters: ConversationFilters) => {
   const queryClient = useQueryClient();
   const { updateConversation, selectedConversation } = useConversationStore();
   const { toast } = useToast();
   const { currentAccountId } = useCurrentClient();
-  const { user } = useAuth();
-  const useBff = import.meta.env.VITE_USE_BFF === 'true';
-  const chatService = useBff ? new BffChatService() : new MockChatService();
+  const { user, getChatwootConfig } = useAuth();
+  
+  // Create appropriate chat service based on configuration
+  const chatwootConfig = getChatwootConfig();
+  console.log('🔧 useConversations chatwootConfig:', chatwootConfig);
+  
+  const chatService = createChatService(chatwootConfig ? {
+    token: chatwootConfig.token,
+    accountId: chatwootConfig.accountId,
+  } : undefined);
+  console.log('🔧 useConversations chatService:', chatService);
   
   // Convert filters to query format
   const query: ConversationQuery = {
@@ -33,10 +39,18 @@ export const useConversations = (filters: ConversationFilters) => {
   const conversationsQuery = useQuery({
     queryKey: ['conversations', query],
     queryFn: async () => {
+      console.log('🔍 Fetching conversations with query:', query);
       const response = await chatService.listConversations(query);
+      console.log('📥 Chatwoot API response:', response);
+      
       if (response.error) {
+        console.error('❌ Chatwoot API error:', response.error);
         throw new Error(response.error);
       }
+      
+      console.log('✅ Chatwoot conversations data:', response.data);
+      console.log('📊 Number of conversations:', response.data?.data?.payload?.length || 0);
+      
       return response.data!;
     },
     staleTime: 30 * 1000, // 30 seconds
@@ -258,9 +272,18 @@ export const useConversations = (filters: ConversationFilters) => {
     },
   });
 
+  const conversations = conversationsQuery.data?.data?.payload || [];
+  console.log('🔄 useConversations returning:', {
+    conversations: conversations,
+    conversationsCount: conversations.length,
+    isLoading: conversationsQuery.isLoading,
+    error: conversationsQuery.error,
+    rawData: conversationsQuery.data
+  });
+
   return {
     // Data
-    conversations: conversationsQuery.data?.data?.payload || [],
+    conversations: conversations,
     meta: conversationsQuery.data?.data?.meta || null,
     isLoading: conversationsQuery.isLoading,
     error: conversationsQuery.error,
@@ -286,96 +309,17 @@ export const useConversations = (filters: ConversationFilters) => {
 };
 
 export const useConversationsMeta = (filters?: ConversationFilters) => {
-  const useBff = import.meta.env.VITE_USE_BFF === 'true';
-  const chatService = useBff ? new BffChatService() : new MockChatService();
   const { currentAccountId } = useCurrentClient();
-  const { user } = useAuth();
+  const { user, getChatwootConfig } = useAuth();
   
-  // For mock service, calculate meta directly from conversations
-  if (!useBff) {
-    return useQuery({
-      queryKey: ['conversationsMeta', filters, user?.id],
-      queryFn: () => {
-        // Get all conversations
-        let baseConversations = getConversations(15);
-        
-        // Apply all filters EXCEPT assignee_type to get the filtered base
-        if (filters) {
-          // Filter by status
-          if (filters.status !== 'all') {
-            baseConversations = baseConversations.filter(conv => conv.status === filters.status);
-          }
-
-          // Filter by inbox_id  
-          if (filters.inbox_id) {
-            baseConversations = baseConversations.filter(conv => conv.inbox_id === filters.inbox_id);
-          }
-
-          // Filter by team_id
-          if (filters.team_id) {
-            baseConversations = baseConversations.filter(conv => conv.team_id === filters.team_id);
-          }
-
-          // Filter by labels
-          if (filters.labels && filters.labels.length > 0) {
-            baseConversations = baseConversations.filter(conv => 
-              filters.labels.some((filterLabel: string) => 
-                conv.labels.some(convLabel => convLabel.title === filterLabel)
-              )
-            );
-          }
-
-          // Filter by priority
-          if (filters.priority) {
-            baseConversations = baseConversations.filter(conv => conv.priority === filters.priority);
-          }
-
-          // Filter by search query
-          if (filters.q) {
-            const query = filters.q.toLowerCase();
-            baseConversations = baseConversations.filter(conv => 
-              conv.meta.sender.name?.toLowerCase().includes(query) ||
-              conv.meta.sender.email?.toLowerCase().includes(query) ||
-              conv.id.toString().includes(query)
-            );
-          }
-
-          // Filter by updated_within
-          if (filters.updated_within) {
-            const now = Date.now();
-            const withinDays = {
-              '1d': 1,
-              '7d': 7,
-              '30d': 30,
-              '90d': 90
-            }[filters.updated_within];
-            
-            if (withinDays) {
-              const cutoff = now - (withinDays * 24 * 60 * 60 * 1000);
-              baseConversations = baseConversations.filter(conv => conv.last_activity_at >= cutoff);
-            }
-          }
-
-        }
-        
-        // Now calculate counts from the filtered base conversations
-        const mine_count = baseConversations.filter(c => c.meta.assignee?.id === user?.id).length;
-        const unassigned_count = baseConversations.filter(c => !c.meta.assignee).length;
-        const assigned_count = baseConversations.filter(c => c.meta.assignee).length;
-        const all_count = baseConversations.length;
-        
-        return Promise.resolve({
-          mine_count,
-          unassigned_count,  
-          assigned_count,
-          all_count,
-        });
-      },
-      staleTime: 30 * 1000, // 30 seconds
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      refetchInterval: 30 * 1000, // Refresh every 30 seconds
-    });
-  }
+  // Create appropriate chat service based on configuration
+  const chatwootConfig = getChatwootConfig();
+  const chatService = createChatService(chatwootConfig ? {
+    token: chatwootConfig.token,
+    accountId: chatwootConfig.accountId,
+  } : undefined);
+  
+  // Removed mock logic - always use real chat service
   
   // Convert filters to query format - Fix mine filter by handling assignee_type properly
   const query: ConversationQuery | undefined = filters ? {
@@ -405,8 +349,14 @@ export const useConversationsMeta = (filters?: ConversationFilters) => {
 };
 
 export const useConversation = (id: number | null) => {
-  const useBff = import.meta.env.VITE_USE_BFF === 'true';
-  const chatService = useBff ? new BffChatService() : new MockChatService();
+  const { getChatwootConfig } = useAuth();
+  
+  // Create appropriate chat service based on configuration
+  const chatwootConfig = getChatwootConfig();
+  const chatService = createChatService(chatwootConfig ? {
+    token: chatwootConfig.token,
+    accountId: chatwootConfig.accountId,
+  } : undefined);
   
   return useQuery({
     queryKey: ['conversation', id],

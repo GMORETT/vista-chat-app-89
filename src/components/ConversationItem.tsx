@@ -221,10 +221,44 @@ export const ConversationItem = React.memo<ConversationItemProps>(({
 
         {/* Quick preview of last message */}
         <div className="text-xs text-muted-foreground truncate mb-1 leading-relaxed">
-          {hasUnreadMessages 
-            ? "Nova mensagem recebida" 
-            : "Última atividade há " + formattedTime.replace('há ', '')
-          }
+          {(() => {
+            // Try to get the last message content from the conversation object
+            const lastMessage = conversation.last_non_activity_message;
+            
+            if (lastMessage?.content) {
+              // Show actual message content
+              const content = lastMessage.content.trim();
+              const maxLength = 60;
+              const truncated = content.length > maxLength ? content.substring(0, maxLength) + '...' : content;
+              
+              // Add sender indicator
+              const senderPrefix = lastMessage.message_type === 1 ? 'Você: ' : '';
+              
+              return (
+                <span className={hasUnreadMessages ? 'font-medium text-foreground/70' : ''}>
+                  {senderPrefix}{truncated}
+                </span>
+              );
+            } else if (lastMessage?.attachments?.length > 0) {
+              // Show attachment indicator
+              const attachmentText = lastMessage.attachments.length === 1 
+                ? '📎 Arquivo enviado' 
+                : `📎 ${lastMessage.attachments.length} arquivos`;
+              
+              const senderPrefix = lastMessage.message_type === 1 ? 'Você: ' : '';
+              
+              return (
+                <span className={hasUnreadMessages ? 'font-medium text-foreground/70' : ''}>
+                  {senderPrefix}{attachmentText}
+                </span>
+              );
+            } else {
+              // Fallback to generic message
+              return hasUnreadMessages 
+                ? "Nova mensagem recebida" 
+                : "Última atividade há " + formattedTime.replace('há ', '');
+            }
+          })()}
         </div>
 
         {/* Assignee */}
