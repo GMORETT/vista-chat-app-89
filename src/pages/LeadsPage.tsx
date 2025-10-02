@@ -10,6 +10,9 @@ import { format } from 'date-fns';
 import { useCrmDataStore } from '../stores/crmDataStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LeadDetailsModal } from '../components/crm/LeadDetailsModal';
+import { AddLeadModal } from '../components/crm/AddLeadModal';
+import { crmApiService } from '../api/crm';
+import { toast } from 'sonner';
 
 export const LeadsPage: React.FC = () => {
   const { leads, companies, deals, getLeadById, fetchAllData, isLoading } = useCrmDataStore();
@@ -17,6 +20,7 @@ export const LeadsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -56,6 +60,17 @@ export const LeadsPage: React.FC = () => {
     return { companies: relatedCompanies, deals: relatedDeals };
   };
 
+  const handleCreateLead = async (data: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await crmApiService.createLead(data);
+      toast.success('Lead criado com sucesso!');
+      await fetchAllData();
+    } catch (error) {
+      toast.error('Erro ao criar lead');
+      console.error(error);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -64,7 +79,7 @@ export const LeadsPage: React.FC = () => {
           <h1 className="text-2xl font-bold">Leads</h1>
           <p className="text-muted-foreground">Gerencie e acompanhe seus leads</p>
         </div>
-        <Button>
+        <Button onClick={() => setAddModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Lead
         </Button>
@@ -212,6 +227,13 @@ export const LeadsPage: React.FC = () => {
         isOpen={!!selectedLead}
         onClose={() => setSelectedLead(null)}
         lead={selectedLead}
+      />
+
+      {/* Add Lead Modal */}
+      <AddLeadModal 
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSave={handleCreateLead}
       />
     </div>
   );

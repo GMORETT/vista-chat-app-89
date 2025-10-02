@@ -10,6 +10,9 @@ import { format } from 'date-fns';
 import { useCrmDataStore } from '../stores/crmDataStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CompanyDetailsModal } from '../components/crm/CompanyDetailsModal';
+import { AddCompanyModal } from '../components/crm/AddCompanyModal';
+import { crmApiService } from '../api/crm';
+import { toast } from 'sonner';
 
 export const EmpresasPage: React.FC = () => {
   const { companies, deals, getCompanyById, fetchAllData, isLoading } = useCrmDataStore();
@@ -17,6 +20,7 @@ export const EmpresasPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -53,6 +57,17 @@ export const EmpresasPage: React.FC = () => {
     return deals.filter(deal => deal.companyId === companyId);
   };
 
+  const handleCreateCompany = async (data: Omit<Company, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await crmApiService.createCompany(data);
+      toast.success('Empresa criada com sucesso!');
+      await fetchAllData();
+    } catch (error) {
+      toast.error('Erro ao criar empresa');
+      console.error(error);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -61,7 +76,7 @@ export const EmpresasPage: React.FC = () => {
           <h1 className="text-2xl font-bold">Empresas</h1>
           <p className="text-muted-foreground">Gerencie suas empresas clientes</p>
         </div>
-        <Button>
+        <Button onClick={() => setAddModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Nova Empresa
         </Button>
@@ -202,6 +217,13 @@ export const EmpresasPage: React.FC = () => {
         isOpen={!!selectedCompany}
         onClose={() => setSelectedCompany(null)}
         company={selectedCompany}
+      />
+
+      {/* Add Company Modal */}
+      <AddCompanyModal 
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSave={handleCreateCompany}
       />
     </div>
   );

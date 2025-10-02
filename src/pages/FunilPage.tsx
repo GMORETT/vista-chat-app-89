@@ -12,6 +12,7 @@ import { DealStageManager } from '../components/crm/DealStageManager';
 import { DealStageModal } from '../components/crm/DealStageModal';
 import { DealFunnelStage } from '../components/crm/DealFunnelStage';
 import { DealsFilter, DealFilters } from '../components/DealsFilter';
+import { crmApiService } from '../api/crm';
 
 export const FunilPage: React.FC = () => {
   const { 
@@ -119,27 +120,40 @@ export const FunilPage: React.FC = () => {
     setStageModalOpen(true);
   };
 
-  const handleSaveStage = (stageData: Omit<DealStage, 'id'>) => {
-    if (editingStage) {
-      updateDealStage(editingStage.id, stageData);
-      toast.success('Etapa atualizada com sucesso!');
-    } else {
-      const newOrder = Math.max(...dealStages.map(s => s.order), 0) + 1;
-      addDealStage({ ...stageData, order: newOrder });
-      toast.success('Etapa criada com sucesso!');
+  const handleSaveStage = async (stageData: Omit<DealStage, 'id'>) => {
+    try {
+      if (editingStage) {
+        await crmApiService.updateDealStage(editingStage.id, stageData);
+        updateDealStage(editingStage.id, stageData);
+        toast.success('Etapa atualizada com sucesso!');
+      } else {
+        const newOrder = Math.max(...dealStages.map(s => s.order), 0) + 1;
+        const newStage = await crmApiService.createDealStage({ ...stageData, order: newOrder });
+        addDealStage(newStage);
+        toast.success('Etapa criada com sucesso!');
+      }
+      setStageModalOpen(false);
+      setEditingStage(undefined);
+    } catch (error) {
+      toast.error('Erro ao salvar etapa');
+      console.error(error);
     }
-    setStageModalOpen(false);
-    setEditingStage(undefined);
   };
 
-  const handleDeleteStage = (stageId: string) => {
+  const handleDeleteStage = async (stageId: string) => {
     const stageDeals = getDealsByStage(stageId);
     if (stageDeals.length > 0) {
       toast.error('Não é possível excluir uma etapa que possui negócios. Mova os negócios primeiro.');
       return;
     }
-    deleteDealStage(stageId);
-    toast.success('Etapa excluída com sucesso!');
+    try {
+      await crmApiService.deleteDealStage(stageId);
+      deleteDealStage(stageId);
+      toast.success('Etapa excluída com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao excluir etapa');
+      console.error(error);
+    }
   };
 
   const handleDealDrop = (dealId: string, newStageId: string) => {

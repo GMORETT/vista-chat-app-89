@@ -21,9 +21,19 @@ export const crmApiService = {
     return response.data.payload;
   },
 
+  createLead: async (leadData: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>): Promise<Lead> => {
+    const response = await crmApi.post<ApiResponse<Lead>>(`/${CLIENT_ID}/leads`, leadData);
+    return response.data.payload;
+  },
+
   // Companies
   getCompanies: async (): Promise<Company[]> => {
     const response = await crmApi.get<ApiResponse<Company[]>>(`/${CLIENT_ID}/companies`);
+    return response.data.payload;
+  },
+
+  createCompany: async (companyData: Omit<Company, 'id' | 'createdAt' | 'updatedAt'>): Promise<Company> => {
+    const response = await crmApi.post<ApiResponse<Company>>(`/${CLIENT_ID}/companies`, companyData);
     return response.data.payload;
   },
 
@@ -37,6 +47,20 @@ export const crmApiService = {
   getDealStages: async (): Promise<DealStage[]> => {
     const response = await crmApi.get<ApiResponse<DealStage[]>>(`/${CLIENT_ID}/deal-stages`);
     return response.data.payload;
+  },
+
+  createDealStage: async (stageData: Omit<DealStage, 'id'>): Promise<DealStage> => {
+    const response = await crmApi.post<ApiResponse<DealStage>>(`/${CLIENT_ID}/deal-stages`, stageData);
+    return response.data.payload;
+  },
+
+  updateDealStage: async (stageId: string, stageData: Partial<DealStage>): Promise<DealStage> => {
+    const response = await crmApi.put<ApiResponse<DealStage>>(`/${CLIENT_ID}/deal-stages/${stageId}`, stageData);
+    return response.data.payload;
+  },
+
+  deleteDealStage: async (stageId: string): Promise<void> => {
+    await crmApi.delete(`/${CLIENT_ID}/deal-stages/${stageId}`);
   },
 
   // Events (último snapshot por lead)
