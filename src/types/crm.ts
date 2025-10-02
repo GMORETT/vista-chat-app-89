@@ -35,8 +35,8 @@ export interface CRMState {
   moveContact: (contactId: string, newStageId: string) => void;
 }
 
-// New CRM entities
-export interface Person {
+// Simplified CRM entities
+export interface Lead {
   id: string;
   name: string;
   email: string;
@@ -46,67 +46,26 @@ export interface Person {
   updatedAt: string;
 }
 
-export interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  source: string;
-  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost';
-  assignedTo?: Person;
-  createdAt: string;
-  updatedAt: string;
-  notes?: string;
-  tags?: string[];
-}
-
 export interface Company {
   id: string;
   name: string;
-  industry?: string;
-  size?: 'small' | 'medium' | 'large' | 'enterprise';
   website?: string;
-  phone?: string;
-  address?: string;
-  assignedPersons: Person[]; // Pode ter várias pessoas
-  leadId: string; // Obrigatório ter um lead associado
-  lead: Lead;
+  leadId: string;
   createdAt: string;
   updatedAt: string;
-  notes?: string;
 }
 
 export interface Deal {
   id: string;
   title: string;
-  value: number;
-  currency: string;
-  stage: string; // Mudança para string para permitir etapas customizadas
-  probability: number; // 0-100
-  expectedCloseDate?: string;
-  assignedPerson: Person; // Apenas uma pessoa por negócio
-  leadId: string; // Obrigatório ter um lead associado
-  lead: Lead;
-  companyId?: string; // Opcional
-  company?: Company;
+  annualRevenue: number;
+  stage: string;
+  leadId: string;
+  companyId?: string;
   createdAt: string;
   updatedAt: string;
-  notes?: string;
-  activities?: DealActivity[];
 }
 
-export interface DealActivity {
-  id: string;
-  dealId: string;
-  type: 'call' | 'email' | 'meeting' | 'note' | 'task';
-  subject: string;
-  description?: string;
-  completed: boolean;
-  dueDate?: string;
-  completedDate?: string;
-  createdBy: Person;
-  createdAt: string;
-}
 
 export interface CrmFilters {
   status?: string[];
