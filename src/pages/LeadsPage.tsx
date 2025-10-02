@@ -12,11 +12,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LeadDetailsModal } from '../components/crm/LeadDetailsModal';
 
 export const LeadsPage: React.FC = () => {
-  const { leads, companies, deals, getLeadById } = useCrmDataStore();
+  const { leads, companies, deals, getLeadById, fetchAllData, isLoading } = useCrmDataStore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
 
   // Check for highlight parameter and open modal
   useEffect(() => {

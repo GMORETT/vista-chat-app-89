@@ -24,8 +24,14 @@ export const FunilPage: React.FC = () => {
     addDealStage, 
     updateDealStage, 
     deleteDealStage, 
-    reorderDealStages 
+    reorderDealStages,
+    fetchAllData,
+    isLoading
   } = useCrmDataStore();
+
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);

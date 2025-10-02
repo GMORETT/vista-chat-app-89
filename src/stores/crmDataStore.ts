@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Lead, Company, Deal } from '../types/crm';
+import { crmApiService } from '../api/crm';
 
 // Adicionar interface para Stage dos Deals
 export interface DealStage {
@@ -17,7 +18,11 @@ interface CrmDataState {
   deals: Deal[];
   dealStages: DealStage[];
   
+  // Loading states
+  isLoading: boolean;
+  
   // Actions
+  fetchAllData: () => Promise<void>;
   setLeads: (leads: Lead[]) => void;
   setCompanies: (companies: Company[]) => void;
   setDeals: (deals: Deal[]) => void;
@@ -161,10 +166,29 @@ const mockDealStages: DealStage[] = [
 
 export const useCrmDataStore = create<CrmDataState>((set, get) => ({
   // Initial data
-  leads: mockLeads,
-  companies: mockCompanies,
-  deals: mockDeals,
-  dealStages: mockDealStages,
+  leads: [],
+  companies: [],
+  deals: [],
+  dealStages: [],
+  isLoading: false,
+  
+  // Fetch all data from API
+  fetchAllData: async () => {
+    set({ isLoading: true });
+    try {
+      const [leads, companies, deals, dealStages] = await Promise.all([
+        crmApiService.getLeads(),
+        crmApiService.getCompanies(),
+        crmApiService.getDeals(),
+        crmApiService.getDealStages(),
+      ]);
+      
+      set({ leads, companies, deals, dealStages, isLoading: false });
+    } catch (error) {
+      console.error('Error fetching CRM data:', error);
+      set({ isLoading: false });
+    }
+  },
   
   // Actions
   setLeads: (leads) => set({ leads }),
