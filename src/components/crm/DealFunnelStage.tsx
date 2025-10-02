@@ -52,10 +52,7 @@ export const DealFunnelStage: React.FC<DealFunnelStageProps> = ({
     }).format(value);
   };
 
-  const totalValue = deals.reduce((sum, deal) => sum + deal.value, 0);
-  const avgProbability = deals.length > 0 
-    ? Math.round(deals.reduce((sum, deal) => sum + deal.probability, 0) / deals.length) 
-    : 0;
+  const totalRevenue = deals.reduce((sum, deal) => sum + deal.annualRevenue, 0);
 
   return (
     <Card className="w-80 flex-shrink-0 shadow-sm border-l-4" style={{ borderLeftColor: stage.color }}>
@@ -97,10 +94,7 @@ export const DealFunnelStage: React.FC<DealFunnelStageProps> = ({
         {deals.length > 0 && (
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">
-              {formatCurrency(totalValue)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Probabilidade média: {avgProbability}%
+              {formatCurrency(totalRevenue)}
             </p>
           </div>
         )}

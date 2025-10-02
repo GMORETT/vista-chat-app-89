@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Deal, Lead, Company } from '../types/crm';
 import { Button } from '../components/ui/button';
-import { BarChart3, ExternalLink, User, Building2, TrendingUp, Calendar, DollarSign, Plus } from 'lucide-react';
+import { ExternalLink, User, Building2, TrendingUp, DollarSign, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { format } from 'date-fns';
@@ -78,23 +78,10 @@ export const FunilPage: React.FC = () => {
       }
 
       // Value range filter
-      if (filters.minValue && deal.value < Number(filters.minValue)) {
+      if (filters.minValue && deal.annualRevenue < Number(filters.minValue)) {
         return false;
       }
-      if (filters.maxValue && deal.value > Number(filters.maxValue)) {
-        return false;
-      }
-
-      // Probability range filter
-      if (filters.minProbability && deal.probability < Number(filters.minProbability)) {
-        return false;
-      }
-      if (filters.maxProbability && deal.probability > Number(filters.maxProbability)) {
-        return false;
-      }
-
-      // Assigned person filter
-      if (filters.assignedPerson && filters.assignedPerson !== 'all' && deal.assignedPerson.name !== filters.assignedPerson) {
+      if (filters.maxValue && deal.annualRevenue > Number(filters.maxValue)) {
         return false;
       }
 
@@ -170,76 +157,7 @@ export const FunilPage: React.FC = () => {
   };
 
   const totalDeals = filteredDeals.length;
-  const totalValue = filteredDeals.reduce((sum, deal) => sum + deal.value, 0);
-
-  const DealCard: React.FC<{ deal: Deal }> = ({ deal }) => {
-    const lead = getLeadById(deal.leadId);
-    const company = deal.companyId ? getCompanyById(deal.companyId) : null;
-
-    return (
-      <Card className="mb-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedDeal(deal)}>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h4 className="font-semibold text-sm">{deal.title}</h4>
-                <p className="text-xs text-muted-foreground mt-1">{formatCurrency(deal.value)}</p>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                {deal.probability}%
-              </Badge>
-            </div>
-
-            {/* Lead Info */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <User className="h-3 w-3 text-muted-foreground" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-0 text-xs text-primary hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate('/leads');
-                  }}
-                >
-                  {lead?.name || 'Lead não encontrado'}
-                </Button>
-              </div>
-              {company && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-0 text-xs text-primary hover:underline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate('/empresas');
-                  }}
-                >
-                  <Building2 className="h-3 w-3 mr-1" />
-                  {company.name}
-                </Button>
-              )}
-            </div>
-
-            {/* Assigned Person */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>Responsável: {deal.assignedPerson.name}</span>
-              </div>
-              {deal.expectedCloseDate && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  {format(new Date(deal.expectedCloseDate), 'dd/MM')}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+  const totalRevenue = filteredDeals.reduce((sum, deal) => sum + deal.annualRevenue, 0);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -274,7 +192,7 @@ export const FunilPage: React.FC = () => {
                     <DollarSign className="h-4 w-4 text-green-600" />
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-sm font-semibold text-foreground">{formatCurrency(totalValue)}</span>
+                    <span className="text-sm font-semibold text-foreground">{formatCurrency(totalRevenue)}</span>
                     <span className="text-xs text-muted-foreground">total</span>
                   </div>
                 </div>
@@ -362,17 +280,11 @@ export const FunilPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Valor</label>
-                  <p className="text-lg font-semibold text-green-600">
-                    {formatCurrency(selectedDeal.value)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Probabilidade</label>
-                  <p className="text-lg">{selectedDeal.probability}%</p>
-                </div>
+              <div>
+                <label className="text-sm font-medium">Faturamento Anual</label>
+                <p className="text-lg font-semibold text-green-600">
+                  {formatCurrency(selectedDeal.annualRevenue)}
+                </p>
               </div>
 
               <div>
@@ -410,25 +322,6 @@ export const FunilPage: React.FC = () => {
                       <ExternalLink className="h-4 w-4 ml-2" />
                     </Button>
                   </div>
-                </div>
-              )}
-
-              <div>
-                <label className="text-sm font-medium">Responsável pelo Negócio</label>
-                <p>{selectedDeal.assignedPerson.name}</p>
-              </div>
-
-              {selectedDeal.expectedCloseDate && (
-                <div>
-                  <label className="text-sm font-medium">Data Prevista de Fechamento</label>
-                  <p>{format(new Date(selectedDeal.expectedCloseDate), 'dd/MM/yyyy')}</p>
-                </div>
-              )}
-
-              {selectedDeal.notes && (
-                <div>
-                  <label className="text-sm font-medium">Observações</label>
-                  <p className="text-muted-foreground">{selectedDeal.notes}</p>
                 </div>
               )}
             </CardContent>

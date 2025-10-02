@@ -2,45 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
-import { Search, Plus, Filter, User, Mail, Phone, Calendar, Target, Star, ExternalLink } from 'lucide-react';
-import { Lead, Person } from '../types/crm';
+import { Search, Plus, User, Mail, Phone, Calendar, Target, Star, ExternalLink } from 'lucide-react';
+import { Lead } from '../types/crm';
 import { format } from 'date-fns';
 import { useCrmDataStore } from '../stores/crmDataStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LeadDetailsModal } from '../components/crm/LeadDetailsModal';
-
-const getStatusColor = (status: Lead['status']) => {
-  const colors = {
-    new: 'bg-blue-100 text-blue-800',
-    contacted: 'bg-yellow-100 text-yellow-800',
-    qualified: 'bg-green-100 text-green-800',
-    converted: 'bg-purple-100 text-purple-800',
-    lost: 'bg-red-100 text-red-800'
-  };
-  return colors[status];
-};
-
-const getStatusLabel = (status: Lead['status']) => {
-  const labels = {
-    new: 'Novo',
-    contacted: 'Contatado',
-    qualified: 'Qualificado',
-    converted: 'Convertido',
-    lost: 'Perdido'
-  };
-  return labels[status];
-};
 
 export const LeadsPage: React.FC = () => {
   const { leads, companies, deals, getLeadById } = useCrmDataStore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [sourceFilter, setSourceFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   // Check for highlight parameter and open modal
@@ -63,17 +38,12 @@ export const LeadsPage: React.FC = () => {
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          lead.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-    const matchesSource = sourceFilter === 'all' || lead.source === sourceFilter;
     
-    return matchesSearch && matchesStatus && matchesSource;
+    return matchesSearch;
   });
 
   const stats = {
-    total: leads.length,
-    new: leads.filter(l => l.status === 'new').length,
-    qualified: leads.filter(l => l.status === 'qualified').length,
-    converted: leads.filter(l => l.status === 'converted').length
+    total: leads.length
   };
 
   const getRelatedInfo = (leadId: string) => {
@@ -97,50 +67,14 @@ export const LeadsPage: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <Target className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-sm text-muted-foreground">Total de Leads</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Star className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Novos</p>
-                <p className="text-2xl font-bold">{stats.new}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Qualificados</p>
-                <p className="text-2xl font-bold">{stats.qualified}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="h-5 w-5 text-purple-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Convertidos</p>
-                <p className="text-2xl font-bold">{stats.converted}</p>
               </div>
             </div>
           </CardContent>
@@ -160,33 +94,6 @@ export const LeadsPage: React.FC = () => {
                 className="pl-10"
               />
             </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="new">Novo</SelectItem>
-                <SelectItem value="contacted">Contatado</SelectItem>
-                <SelectItem value="qualified">Qualificado</SelectItem>
-                <SelectItem value="converted">Convertido</SelectItem>
-                <SelectItem value="lost">Perdido</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Fonte" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as fontes</SelectItem>
-                <SelectItem value="Website">Website</SelectItem>
-                <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                <SelectItem value="Referência">Referência</SelectItem>
-                <SelectItem value="Telefone">Telefone</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
@@ -203,9 +110,7 @@ export const LeadsPage: React.FC = () => {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Contato</TableHead>
-                <TableHead>Fonte</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Responsável</TableHead>
+                <TableHead>Função</TableHead>
                 <TableHead>Criado em</TableHead>
                 <TableHead>Relacionamentos</TableHead>
                 <TableHead>Ações</TableHead>
@@ -215,23 +120,7 @@ export const LeadsPage: React.FC = () => {
               {filteredLeads.map((lead) => (
                 <TableRow key={lead.id}>
                   <TableCell className="font-medium">
-                    <div>
-                      <p>{lead.name}</p>
-                      {lead.tags && lead.tags.length > 0 && (
-                        <div className="flex gap-1 mt-1">
-                          {lead.tags.slice(0, 2).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {lead.tags.length > 2 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{lead.tags.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <p>{lead.name}</p>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
@@ -248,21 +137,10 @@ export const LeadsPage: React.FC = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{lead.source}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(lead.status)}>
-                      {getStatusLabel(lead.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {lead.assignedTo ? (
-                      <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1 text-muted-foreground" />
-                        <span className="text-sm">{lead.assignedTo.name}</span>
-                      </div>
+                    {lead.role ? (
+                      <span className="text-sm">{lead.role}</span>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Não atribuído</span>
+                      <span className="text-sm text-muted-foreground">Não especificado</span>
                     )}
                   </TableCell>
                   <TableCell>

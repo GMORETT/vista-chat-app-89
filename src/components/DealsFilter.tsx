@@ -48,10 +48,7 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const { leads, companies, deals } = useCrmDataStore();
 
-  // Get unique assigned persons from deals
-  const uniqueAssignedPersons = Array.from(
-    new Set(deals.map(deal => deal.assignedPerson.name))
-  ).sort();
+  // No assigned persons - removed from simplified structure
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
     if (key === 'assignedPerson' || key === 'leadId' || key === 'companyId') {
@@ -279,26 +276,6 @@ export const DealsFilter: React.FC<DealsFilterProps> = ({
               </div>
             </div>
 
-            {/* Assigned Person */}
-            <div className="space-y-2">
-              <Label>Responsável</Label>
-              <Select
-                value={filters.assignedPerson}
-                onValueChange={(value) => handleFilterChange('assignedPerson', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos os responsáveis" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os responsáveis</SelectItem>
-                  {uniqueAssignedPersons.map((person) => (
-                    <SelectItem key={person} value={person}>
-                      {person}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             {/* Lead */}
             <div className="space-y-2">
