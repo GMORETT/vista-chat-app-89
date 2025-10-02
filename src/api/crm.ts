@@ -48,6 +48,11 @@ export const crmApiService = {
     return response.data.payload;
   },
 
+  updateDeal: async (dealId: string, dealData: Partial<Deal>): Promise<Deal> => {
+    const response = await crmApi.put<ApiResponse<Deal>>(`/${CLIENT_ID}/deals/${dealId}`, dealData);
+    return response.data.payload;
+  },
+
   // Deal Stages
   getDealStages: async (): Promise<DealStage[]> => {
     const response = await crmApi.get<ApiResponse<DealStage[]>>(`/${CLIENT_ID}/deal-stages`);

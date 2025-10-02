@@ -158,11 +158,17 @@ export const FunilPage: React.FC = () => {
     }
   };
 
-  const handleDealDrop = (dealId: string, newStageId: string) => {
+  const handleDealDrop = async (dealId: string, newStageId: string) => {
     const deal = deals.find(d => d.id === dealId);
     if (deal && deal.stage !== newStageId) {
-      moveDeal(dealId, newStageId);
-      toast.success('Negócio movido com sucesso!');
+      try {
+        await crmApiService.updateDeal(dealId, { stage: newStageId });
+        moveDeal(dealId, newStageId);
+        toast.success('Negócio movido com sucesso!');
+      } catch (error) {
+        toast.error('Erro ao mover negócio');
+        console.error(error);
+      }
     }
   };
 
