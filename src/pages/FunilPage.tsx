@@ -13,6 +13,7 @@ import { DealStageModal } from '../components/crm/DealStageModal';
 import { DealFunnelStage } from '../components/crm/DealFunnelStage';
 import { DealsFilter, DealFilters } from '../components/DealsFilter';
 import { crmApiService } from '../api/crm';
+import { AddDealModal } from '../components/crm/AddDealModal';
 
 export const FunilPage: React.FC = () => {
   const { 
@@ -38,6 +39,7 @@ export const FunilPage: React.FC = () => {
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [stageModalOpen, setStageModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<DealStage | undefined>();
+  const [addDealModalOpen, setAddDealModalOpen] = useState(false);
   const [filters, setFilters] = useState<DealFilters>({
     search: '',
     minValue: '',
@@ -164,6 +166,17 @@ export const FunilPage: React.FC = () => {
     }
   };
 
+  const handleCreateDeal = async (data: Omit<Deal, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      await crmApiService.createDeal(data);
+      toast.success('Negócio criado com sucesso!');
+      await fetchAllData();
+    } catch (error) {
+      toast.error('Erro ao criar negócio');
+      console.error(error);
+    }
+  };
+
   // Sort stages by order
   const sortedStages = [...dealStages].sort((a, b) => a.order - b.order);
 
@@ -193,6 +206,11 @@ export const FunilPage: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              <Button onClick={() => setAddDealModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Negócio
+              </Button>
+
               {/* Stats Cards */}
               <Card className="px-3 py-2 shadow-sm">
                 <div className="flex items-center gap-2">
@@ -281,6 +299,12 @@ export const FunilPage: React.FC = () => {
         }}
         onSave={handleSaveStage}
         stage={editingStage}
+      />
+
+      <AddDealModal 
+        isOpen={addDealModalOpen}
+        onClose={() => setAddDealModalOpen(false)}
+        onSave={handleCreateDeal}
       />
 
       {/* Deal Details Modal */}
